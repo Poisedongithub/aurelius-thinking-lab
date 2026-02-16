@@ -14,8 +14,15 @@ app.use(express.json());
 
 // ── Supabase Auth (for verifying user tokens) ──
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://szfsulbbbhhuviewjlbf.supabase.co";
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SB_SERVICE_KEY;
-const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || process.env.SB_SERVICE_KEY || 'dummy-key';
+let supabaseAdmin;
+try {
+  supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+  console.log('Supabase client initialized');
+} catch (e) {
+  console.warn('Supabase client failed to init:', e.message);
+  supabaseAdmin = null;
+}
 
 // ── SQLite Database ──
 const DB_PATH = path.join(__dirname, "data", "app.db");
