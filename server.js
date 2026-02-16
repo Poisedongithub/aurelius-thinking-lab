@@ -13,8 +13,8 @@ app.use(cors());
 app.use(express.json());
 
 // ── Supabase Auth (for verifying user tokens) ──
-const SUPABASE_URL = "https://szfsulbbbhhuviewjlbf.supabase.co";
-const SUPABASE_SERVICE_KEY = "PLACEHOLDER_KEY";
+const SUPABASE_URL = process.env.SUPABASE_URL || "https://szfsulbbbhhuviewjlbf.supabase.co";
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SB_SERVICE_KEY;
 const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
 // ── SQLite Database ──
@@ -112,7 +112,7 @@ async function getUser(req) {
 }
 
 // ── RapidAPI DeepSeek All-In-One Config ──
-const RAPIDAPI_KEY = "abdf28565cmshe6fdb14c77cc9ffp1b49bfjsnb1f43db59e49";
+const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY || process.env.RAPID_API_KEY;
 const RAPIDAPI_HOST = "deepseek-all-in-one.p.rapidapi.com";
 const RAPIDAPI_CHAT_URL = `https://${RAPIDAPI_HOST}/chat`;
 
