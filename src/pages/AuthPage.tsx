@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { apiPost } from "@/lib/api";
-// Removed image import - using gradient background instead
+import { useTheme } from "@/hooks/useTheme";
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -14,6 +14,7 @@ const AuthPage = () => {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
+  const { glowColor } = useTheme();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +47,7 @@ const AuthPage = () => {
 
   return (
     <div className="phone-container min-h-screen flex flex-col items-center justify-center bg-background relative overflow-hidden px-7">
-      <div className="absolute inset-0 opacity-30" style={{ background: "radial-gradient(ellipse at center top, hsl(340 70% 75%) 0%, transparent 70%)", maskImage: "radial-gradient(ellipse at center top, black 20%, transparent 70%)", WebkitMaskImage: "radial-gradient(ellipse at center top, black 20%, transparent 70%)" }} />
+      <div className="absolute inset-0 opacity-30" style={{ background: `radial-gradient(ellipse at center top, ${glowColor} 0%, transparent 70%)`, maskImage: "radial-gradient(ellipse at center top, black 20%, transparent 70%)", WebkitMaskImage: "radial-gradient(ellipse at center top, black 20%, transparent 70%)" }} />
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/40 pointer-events-none" />
       <motion.div className="relative z-10 w-full max-w-sm" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
         <h1 className="font-serif text-[36px] text-foreground text-center mb-1">Aurelius</h1>

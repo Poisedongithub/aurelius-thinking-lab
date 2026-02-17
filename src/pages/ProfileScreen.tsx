@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { TabBar } from "@/components/TabBar";
 import { useNavigate } from "react-router-dom";
 import { LogOut, Zap, Flame, Trophy } from "lucide-react";
+import { ThemeSelector } from "@/components/ThemeSelector";
 import { useGamification } from "@/hooks/useGamification";
 import { getAchievementById } from "@/lib/gamification";
 import { apiGet } from "@/lib/api";
@@ -154,6 +155,10 @@ const ProfileScreen = () => {
             </div>
           </motion.div>
         )}
+
+        <motion.div className="glass-card rounded-2xl p-5" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+          <ThemeSelector />
+        </motion.div>
 
         {unlockedIds.length > 0 && (
           <motion.div className="glass-card rounded-2xl p-5" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
