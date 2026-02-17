@@ -89,13 +89,13 @@ const ProfileScreen = () => {
             <div className="flex justify-between mt-1"><span className="text-[9px] text-foreground/20">{levelInfo.totalXp} XP</span><span className="text-[9px] text-foreground/20">{levelInfo.nextLevel.xp} XP</span></div>
           </div>
         )}
-        </div>
         <div className="flex justify-center gap-6 mt-5">
           <div className="text-center"><div className="flex items-center justify-center gap-1"><Flame className="w-4 h-4 text-foreground/60" /><span className="font-serif text-[28px] text-foreground">{streak.current_streak}</span></div><div className="text-[10px] text-foreground/35 uppercase tracking-[0.12em] mt-0.5">Streak</div></div>
           <div className="text-center"><div className="font-serif text-[28px] text-foreground">{stats.totalSpars}</div><div className="text-[10px] text-foreground/35 uppercase tracking-[0.12em] mt-0.5">Spars</div></div>
           <div className="text-center"><div className="flex items-center justify-center gap-1"><Zap className="w-4 h-4 text-foreground/60" /><span className="font-serif text-[28px] text-foreground">{stats.totalPoints}</span></div><div className="text-[10px] text-foreground/35 uppercase tracking-[0.12em] mt-0.5">Points</div></div>
           <div className="text-center"><div className="font-serif text-[28px] text-foreground">{morality?.total_answered || 0}</div><div className="text-[10px] text-foreground/35 uppercase tracking-[0.12em] mt-0.5">Dilemmas</div></div>
         </div>
+      </div>
 
       <div className="flex-1 px-7 py-6 flex flex-col gap-4 overflow-y-auto">
         {morality ? (

@@ -5,6 +5,7 @@ export interface Arena {
   difficulty: string;
   challenge: string;
   passScore: number;
+  maxScore: number;
   rounds: number;
   tier: number;
   tierName: string;
@@ -25,6 +26,7 @@ export function getAllArenas(topicId: string): Arena[] {
     const roundsRequired = Math.min(3 + Math.floor(i / 20), 5); // 3-5 rounds
     const passScore = 50 + (i * 2); // Increases with level
     
+    const maxScore = roundsRequired * 25; // 25 points max per round
     arenas.push({
       level: i,
       name: `${tierName} Challenge ${((i - 1) % 10) + 1}`,
@@ -32,6 +34,7 @@ export function getAllArenas(topicId: string): Arena[] {
       difficulty: tierName,
       challenge: `Defend your position on ${topicId} with logical reasoning and evidence`,
       passScore,
+      maxScore,
       rounds: roundsRequired,
       tier,
       tierName
