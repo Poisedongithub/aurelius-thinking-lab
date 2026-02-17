@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { TabBar } from "@/components/TabBar";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Zap, Flame, Trophy } from "lucide-react";
+import { LogOut, Zap, Flame, Trophy, Lock, Eye, EyeOff } from "lucide-react";
 import { ThemeSelector } from "@/components/ThemeSelector";
 import { useGamification } from "@/hooks/useGamification";
+import { useToast } from "@/components/ui/use-toast";
 import { getAchievementById } from "@/lib/gamification";
 import { apiGet } from "@/lib/api";
 
@@ -29,8 +30,15 @@ const getRank = (levelInfo: { title: string }) => levelInfo.title;
 
 const ProfileScreen = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { streak, levelInfo, unlockedIds, loading: gamLoading } = useGamification();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
   const [morality, setMorality] = useState<MoralityProfile | null>(null);
   const [stats, setStats] = useState<Stats>({ totalSpars: 0, totalPoints: 0, mostSparred: null, strengths: { logic: 0, rhetoric: 0, strategy: 0, ethics: 0, creativity: 0 } });
 
@@ -158,6 +166,85 @@ const ProfileScreen = () => {
 
         <motion.div className="glass-card rounded-2xl p-5" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
           <ThemeSelector />
+        </motion.div>
+
+        <motion.div className="glass-card rounded-2xl p-5" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}>
+          <button onClick={() => setShowChangePassword(!showChangePassword)} className="flex items-center gap-2 w-full">
+            <Lock className="w-4 h-4 text-foreground/50" />
+            <h4 className="font-serif text-base text-foreground/70">Change Password</h4>
+            <span className="text-[10px] text-foreground/25 ml-auto">{showChangePassword ? "Close" : "Open"}</span>
+          </button>
+          <AnimatePresence>
+            {showChangePassword && (
+              <motion.form
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="overflow-hidden"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (newPassword.length < 6) {
+                    toast({ title: "Error", description: "Password must be at least 6 characters.", variant: "destructive" });
+                    return;
+                  }
+                  if (newPassword !== confirmPassword) {
+                    toast({ title: "Error", description: "Passwords do not match.", variant: "destructive" });
+                    return;
+                  }
+                  setChangingPassword(true);
+                  const { error } = await supabase.auth.updateUser({ password: newPassword });
+                  if (error) {
+                    toast({ title: "Error", description: error.message, variant: "destructive" });
+                  } else {
+                    toast({ title: "Password updated", description: "Your password has been changed successfully." });
+                    setNewPassword("");
+                    setConfirmPassword("");
+                    setShowChangePassword(false);
+                  }
+                  setChangingPassword(false);
+                }}
+              >
+                <div className="mt-4 flex flex-col gap-3">
+                  <div className="relative">
+                    <input
+                      type={showNewPw ? "text" : "password"}
+                      placeholder="New password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                      minLength={6}
+                      className="w-full rounded-xl px-4 py-3 pr-10 text-sm text-foreground placeholder:text-foreground/25 font-light outline-none border border-border/30 bg-background/50 focus:border-foreground/30 transition-colors"
+                    />
+                    <button type="button" onClick={() => setShowNewPw(!showNewPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/30 hover:text-foreground/50">
+                      {showNewPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type={showConfirmPw ? "text" : "password"}
+                      placeholder="Confirm new password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      minLength={6}
+                      className="w-full rounded-xl px-4 py-3 pr-10 text-sm text-foreground placeholder:text-foreground/25 font-light outline-none border border-border/30 bg-background/50 focus:border-foreground/30 transition-colors"
+                    />
+                    <button type="button" onClick={() => setShowConfirmPw(!showConfirmPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/30 hover:text-foreground/50">
+                      {showConfirmPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={changingPassword}
+                    className="w-full bg-primary text-primary-foreground rounded-xl py-2.5 text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+                  >
+                    {changingPassword ? "Updating..." : "Update Password"}
+                  </button>
+                </div>
+              </motion.form>
+            )}
+          </AnimatePresence>
         </motion.div>
 
         {unlockedIds.length > 0 && (

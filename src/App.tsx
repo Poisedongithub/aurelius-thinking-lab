@@ -16,6 +16,7 @@ import LibraryScreen from "./pages/LibraryScreen";
 import DilemmaQuiz from "./pages/DilemmaQuiz";
 import DilemmaResults from "./pages/DilemmaResults";
 import ClassicDilemma from "./pages/ClassicDilemma";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ const App = () => (
             <Route path="/dilemma" element={<DilemmaQuiz />} />
             <Route path="/dilemma/results" element={<DilemmaResults />} />
             <Route path="/dilemma/:dilemmaId" element={<ClassicDilemma />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
