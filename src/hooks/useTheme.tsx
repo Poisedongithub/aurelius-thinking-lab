@@ -14,7 +14,7 @@ export const themes: ThemeOption[] = [
     id: "cherry-blossom",
     name: "Cherry Blossom",
     description: "Black & pink",
-    preview: { bg: "#0a0a0a", accent: "#d64d7a", text: "#e8a8be" },
+    preview: { bg: "#080808", accent: "#d64d7a", text: "#111111" },
   },
   {
     id: "original",
@@ -26,7 +26,7 @@ export const themes: ThemeOption[] = [
     id: "ocean",
     name: "Ocean",
     description: "Bondi blue & sand",
-    preview: { bg: "#0a1e26", accent: "#2db5a3", text: "#e6d8c3" },
+    preview: { bg: "#0b1e26", accent: "#c2956b", text: "#f2f2f2" },
   },
 ];
 
@@ -39,13 +39,13 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType>({
   theme: "cherry-blossom",
   setTheme: () => {},
-  glowColor: "hsl(340 75% 55%)",
+  glowColor: "hsl(340 65% 70%)",
 });
 
 const glowColors: Record<ThemeId, string> = {
-  "cherry-blossom": "hsl(340 70% 75%)",
+  "cherry-blossom": "hsl(340 65% 70%)",
   "original": "hsl(0 0% 70%)",
-  "ocean": "hsl(185 55% 60%)",
+  "ocean": "hsl(185 50% 55%)",
 };
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
