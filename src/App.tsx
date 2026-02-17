@@ -14,6 +14,7 @@ import ProfileScreen from "./pages/ProfileScreen";
 import LibraryScreen from "./pages/LibraryScreen";
 import DilemmaQuiz from "./pages/DilemmaQuiz";
 import DilemmaResults from "./pages/DilemmaResults";
+import ClassicDilemma from "./pages/ClassicDilemma";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/profile" element={<ProfileScreen />} />
           <Route path="/dilemma" element={<DilemmaQuiz />} />
           <Route path="/dilemma/results" element={<DilemmaResults />} />
+          <Route path="/dilemma/:dilemmaId" element={<ClassicDilemma />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

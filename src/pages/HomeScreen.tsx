@@ -8,10 +8,10 @@ import { Flame } from "lucide-react";
 // Removed image imports - using gradients and placeholders instead
 
 const dilemmas = [
-  { title: "The Trolley Problem", desc: "Would you sacrifice one to save five?", topic: "justice" },
-  { title: "Ship of Theseus", desc: "If every part is replaced, is it still the same?", topic: "death" },
-  { title: "Plato's Cave", desc: "Are you watching shadows or seeing truth?", topic: "freedom" },
-  { title: "Veil of Ignorance", desc: "What is fair if you don't know your place?", topic: "justice" },
+  { title: "The Trolley Problem", desc: "Would you sacrifice one to save five?", path: "/dilemma/trolley-problem" },
+  { title: "Ship of Theseus", desc: "If every part is replaced, is it still the same?", path: "/dilemma/ship-of-theseus" },
+  { title: "Plato's Cave", desc: "Are you watching shadows or seeing truth?", path: "/dilemma/platos-cave" },
+  { title: "Veil of Ignorance", desc: "What is fair if you don't know your place?", path: "/dilemma/veil-of-ignorance" },
 ];
 
 const HomeScreen = () => {
@@ -97,7 +97,7 @@ const HomeScreen = () => {
           </motion.button>
           <div className="flex gap-4 overflow-x-auto pb-4 -mx-7 px-7 snap-x snap-mandatory scrollbar-hide" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
             {dilemmas.map((d, i) => (
-              <motion.button key={d.title} onClick={() => navigate("/dilemma")} className="shrink-0 w-[220px] snap-start group"
+              <motion.button key={d.title} onClick={() => navigate(d.path)} className="shrink-0 w-[220px] snap-start group"
                 initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.7 + i * 0.1 }}>
                 <div className="relative w-full h-[280px] rounded-2xl overflow-hidden mb-3">
                   <div className="w-full h-full bg-gradient-to-br from-muted to-background transition-transform duration-500 group-hover:scale-105" />
