@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { philosophers } from "@/lib/philosophers";
 import { XP_LEVELS } from "@/lib/gamification";
-import { supabase } from "@/integrations/supabase/client";
+import { apiGet } from "@/lib/api";
 import { useGamification } from "@/hooks/useGamification";
 import { TabBar } from "@/components/TabBar";
 import { ArrowLeft, Zap, Lock } from "lucide-react";
@@ -23,17 +23,18 @@ const ChooseOpponent = () => {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: sessions } = await supabase.from("sparring_sessions").select("opponent, score").eq("user_id", user.id);
-      if (sessions) {
+      try {
+        const res = await apiGet("sparring_sessions");
+        const sessions = res.data || [];
         const scores: Record<string, { points: number; spars: number }> = {};
-        sessions.forEach((s) => {
+        sessions.forEach((s: any) => {
           if (!scores[s.opponent]) scores[s.opponent] = { points: 0, spars: 0 };
           scores[s.opponent].points += s.score || 0;
           scores[s.opponent].spars += 1;
         });
         setPhilosopherScores(scores);
+      } catch (e) {
+        console.error("Failed to load sparring sessions:", e);
       }
     };
     load();

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { philosophers, topics } from "@/lib/philosophers";
 import { getAllArenas, tierNames, type Arena } from "@/lib/arenas";
-import { supabase } from "@/integrations/supabase/client";
+import { apiGet } from "@/lib/api";
 import { TabBar } from "@/components/TabBar";
 import { ArrowLeft, Lock, Check, Zap, ChevronDown, ChevronUp } from "lucide-react";
 
@@ -19,15 +19,17 @@ const ArenaSelection = () => {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data } = await supabase.from("arena_progress").select("arena_level, passed, best_score, attempts").eq("user_id", user.id).eq("philosopher_id", philosopherId || "");
-      if (data) {
+      try {
+        const res = await apiGet("arena_progress");
+        const data = res.data || [];
+        const filtered = data.filter((d: any) => d.philosopher_id === philosopherId);
         const map: ProgressMap = {};
-        data.forEach((d) => { map[d.arena_level] = { passed: d.passed, bestScore: d.best_score, attempts: d.attempts }; });
+        filtered.forEach((d: any) => { map[d.arena_level] = { passed: d.passed, bestScore: d.best_score, attempts: d.attempts }; });
         setProgress(map);
-        const highestPassed = Math.max(0, ...data.filter(d => d.passed).map(d => d.arena_level));
+        const highestPassed = Math.max(0, ...filtered.filter((d: any) => d.passed).map((d: any) => d.arena_level));
         setExpandedTier(Math.ceil((highestPassed + 1) / 10) || 1);
+      } catch (e) {
+        console.error("Failed to load arena progress:", e);
       }
     };
     load();
