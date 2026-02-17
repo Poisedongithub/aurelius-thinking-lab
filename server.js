@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
-import Database from "better-sqlite3";
 import { createClient } from "@supabase/supabase-js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -12,97 +11,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ── Supabase Auth (for verifying user tokens) ──
+// ── Supabase Config ──
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://szfsulbbbhhuviewjlbf.supabase.co";
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || process.env.SB_SERVICE_KEY || 'dummy-key';
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZnN1bGJiYmhodXZpZXdqbGJmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTI3MjQzNSwiZXhwIjoyMDg2ODQ4NDM1fQ.3MM-9h2k3L_ZmXBrJ9Tuu9vyIZ9U9uvxcBlbJ1r-Jio";
+
 let supabaseAdmin;
 try {
   supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
-  console.log('Supabase client initialized');
+  console.log("Supabase admin client initialized (service_role)");
 } catch (e) {
-  console.warn('Supabase client failed to init:', e.message);
+  console.error("Supabase client failed to init:", e.message);
   supabaseAdmin = null;
 }
-
-// ── SQLite Database ──
-const DB_PATH = path.join(__dirname, "data", "app.db");
-import fs from "fs";
-fs.mkdirSync(path.join(__dirname, "data"), { recursive: true });
-const db = new Database(DB_PATH);
-db.pragma("journal_mode = WAL");
-
-// Auto-create all tables on startup
-db.exec(`
-  CREATE TABLE IF NOT EXISTS profiles (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT UNIQUE NOT NULL,
-    display_name TEXT NOT NULL DEFAULT '',
-    avatar_initials TEXT NOT NULL DEFAULT '',
-    created_at TEXT DEFAULT (datetime('now'))
-  );
-  CREATE TABLE IF NOT EXISTS user_streaks (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT UNIQUE NOT NULL,
-    current_streak INTEGER DEFAULT 0,
-    longest_streak INTEGER DEFAULT 0,
-    last_activity_date TEXT
-  );
-  CREATE TABLE IF NOT EXISTS user_xp (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT UNIQUE NOT NULL,
-    total_xp INTEGER DEFAULT 0,
-    level INTEGER DEFAULT 1
-  );
-  CREATE TABLE IF NOT EXISTS user_achievements (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT NOT NULL,
-    achievement_id TEXT NOT NULL,
-    created_at TEXT DEFAULT (datetime('now')),
-    UNIQUE(user_id, achievement_id)
-  );
-  CREATE TABLE IF NOT EXISTS sparring_sessions (
-    id TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL,
-    opponent TEXT NOT NULL,
-    topic TEXT NOT NULL,
-    messages TEXT DEFAULT '[]',
-    score INTEGER DEFAULT 0,
-    rounds_scored INTEGER DEFAULT 0,
-    created_at TEXT DEFAULT (datetime('now'))
-  );
-  CREATE TABLE IF NOT EXISTS arena_progress (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT NOT NULL,
-    philosopher_id TEXT NOT NULL,
-    arena_level INTEGER NOT NULL,
-    score INTEGER DEFAULT 0,
-    passed INTEGER DEFAULT 0,
-    best_score INTEGER DEFAULT 0,
-    attempts INTEGER DEFAULT 0,
-    UNIQUE(user_id, philosopher_id, arena_level)
-  );
-  CREATE TABLE IF NOT EXISTS morality_profiles (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT UNIQUE NOT NULL,
-    alignment TEXT DEFAULT '',
-    alignment_description TEXT DEFAULT '',
-    compassion_vs_logic REAL DEFAULT 0,
-    individual_vs_collective REAL DEFAULT 0,
-    rules_vs_outcomes REAL DEFAULT 0,
-    idealism_vs_pragmatism REAL DEFAULT 0,
-    mercy_vs_justice REAL DEFAULT 0,
-    total_answered INTEGER DEFAULT 0
-  );
-  CREATE TABLE IF NOT EXISTS dilemma_responses (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT NOT NULL,
-    session_id TEXT NOT NULL,
-    dilemma_id TEXT NOT NULL,
-    choice_index INTEGER NOT NULL,
-    created_at TEXT DEFAULT (datetime('now'))
-  );
-`);
-console.log("SQLite database initialized with all tables.");
 
 // ── Auth middleware: extract user from Supabase JWT ──
 async function getUser(req) {
@@ -231,180 +151,225 @@ app.post("/api/generate-dilemma", async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════
-// ── DATA ENDPOINTS (SQLite) ──
+// ── DATA ENDPOINTS (Supabase) ──
 // ══════════════════════════════════════════════════
 
 // Helper: ensure profile exists for new user
-function ensureProfile(userId, email) {
-  const existing = db.prepare("SELECT id FROM profiles WHERE user_id = ?").get(userId);
+async function ensureProfile(userId, email) {
+  const { data: existing } = await supabaseAdmin.from("profiles").select("id").eq("user_id", userId).single();
   if (!existing) {
     const name = email ? email.split("@")[0] : "User";
     const initials = name.slice(0, 2).toUpperCase();
-    db.prepare("INSERT INTO profiles (user_id, display_name, avatar_initials) VALUES (?, ?, ?)").run(userId, name, initials);
+    await supabaseAdmin.from("profiles").insert({ user_id: userId, display_name: name, avatar_initials: initials });
   }
 }
 
-// GET /api/data/:table — generic read for simple tables
+// GET /api/data/profiles
 app.get("/api/data/profiles", async (req, res) => {
   const user = await getUser(req);
   if (!user) return res.status(401).json({ error: "Unauthorized" });
-  ensureProfile(user.id, user.email);
-  const row = db.prepare("SELECT * FROM profiles WHERE user_id = ?").get(user.id);
-  res.json({ data: row || null });
+  await ensureProfile(user.id, user.email);
+  const { data, error } = await supabaseAdmin.from("profiles").select("*").eq("user_id", user.id).single();
+  if (error) console.error("profiles GET error:", error);
+  res.json({ data: data || null });
 });
 
+// GET /api/data/user_streaks
 app.get("/api/data/user_streaks", async (req, res) => {
   const user = await getUser(req);
   if (!user) return res.status(401).json({ error: "Unauthorized" });
-  const row = db.prepare("SELECT * FROM user_streaks WHERE user_id = ?").get(user.id);
-  res.json({ data: row || { current_streak: 0, longest_streak: 0, last_activity_date: null } });
+  const { data, error } = await supabaseAdmin.from("user_streaks").select("*").eq("user_id", user.id).single();
+  if (error && error.code !== "PGRST116") console.error("user_streaks GET error:", error);
+  res.json({ data: data || { current_streak: 0, longest_streak: 0, last_activity_date: null } });
 });
 
+// GET /api/data/user_xp
 app.get("/api/data/user_xp", async (req, res) => {
   const user = await getUser(req);
   if (!user) return res.status(401).json({ error: "Unauthorized" });
-  const row = db.prepare("SELECT * FROM user_xp WHERE user_id = ?").get(user.id);
-  res.json({ data: row || { total_xp: 0, level: 1 } });
+  const { data, error } = await supabaseAdmin.from("user_xp").select("*").eq("user_id", user.id).single();
+  if (error && error.code !== "PGRST116") console.error("user_xp GET error:", error);
+  res.json({ data: data || { total_xp: 0, level: 1 } });
 });
 
+// GET /api/data/user_achievements
 app.get("/api/data/user_achievements", async (req, res) => {
   const user = await getUser(req);
   if (!user) return res.status(401).json({ error: "Unauthorized" });
-  const rows = db.prepare("SELECT achievement_id FROM user_achievements WHERE user_id = ?").all(user.id);
-  res.json({ data: rows });
+  const { data, error } = await supabaseAdmin.from("user_achievements").select("achievement_id").eq("user_id", user.id);
+  if (error) console.error("user_achievements GET error:", error);
+  res.json({ data: data || [] });
 });
 
+// GET /api/data/morality_profiles
 app.get("/api/data/morality_profiles", async (req, res) => {
   const user = await getUser(req);
   if (!user) return res.status(401).json({ error: "Unauthorized" });
-  const row = db.prepare("SELECT * FROM morality_profiles WHERE user_id = ?").get(user.id);
-  res.json({ data: row || null });
+  const { data, error } = await supabaseAdmin.from("morality_profiles").select("*").eq("user_id", user.id).single();
+  if (error && error.code !== "PGRST116") console.error("morality_profiles GET error:", error);
+  res.json({ data: data || null });
 });
 
+// GET /api/data/sparring_sessions
 app.get("/api/data/sparring_sessions", async (req, res) => {
   const user = await getUser(req);
   if (!user) return res.status(401).json({ error: "Unauthorized" });
-  const rows = db.prepare("SELECT * FROM sparring_sessions WHERE user_id = ? ORDER BY created_at DESC").all(user.id);
-  res.json({ data: rows.map(r => ({ ...r, messages: JSON.parse(r.messages || "[]") })) });
+  const { data, error } = await supabaseAdmin.from("sparring_sessions").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
+  if (error) console.error("sparring_sessions GET error:", error);
+  res.json({ data: data || [] });
 });
 
+// GET /api/data/sparring_sessions/count
 app.get("/api/data/sparring_sessions/count", async (req, res) => {
   const user = await getUser(req);
   if (!user) return res.status(401).json({ error: "Unauthorized" });
-  const row = db.prepare("SELECT COUNT(*) as count FROM sparring_sessions WHERE user_id = ?").get(user.id);
-  res.json({ count: row.count });
+  const { count, error } = await supabaseAdmin.from("sparring_sessions").select("*", { count: "exact", head: true }).eq("user_id", user.id);
+  if (error) console.error("sparring_sessions count error:", error);
+  res.json({ count: count || 0 });
 });
 
+// GET /api/data/arena_progress
 app.get("/api/data/arena_progress", async (req, res) => {
   const user = await getUser(req);
   if (!user) return res.status(401).json({ error: "Unauthorized" });
   const { philosopher_id, arena_level } = req.query;
   if (philosopher_id && arena_level) {
-    const row = db.prepare("SELECT * FROM arena_progress WHERE user_id = ? AND philosopher_id = ? AND arena_level = ?").get(user.id, philosopher_id, Number(arena_level));
-    res.json({ data: row || null });
+    const { data, error } = await supabaseAdmin.from("arena_progress").select("*").eq("user_id", user.id).eq("philosopher_id", philosopher_id).eq("arena_level", Number(arena_level)).single();
+    if (error && error.code !== "PGRST116") console.error("arena_progress GET error:", error);
+    res.json({ data: data || null });
   } else {
-    const rows = db.prepare("SELECT * FROM arena_progress WHERE user_id = ?").all(user.id);
-    res.json({ data: rows });
+    const { data, error } = await supabaseAdmin.from("arena_progress").select("*").eq("user_id", user.id);
+    if (error) console.error("arena_progress GET all error:", error);
+    res.json({ data: data || [] });
   }
 });
 
+// GET /api/data/arena_progress/count_passed
 app.get("/api/data/arena_progress/count_passed", async (req, res) => {
   const user = await getUser(req);
   if (!user) return res.status(401).json({ error: "Unauthorized" });
-  const row = db.prepare("SELECT COUNT(*) as count FROM arena_progress WHERE user_id = ? AND passed = 1").get(user.id);
-  res.json({ count: row.count });
+  const { count, error } = await supabaseAdmin.from("arena_progress").select("*", { count: "exact", head: true }).eq("user_id", user.id).eq("passed", true);
+  if (error) console.error("arena_progress count_passed error:", error);
+  res.json({ count: count || 0 });
 });
 
-// POST /api/data/:table — upsert/insert
+// POST /api/data/profiles
 app.post("/api/data/profiles", async (req, res) => {
   const user = await getUser(req);
   if (!user) return res.status(401).json({ error: "Unauthorized" });
   const { display_name, avatar_initials } = req.body;
-  db.prepare("INSERT INTO profiles (user_id, display_name, avatar_initials) VALUES (?, ?, ?) ON CONFLICT(user_id) DO UPDATE SET display_name=excluded.display_name, avatar_initials=excluded.avatar_initials")
-    .run(user.id, display_name || "", avatar_initials || "");
+  const { error } = await supabaseAdmin.from("profiles").upsert({ user_id: user.id, display_name: display_name || "", avatar_initials: avatar_initials || "" }, { onConflict: "user_id" });
+  if (error) console.error("profiles POST error:", error);
   res.json({ success: true });
 });
 
+// POST /api/data/user_streaks
 app.post("/api/data/user_streaks", async (req, res) => {
   const user = await getUser(req);
   if (!user) return res.status(401).json({ error: "Unauthorized" });
   const { current_streak, longest_streak, last_activity_date } = req.body;
-  db.prepare("INSERT INTO user_streaks (user_id, current_streak, longest_streak, last_activity_date) VALUES (?, ?, ?, ?) ON CONFLICT(user_id) DO UPDATE SET current_streak=excluded.current_streak, longest_streak=excluded.longest_streak, last_activity_date=excluded.last_activity_date")
-    .run(user.id, current_streak, longest_streak, last_activity_date);
+  const { error } = await supabaseAdmin.from("user_streaks").upsert({ user_id: user.id, current_streak, longest_streak, last_activity_date }, { onConflict: "user_id" });
+  if (error) console.error("user_streaks POST error:", error);
   res.json({ success: true });
 });
 
+// POST /api/data/user_xp
 app.post("/api/data/user_xp", async (req, res) => {
   const user = await getUser(req);
   if (!user) return res.status(401).json({ error: "Unauthorized" });
   const { total_xp, level } = req.body;
-  db.prepare("INSERT INTO user_xp (user_id, total_xp, level) VALUES (?, ?, ?) ON CONFLICT(user_id) DO UPDATE SET total_xp=excluded.total_xp, level=excluded.level")
-    .run(user.id, total_xp, level);
+  const { error } = await supabaseAdmin.from("user_xp").upsert({ user_id: user.id, total_xp, level }, { onConflict: "user_id" });
+  if (error) console.error("user_xp POST error:", error);
   res.json({ success: true });
 });
 
+// POST /api/data/user_achievements
 app.post("/api/data/user_achievements", async (req, res) => {
   const user = await getUser(req);
   if (!user) return res.status(401).json({ error: "Unauthorized" });
   const { achievement_id } = req.body;
-  try {
-    db.prepare("INSERT OR IGNORE INTO user_achievements (user_id, achievement_id) VALUES (?, ?)").run(user.id, achievement_id);
-    res.json({ success: true });
-  } catch {
-    res.json({ success: true }); // already exists
-  }
+  const { error } = await supabaseAdmin.from("user_achievements").upsert({ user_id: user.id, achievement_id }, { onConflict: "user_id,achievement_id", ignoreDuplicates: true });
+  if (error && error.code !== "23505") console.error("user_achievements POST error:", error);
+  res.json({ success: true });
 });
 
+// POST /api/data/sparring_sessions
 app.post("/api/data/sparring_sessions", async (req, res) => {
   const user = await getUser(req);
   if (!user) return res.status(401).json({ error: "Unauthorized" });
   const { opponent, topic, messages } = req.body;
-  const id = crypto.randomUUID();
-  db.prepare("INSERT INTO sparring_sessions (id, user_id, opponent, topic, messages) VALUES (?, ?, ?, ?, ?)")
-    .run(id, user.id, opponent, topic, JSON.stringify(messages || []));
-  res.json({ data: { id } });
+  const { data, error } = await supabaseAdmin.from("sparring_sessions").insert({ user_id: user.id, opponent, topic, messages: messages || [] }).select("id").single();
+  if (error) console.error("sparring_sessions POST error:", error);
+  res.json({ data: { id: data?.id } });
 });
 
+// PUT /api/data/sparring_sessions/:id
 app.put("/api/data/sparring_sessions/:id", async (req, res) => {
   const user = await getUser(req);
   if (!user) return res.status(401).json({ error: "Unauthorized" });
   const { messages, score, rounds_scored } = req.body;
-  db.prepare("UPDATE sparring_sessions SET messages = ?, score = ?, rounds_scored = ? WHERE id = ? AND user_id = ?")
-    .run(JSON.stringify(messages || []), score || 0, rounds_scored || 0, req.params.id, user.id);
+  const { error } = await supabaseAdmin.from("sparring_sessions").update({ messages: messages || [], score: score || 0, rounds_scored: rounds_scored || 0 }).eq("id", req.params.id).eq("user_id", user.id);
+  if (error) console.error("sparring_sessions PUT error:", error);
   res.json({ success: true });
 });
 
+// POST /api/data/arena_progress
 app.post("/api/data/arena_progress", async (req, res) => {
   const user = await getUser(req);
   if (!user) return res.status(401).json({ error: "Unauthorized" });
   const { philosopher_id, arena_level, score, passed, best_score, attempts } = req.body;
-  db.prepare(`INSERT INTO arena_progress (user_id, philosopher_id, arena_level, score, passed, best_score, attempts) VALUES (?, ?, ?, ?, ?, ?, ?)
-    ON CONFLICT(user_id, philosopher_id, arena_level) DO UPDATE SET score=excluded.score, passed=MAX(arena_progress.passed, excluded.passed), best_score=MAX(arena_progress.best_score, excluded.best_score), attempts=arena_progress.attempts+1`)
-    .run(user.id, philosopher_id, arena_level, score, passed ? 1 : 0, best_score, attempts || 1);
-  res.json({ success: true });
-});
-
-app.post("/api/data/morality_profiles", async (req, res) => {
-  const user = await getUser(req);
-  if (!user) return res.status(401).json({ error: "Unauthorized" });
-  const { alignment, alignment_description, compassion_vs_logic, individual_vs_collective, rules_vs_outcomes, idealism_vs_pragmatism, mercy_vs_justice, total_answered } = req.body;
-  const existing = db.prepare("SELECT id, total_answered FROM morality_profiles WHERE user_id = ?").get(user.id);
+  
+  // Check if record exists
+  const { data: existing } = await supabaseAdmin.from("arena_progress").select("*").eq("user_id", user.id).eq("philosopher_id", philosopher_id).eq("arena_level", arena_level).single();
+  
   if (existing) {
-    db.prepare("UPDATE morality_profiles SET alignment=?, alignment_description=?, compassion_vs_logic=?, individual_vs_collective=?, rules_vs_outcomes=?, idealism_vs_pragmatism=?, mercy_vs_justice=?, total_answered=? WHERE user_id=?")
-      .run(alignment, alignment_description, compassion_vs_logic, individual_vs_collective, rules_vs_outcomes, idealism_vs_pragmatism, mercy_vs_justice, total_answered || (existing.total_answered + 1), user.id);
+    const { error } = await supabaseAdmin.from("arena_progress").update({
+      score,
+      passed: existing.passed || passed,
+      best_score: Math.max(existing.best_score || 0, best_score || 0),
+      attempts: (existing.attempts || 0) + 1,
+    }).eq("user_id", user.id).eq("philosopher_id", philosopher_id).eq("arena_level", arena_level);
+    if (error) console.error("arena_progress UPDATE error:", error);
   } else {
-    db.prepare("INSERT INTO morality_profiles (user_id, alignment, alignment_description, compassion_vs_logic, individual_vs_collective, rules_vs_outcomes, idealism_vs_pragmatism, mercy_vs_justice, total_answered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
-      .run(user.id, alignment, alignment_description, compassion_vs_logic, individual_vs_collective, rules_vs_outcomes, idealism_vs_pragmatism, mercy_vs_justice, total_answered || 1);
+    const { error } = await supabaseAdmin.from("arena_progress").insert({
+      user_id: user.id, philosopher_id, arena_level, score, passed: !!passed, best_score: best_score || 0, attempts: attempts || 1,
+    });
+    if (error) console.error("arena_progress INSERT error:", error);
   }
   res.json({ success: true });
 });
 
+// POST /api/data/morality_profiles
+app.post("/api/data/morality_profiles", async (req, res) => {
+  const user = await getUser(req);
+  if (!user) return res.status(401).json({ error: "Unauthorized" });
+  const { alignment, alignment_description, compassion_vs_logic, individual_vs_collective, rules_vs_outcomes, idealism_vs_pragmatism, mercy_vs_justice, total_answered } = req.body;
+  
+  const { data: existing } = await supabaseAdmin.from("morality_profiles").select("id, total_answered").eq("user_id", user.id).single();
+  
+  if (existing) {
+    const { error } = await supabaseAdmin.from("morality_profiles").update({
+      alignment, alignment_description, compassion_vs_logic, individual_vs_collective, rules_vs_outcomes, idealism_vs_pragmatism, mercy_vs_justice,
+      total_answered: total_answered || (existing.total_answered + 1),
+    }).eq("user_id", user.id);
+    if (error) console.error("morality_profiles UPDATE error:", error);
+  } else {
+    const { error } = await supabaseAdmin.from("morality_profiles").insert({
+      user_id: user.id, alignment, alignment_description, compassion_vs_logic, individual_vs_collective, rules_vs_outcomes, idealism_vs_pragmatism, mercy_vs_justice,
+      total_answered: total_answered || 1,
+    });
+    if (error) console.error("morality_profiles INSERT error:", error);
+  }
+  res.json({ success: true });
+});
+
+// POST /api/data/dilemma_responses
 app.post("/api/data/dilemma_responses", async (req, res) => {
   const user = await getUser(req);
   if (!user) return res.status(401).json({ error: "Unauthorized" });
   const { session_id, dilemma_id, choice_index } = req.body;
-  db.prepare("INSERT INTO dilemma_responses (user_id, session_id, dilemma_id, choice_index) VALUES (?, ?, ?, ?)")
-    .run(user.id, session_id, dilemma_id, choice_index);
+  const { error } = await supabaseAdmin.from("dilemma_responses").insert({ user_id: user.id, session_id, dilemma_id, choice_index });
+  if (error) console.error("dilemma_responses POST error:", error);
   res.json({ success: true });
 });
 
@@ -419,7 +384,7 @@ app.get("/{*path}", (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Supabase Auth: ${SUPABASE_URL}`);
+  console.log(`Supabase URL: ${SUPABASE_URL}`);
+  console.log(`All data stored in Supabase PostgreSQL`);
   console.log(`DeepSeek AI via RapidAPI`);
-  console.log(`SQLite DB: ${DB_PATH}`);
 });
