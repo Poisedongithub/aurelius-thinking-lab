@@ -78,13 +78,13 @@ const ProfileScreen = () => {
         <button onClick={handleLogout} className="text-foreground/40 hover:text-foreground/70 transition-colors"><LogOut className="w-5 h-5" /></button>
       </div>
       <div className="text-center px-7 pb-7 border-b border-border/40">
-        <div className="w-20 h-20 rounded-full border-2 border-border/40 mx-auto mb-4 flex items-center justify-center font-serif text-[32px] text-foreground">{profile?.avatar_initials || "?"}</div>
+        <div className="w-20 h-20 rounded-full border-2 border-primary/30 mx-auto mb-4 flex items-center justify-center font-serif text-[32px] text-foreground">{profile?.avatar_initials || "?"}</div>
         <h2 className="font-serif text-[26px] text-foreground">{profile?.display_name || "Loading..."}</h2>
         <div className="text-[10px] text-foreground/40 tracking-[0.2em] uppercase mt-1">{getRank(levelInfo)} · Lv.{levelInfo.level}</div>
         {levelInfo.nextLevel && (
           <div className="w-40 mx-auto mt-3">
             <div className="h-[3px] bg-foreground/8 rounded-full overflow-hidden">
-              <motion.div className="h-full bg-foreground/30 rounded-full" initial={{ width: 0 }} animate={{ width: `${levelInfo.progress}%` }} transition={{ duration: 0.8 }} />
+              <motion.div className="h-full bg-primary/50 rounded-full" initial={{ width: 0 }} animate={{ width: `${levelInfo.progress}%` }} transition={{ duration: 0.8 }} />
             </div>
             <div className="flex justify-between mt-1"><span className="text-[9px] text-foreground/20">{levelInfo.totalXp} XP</span><span className="text-[9px] text-foreground/20">{levelInfo.nextLevel.xp} XP</span></div>
           </div>
@@ -116,7 +116,7 @@ const ProfileScreen = () => {
                   <div className="flex justify-between mb-1"><span className="text-[9px] text-foreground/30 font-light">{labels[0]}</span><span className="text-[9px] text-foreground/30 font-light">{labels[1]}</span></div>
                   <div className="h-[4px] bg-foreground/8 rounded-full relative">
                     <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-foreground/10" />
-                    <motion.div className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-foreground/50 border border-foreground/25" initial={{ left: "50%" }} animate={{ left: `${pct}%` }} transition={{ duration: 0.8 }} style={{ marginLeft: "-5px" }} />
+                    <motion.div className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-primary/70 border border-primary/35" initial={{ left: "50%" }} animate={{ left: `${pct}%` }} transition={{ duration: 0.8 }} style={{ marginLeft: "-5px" }} />
                   </div>
                 </div>
               );
@@ -136,7 +136,7 @@ const ProfileScreen = () => {
             <div key={s.label} className="flex items-center gap-3 mb-2.5">
               <span className="text-[11px] text-foreground/40 w-20 shrink-0 font-light">{s.label}</span>
               <div className="flex-1 h-[3px] bg-foreground/6 rounded-full overflow-hidden">
-                <motion.div className="h-full bg-foreground/50 rounded-full" initial={{ width: 0 }} animate={{ width: `${s.value}%` }} transition={{ duration: 0.8, delay: 0.2 }} />
+                <motion.div className="h-full bg-primary/50 rounded-full" initial={{ width: 0 }} animate={{ width: `${s.value}%` }} transition={{ duration: 0.8, delay: 0.2 }} />
               </div>
             </div>
           ))}

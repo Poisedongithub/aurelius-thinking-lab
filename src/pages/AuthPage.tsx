@@ -46,7 +46,7 @@ const AuthPage = () => {
 
   return (
     <div className="phone-container min-h-screen flex flex-col items-center justify-center bg-background relative overflow-hidden px-7">
-      <div className="absolute inset-0 opacity-25" style={{ background: "radial-gradient(ellipse at center top, hsl(0 0% 20%) 0%, transparent 70%)", maskImage: "radial-gradient(ellipse at center top, black 20%, transparent 70%)", WebkitMaskImage: "radial-gradient(ellipse at center top, black 20%, transparent 70%)" }} />
+      <div className="absolute inset-0 opacity-30" style={{ background: "radial-gradient(ellipse at center top, hsl(340 70% 75%) 0%, transparent 70%)", maskImage: "radial-gradient(ellipse at center top, black 20%, transparent 70%)", WebkitMaskImage: "radial-gradient(ellipse at center top, black 20%, transparent 70%)" }} />
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/40 pointer-events-none" />
       <motion.div className="relative z-10 w-full max-w-sm" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
         <h1 className="font-serif text-[36px] text-foreground text-center mb-1">Aurelius</h1>
@@ -61,7 +61,7 @@ const AuthPage = () => {
           <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6}
             className="w-full glass-card rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-foreground/25 font-light outline-none focus:border-foreground/30 transition-colors bg-transparent" />
           <button type="submit" disabled={loading}
-            className="w-full bg-foreground text-background rounded-xl py-3 text-sm font-medium mt-2 hover:bg-foreground/90 transition-colors disabled:opacity-50">
+            className="w-full bg-primary text-primary-foreground rounded-xl py-3 text-sm font-medium mt-2 hover:bg-primary/90 transition-colors disabled:opacity-50">
             {loading ? "..." : isLogin ? "Enter" : "Join the Academy"}
           </button>
         </form>

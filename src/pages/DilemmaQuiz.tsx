@@ -99,7 +99,7 @@ const DilemmaQuiz = () => {
         </div>
         {!aiMode ? (
           <div className="h-1 bg-foreground/6 rounded-full overflow-hidden">
-            <motion.div className="h-full rounded-full" style={{ background: "linear-gradient(90deg, hsl(var(--foreground) / 0.15), hsl(var(--foreground) / 0.35))" }}
+            <motion.div className="h-full rounded-full" style={{ background: "linear-gradient(90deg, hsl(var(--primary) / 0.4), hsl(var(--primary) / 0.8))" }}
               initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ duration: 0.4, ease: "easeOut" }} />
           </div>
         ) : (<div className="h-1 bg-foreground/6 rounded-full overflow-hidden"><div className="h-full bg-foreground/12 rounded-full w-full" /></div>)}
@@ -116,7 +116,7 @@ const DilemmaQuiz = () => {
             <div className="flex flex-col gap-3 mt-auto pb-10">
               {current.choices.map((choice, i) => (
                 <motion.button key={i} onClick={() => handleChoice(i)} disabled={selecting !== null}
-                  className={`text-left rounded-2xl px-5 py-[18px] transition-all duration-300 border ${selecting === i ? "bg-foreground/10 border-foreground/20" : "bg-card/30 border-border/40 hover:bg-card/50 hover:border-border/60"}`}
+                  className={`text-left rounded-2xl px-5 py-[18px] transition-all duration-300 border ${selecting === i ? "bg-primary/15 border-primary/30" : "bg-card/30 border-border/40 hover:bg-card/50 hover:border-border/60"}`}
                   whileTap={{ scale: 0.985 }} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, delay: i * 0.06 }}>
                   <span className="text-[14px] text-foreground/70 font-light leading-relaxed">{choice.text}</span>
                 </motion.button>

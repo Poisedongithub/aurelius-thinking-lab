@@ -31,7 +31,7 @@ const HomeScreen = () => {
 
   return (
     <div className="phone-container min-h-screen flex flex-col bg-background relative overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 h-[480px] opacity-40" style={{ background: "radial-gradient(ellipse at center top, hsl(0 0% 20%) 0%, transparent 70%)", maskImage: "linear-gradient(to bottom, black 20%, rgba(0,0,0,0.4) 60%, transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, black 20%, rgba(0,0,0,0.4) 60%, transparent 100%)" }} />
+      <div className="absolute top-0 left-0 right-0 h-[480px] opacity-40" style={{ background: "radial-gradient(ellipse at center top, hsl(340 70% 80%) 0%, transparent 70%)", maskImage: "linear-gradient(to bottom, black 20%, rgba(0,0,0,0.4) 60%, transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, black 20%, rgba(0,0,0,0.4) 60%, transparent 100%)" }} />
       <div className="absolute top-0 left-0 right-0 h-[480px] bg-gradient-to-b from-background/30 via-background/60 to-background pointer-events-none" />
       <div className="relative z-10 flex-1 flex flex-col px-7 pt-16 pb-4 overflow-y-auto">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
@@ -59,7 +59,7 @@ const HomeScreen = () => {
                 <span className="text-[10px] text-foreground/25">{levelInfo.nextLevel.xp} XP</span>
               </div>
               <div className="h-[3px] bg-foreground/8 rounded-full overflow-hidden">
-                <motion.div className="h-full bg-foreground/30 rounded-full" initial={{ width: 0 }} animate={{ width: `${levelInfo.progress}%` }} transition={{ duration: 0.8 }} />
+                <motion.div className="h-full bg-primary/60 rounded-full" initial={{ width: 0 }} animate={{ width: `${levelInfo.progress}%` }} transition={{ duration: 0.8 }} />
               </div>
             </div>
           )}

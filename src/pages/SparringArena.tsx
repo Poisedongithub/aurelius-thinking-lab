@@ -213,10 +213,10 @@ const SparringArena = () => {
                 <button onClick={() => navigate(`/arena/arenas/${philosopherId}/${topicId}`)} className="flex-1 py-3 rounded-xl border border-border/40 text-foreground/60 text-sm font-light">Back</button>
                 {arenaComplete === "passed" && level && level < 100 ? (
                   <button onClick={() => { setArenaComplete(null); setSessionScore(0); setRoundsScored(0); setMessages([]); navigate(`/arena/spar/${philosopherId}/${topicId}/${level + 1}`); }}
-                    className="flex-1 py-3 rounded-xl bg-foreground text-background text-sm font-medium">Next Arena</button>
+                    className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-medium">Next Arena</button>
                 ) : (
                   <button onClick={() => { setArenaComplete(null); setSessionScore(0); setRoundsScored(0); setMessages([]); navigate(`/arena/spar/${philosopherId}/${topicId}/${arena.level}`); }}
-                    className="flex-1 py-3 rounded-xl bg-foreground text-background text-sm font-medium">Retry</button>
+                    className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-medium">Retry</button>
                 )}
               </div>
             </motion.div>
@@ -229,7 +229,7 @@ const SparringArena = () => {
           <motion.div key={i} className={`max-w-[85%] px-5 py-4 rounded-2xl text-base font-light leading-relaxed ${msg.role === "assistant" ? "self-start glass-card rounded-bl-sm" : "self-end bg-foreground/10 border border-border/60 rounded-br-sm"}`}
             initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
             {msg.role === "assistant" && <div className="font-serif text-sm text-foreground/50 mb-1.5 tracking-wider">{philosopher.name}</div>}
-            <div className="prose prose-invert prose-sm max-w-none"><ReactMarkdown>{msg.content}</ReactMarkdown></div>
+            <div className="prose prose-pink prose-sm max-w-none"><ReactMarkdown>{msg.content}</ReactMarkdown></div>
           </motion.div>
         ))}
         {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
@@ -252,8 +252,8 @@ const SparringArena = () => {
           <div className="flex items-center gap-3 glass-card rounded-full px-5 py-3">
             <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send()}
               placeholder="State your position..." className="flex-1 bg-transparent text-base text-foreground placeholder:text-foreground/25 font-light outline-none" disabled={isLoading} />
-            <button onClick={send} disabled={isLoading || !input.trim()} className="w-8 h-8 bg-foreground rounded-full flex items-center justify-center shrink-0 disabled:opacity-30 transition-opacity">
-              <Send className="w-3.5 h-3.5 text-background" />
+            <button onClick={send} disabled={isLoading || !input.trim()} className="w-8 h-8 bg-primary rounded-full flex items-center justify-center shrink-0 disabled:opacity-30 transition-opacity">
+              <Send className="w-3.5 h-3.5 text-primary-foreground" />
             </button>
           </div>
         )}
