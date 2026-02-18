@@ -33,36 +33,68 @@ const SparringArena = () => {
   const [lastScore, setLastScore] = useState<ScoreResult | null>(null);
   const [showScorePopup, setShowScorePopup] = useState(false);
   const [arenaComplete, setArenaComplete] = useState<"passed" | "failed" | null>(null);
+  const [resuming, setResuming] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const initRef = useRef(false);
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
   useEffect(() => {
-    if (!philosopher || !topic) return;
-    const createSession = async () => {
+    if (!philosopher || !topic || initRef.current) return;
+    initRef.current = true;
+
+    const initSession = async () => {
+      // Check for an active (in-progress) session first
       try {
-        const res = await apiPost("sparring_sessions", { opponent: philosopher.id, topic: topic.id, messages: [] });
+        const params = new URLSearchParams({ opponent: philosopher.id, topic: topic.id });
+        if (level) params.set("arena_level", String(level));
+        const res = await apiGet(`sparring_sessions/active?${params.toString()}`);
+        
+        if (res.data && res.data.messages && res.data.messages.length > 0) {
+          // Resume the active session
+          setResuming(true);
+          setSessionId(res.data.id);
+          setMessages(res.data.messages);
+          setSessionScore(res.data.score || 0);
+          setRoundsScored(res.data.rounds_scored || 0);
+          setResuming(false);
+          return; // Don't create a new session or generate an opening
+        }
+      } catch (e) {
+        console.error("Failed to check for active session:", e);
+      }
+
+      // No active session found — create a new one
+      try {
+        const createData: any = { opponent: philosopher.id, topic: topic.id, messages: [] };
+        if (level) createData.arena_level = level;
+        const res = await apiPost("sparring_sessions", createData);
         if (res.data?.id) setSessionId(res.data.id);
       } catch (e) {
         console.error("Failed to create session:", e);
       }
+
+      // Generate the philosopher's opening message
+      const challengeContext = arena ? `\n\nThe debater must: "${arena.challenge}". Open the debate by challenging them on this specific topic. Be direct.` : "";
+      setIsLoading(true);
+      let assistantSoFar = "";
+      streamChat({
+        messages: [], philosopher: philosopher.id, topic: topic.id, systemSuffix: challengeContext,
+        onDelta: (chunk) => { assistantSoFar += chunk; setMessages([{ role: "assistant", content: assistantSoFar }]); },
+        onDone: () => setIsLoading(false),
+        onError: (err) => { setIsLoading(false); toast({ title: "Error", description: err, variant: "destructive" }); },
+      });
     };
-    createSession();
-    const challengeContext = arena ? `\n\nThe debater must: "${arena.challenge}". Open the debate by challenging them on this specific topic. Be direct.` : "";
-    setIsLoading(true);
-    let assistantSoFar = "";
-    streamChat({
-      messages: [], philosopher: philosopher.id, topic: topic.id, systemSuffix: challengeContext,
-      onDelta: (chunk) => { assistantSoFar += chunk; setMessages([{ role: "assistant", content: assistantSoFar }]); },
-      onDone: () => setIsLoading(false),
-      onError: (err) => { setIsLoading(false); toast({ title: "Error", description: err, variant: "destructive" }); },
-    });
+
+    initSession();
   }, [philosopher?.id, topic?.id, level]);
 
-  const saveSession = async (msgs: Msg[], score: number, rounds: number) => {
+  const saveSession = async (msgs: Msg[], score: number, rounds: number, completed?: boolean) => {
     if (!sessionId) return;
     try {
-      await apiPut(`sparring_sessions/${sessionId}`, { messages: msgs, score, rounds_scored: rounds });
+      const body: any = { messages: msgs, score, rounds_scored: rounds };
+      if (completed !== undefined) body.completed = completed;
+      await apiPut(`sparring_sessions/${sessionId}`, body);
     } catch (e) {
       console.error("Failed to save session:", e);
     }
@@ -83,6 +115,8 @@ const SparringArena = () => {
     } catch (e) {
       console.error("Failed to save arena progress:", e);
     }
+    // Mark the session as completed
+    saveSession(messages, totalScore, totalRounds, true);
     setArenaComplete(passed ? "passed" : "failed");
   };
 
@@ -212,10 +246,10 @@ const SparringArena = () => {
               <div className="flex gap-3">
                 <button onClick={() => navigate(`/arena/arenas/${philosopherId}/${topicId}`)} className="flex-1 py-3 rounded-xl border border-border/40 text-foreground/60 text-sm font-light">Back</button>
                 {arenaComplete === "passed" && level && level < 100 ? (
-                  <button onClick={() => { setArenaComplete(null); setSessionScore(0); setRoundsScored(0); setMessages([]); navigate(`/arena/spar/${philosopherId}/${topicId}/${level + 1}`); }}
-                    className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-medium">Next Arena</button>
+                  <button onClick={() => { setArenaComplete(null); setSessionScore(0); setRoundsScored(0); setMessages([]); initRef.current = false; navigate(`/arena/spar/${philosopherId}/${topicId}/${level + 1}`); }}
+                    className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-medium">Next Level</button>
                 ) : (
-                  <button onClick={() => { setArenaComplete(null); setSessionScore(0); setRoundsScored(0); setMessages([]); navigate(`/arena/spar/${philosopherId}/${topicId}/${arena.level}`); }}
+                  <button onClick={() => { setArenaComplete(null); setSessionScore(0); setRoundsScored(0); setMessages([]); initRef.current = false; navigate(`/arena/spar/${philosopherId}/${topicId}/${arena.level}`); }}
                     className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-medium">Retry</button>
                 )}
               </div>
@@ -225,13 +259,17 @@ const SparringArena = () => {
       </AnimatePresence>
 
       <div className="flex-1 overflow-y-auto px-7 py-6 flex flex-col gap-5">
-        {messages.map((msg, i) => (
-          <motion.div key={i} className={`max-w-[85%] px-5 py-4 rounded-2xl text-base font-light leading-relaxed ${msg.role === "assistant" ? "self-start glass-card rounded-bl-sm" : "self-end bg-foreground/10 border border-border/60 rounded-br-sm"}`}
-            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
-            {msg.role === "assistant" && <div className="font-serif text-sm text-foreground/50 mb-1.5 tracking-wider">{philosopher.name}</div>}
-            <div className="prose prose-pink prose-sm max-w-none"><ReactMarkdown>{msg.content}</ReactMarkdown></div>
-          </motion.div>
-        ))}
+        {resuming ? (
+          <div className="self-center text-foreground/40 text-sm py-8">Resuming session...</div>
+        ) : (
+          messages.map((msg, i) => (
+            <motion.div key={i} className={`max-w-[85%] px-5 py-4 rounded-2xl text-base font-light leading-relaxed ${msg.role === "assistant" ? "self-start glass-card rounded-bl-sm" : "self-end bg-foreground/10 border border-border/60 rounded-br-sm"}`}
+              initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
+              {msg.role === "assistant" && <div className="font-serif text-sm text-foreground/50 mb-1.5 tracking-wider">{philosopher.name}</div>}
+              <div className="prose prose-pink prose-sm max-w-none"><ReactMarkdown>{msg.content}</ReactMarkdown></div>
+            </motion.div>
+          ))
+        )}
         {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
           <div className="self-start glass-card rounded-2xl rounded-bl-sm px-5 py-4">
             <div className="font-serif text-sm text-foreground/50 mb-1.5">{philosopher.name}</div>

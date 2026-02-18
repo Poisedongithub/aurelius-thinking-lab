@@ -219,6 +219,34 @@ app.get("/api/data/sparring_sessions", async (req, res) => {
   res.json({ data: data || [] });
 });
 
+// GET /api/data/sparring_sessions/active
+app.get("/api/data/sparring_sessions/active", async (req, res) => {
+  const user = await getUser(req);
+  if (!user) return res.status(401).json({ error: "Unauthorized" });
+  const { opponent, topic, arena_level } = req.query;
+  if (!opponent || !topic) return res.json({ data: null });
+  
+  // Find the most recent session for this philosopher/topic that is not completed
+  // A session is "active" if it has messages but the arena is not complete (no arena_complete flag)
+  let query = supabaseAdmin
+    .from("sparring_sessions")
+    .select("*")
+    .eq("user_id", user.id)
+    .eq("opponent", opponent)
+    .eq("topic", topic)
+    .eq("completed", false)
+    .order("created_at", { ascending: false })
+    .limit(1);
+  
+  if (arena_level) {
+    query = query.eq("arena_level", Number(arena_level));
+  }
+  
+  const { data, error } = await query;
+  if (error && error.code !== "PGRST116") console.error("active session GET error:", error);
+  res.json({ data: (data && data.length > 0) ? data[0] : null });
+});
+
 // GET /api/data/sparring_sessions/count
 app.get("/api/data/sparring_sessions/count", async (req, res) => {
   const user = await getUser(req);
@@ -297,8 +325,10 @@ app.post("/api/data/user_achievements", async (req, res) => {
 app.post("/api/data/sparring_sessions", async (req, res) => {
   const user = await getUser(req);
   if (!user) return res.status(401).json({ error: "Unauthorized" });
-  const { opponent, topic, messages } = req.body;
-  const { data, error } = await supabaseAdmin.from("sparring_sessions").insert({ user_id: user.id, opponent, topic, messages: messages || [] }).select("id").single();
+  const { opponent, topic, messages, arena_level } = req.body;
+  const insertData = { user_id: user.id, opponent, topic, messages: messages || [], completed: false };
+  if (arena_level !== undefined && arena_level !== null) insertData.arena_level = arena_level;
+  const { data, error } = await supabaseAdmin.from("sparring_sessions").insert(insertData).select("id").single();
   if (error) console.error("sparring_sessions POST error:", error);
   res.json({ data: { id: data?.id } });
 });
@@ -307,8 +337,10 @@ app.post("/api/data/sparring_sessions", async (req, res) => {
 app.put("/api/data/sparring_sessions/:id", async (req, res) => {
   const user = await getUser(req);
   if (!user) return res.status(401).json({ error: "Unauthorized" });
-  const { messages, score, rounds_scored } = req.body;
-  const { error } = await supabaseAdmin.from("sparring_sessions").update({ messages: messages || [], score: score || 0, rounds_scored: rounds_scored || 0 }).eq("id", req.params.id).eq("user_id", user.id);
+  const { messages, score, rounds_scored, completed } = req.body;
+  const updateData = { messages: messages || [], score: score || 0, rounds_scored: rounds_scored || 0 };
+  if (completed !== undefined) updateData.completed = completed;
+  const { error } = await supabaseAdmin.from("sparring_sessions").update(updateData).eq("id", req.params.id).eq("user_id", user.id);
   if (error) console.error("sparring_sessions PUT error:", error);
   res.json({ success: true });
 });
