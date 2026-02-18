@@ -9,6 +9,7 @@ import { ArrowLeft, Send, Zap, Check, X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useGamification } from "@/hooks/useGamification";
 import { apiPost, apiPut, apiGet } from "@/lib/api";
+import { useTheme } from "@/hooks/useTheme";
 
 interface ScoreResult { total_points: number; logic: number; rhetoric: number; strategy: number; ethics: number; creativity: number; brief_feedback: string; }
 
@@ -18,6 +19,8 @@ const SparringArena = () => {
   const navigate = useNavigate();
   const { philosopherId, topicId, arenaLevel } = useParams();
   const { toast } = useToast();
+  const { theme } = useTheme();
+  const isStoic = theme === "original";
   const { onSparComplete } = useGamification();
   const philosopher = philosophers.find((p) => p.id === philosopherId);
   const topic = topics.find((t) => t.id === topicId);
@@ -186,7 +189,7 @@ const SparringArena = () => {
   const roundsLeft = arena ? arena.rounds - roundsScored : null;
 
   return (
-    <div className="phone-container h-screen flex flex-col bg-background">
+    <div className={`phone-container h-screen flex flex-col bg-background ${isStoic ? "stoic-grain" : ""}`}>
       <div className="shrink-0">
         <div className="flex items-center justify-between px-7 pt-5">
           <button onClick={() => arena ? navigate(`/arena/arenas/${philosopherId}/${topicId}`) : navigate("/home")} className="text-foreground/50"><ArrowLeft className="w-5 h-5" /></button>

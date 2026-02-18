@@ -6,12 +6,15 @@ import { getAllArenas, tierNames, type Arena } from "@/lib/arenas";
 import { apiGet } from "@/lib/api";
 import { TabBar } from "@/components/TabBar";
 import { ArrowLeft, Lock, Check, Zap, ChevronDown, ChevronUp } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
 
 interface ProgressMap { [level: number]: { passed: boolean; bestScore: number; attempts: number }; }
 
 const ArenaSelection = () => {
   const navigate = useNavigate();
   const { philosopherId, topicId } = useParams();
+  const { theme } = useTheme();
+  const isStoic = theme === "original";
   const philosopher = philosophers.find((p) => p.id === philosopherId);
   const topic = topics.find((t) => t.id === topicId);
   const [progress, setProgress] = useState<ProgressMap>({});
@@ -43,7 +46,7 @@ const ArenaSelection = () => {
   const isUnlocked = (level: number) => level <= highestPassed + 1;
 
   return (
-    <div className="phone-container min-h-screen flex flex-col bg-background">
+    <div className={`phone-container min-h-screen flex flex-col bg-background ${isStoic ? "stoic-grain" : ""}`}>
       <button onClick={() => navigate(`/arena/topic/${philosopherId}`)} className="p-7 pb-0 text-foreground/50"><ArrowLeft className="w-5 h-5" /></button>
       <div className="px-7 pt-3 pb-5">
         <h2 className="font-serif text-[26px] text-foreground">{topic?.name || topicId} Arenas</h2>

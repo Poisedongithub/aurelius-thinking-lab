@@ -5,6 +5,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { apiPost } from "@/lib/api";
 import { toast } from "sonner";
+import { useTheme } from "@/hooks/useTheme";
 
 interface DilemmaStep {
   title: string;
@@ -251,6 +252,8 @@ const ClassicDilemma = () => {
   const [ending, setEnding] = useState<string | null>(null);
   const [selecting, setSelecting] = useState<number | null>(null);
   const [history, setHistory] = useState<string[]>([]);
+  const { theme } = useTheme();
+  const isStoic = theme === "original";
 
   const dilemma = dilemmaId ? classicDilemmas[dilemmaId] : null;
 

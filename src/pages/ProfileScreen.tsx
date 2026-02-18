@@ -9,6 +9,7 @@ import { useGamification } from "@/hooks/useGamification";
 import { useToast } from "@/components/ui/use-toast";
 import { getAchievementById } from "@/lib/gamification";
 import { apiGet } from "@/lib/api";
+import { useTheme } from "@/hooks/useTheme";
 
 interface Profile { display_name: string; avatar_initials: string; }
 interface MoralityProfile { alignment: string; alignment_description: string; compassion_vs_logic: number; individual_vs_collective: number; rules_vs_outcomes: number; idealism_vs_pragmatism: number; mercy_vs_justice: number; total_answered: number; }
@@ -31,6 +32,8 @@ const getRank = (levelInfo: { title: string }) => levelInfo.title;
 const ProfileScreen = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { theme } = useTheme();
+  const isStoic = theme === "original";
   const { streak, levelInfo, unlockedIds, loading: gamLoading } = useGamification();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -82,7 +85,7 @@ const ProfileScreen = () => {
   ];
 
   return (
-    <div className="phone-container min-h-screen flex flex-col bg-background">
+    <div className={`phone-container min-h-screen flex flex-col bg-background ${isStoic ? "stoic-grain" : ""}`}>
       <div className="flex justify-end px-7 pt-6">
         <button onClick={handleLogout} className="text-foreground/40 hover:text-foreground/70 transition-colors"><LogOut className="w-5 h-5" /></button>
       </div>

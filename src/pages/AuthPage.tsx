@@ -18,7 +18,8 @@ const AuthPage = () => {
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
   const [resetSent, setResetSent] = useState(false);
-  const { glowColor } = useTheme();
+  const { glowColor, theme } = useTheme();
+  const isStoic = theme === "original";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,13 +69,49 @@ const AuthPage = () => {
     setResetSent(false);
   };
 
+  const inputClass = isStoic
+    ? "w-full rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/20 font-light outline-none border border-white/[0.08] bg-white/[0.03] focus:border-white/20 transition-colors"
+    : "w-full glass-card rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-foreground/25 font-light outline-none focus:border-foreground/30 transition-colors bg-transparent";
+
+  const btnClass = isStoic
+    ? "w-full bg-white text-black rounded-xl py-3 text-sm font-medium mt-2 hover:bg-white/90 transition-colors disabled:opacity-50 stoic-text tracking-[0.1em]"
+    : "w-full bg-primary text-primary-foreground rounded-xl py-3 text-sm font-medium mt-2 hover:bg-primary/90 transition-colors disabled:opacity-50";
+
   return (
-    <div className="phone-container min-h-screen flex flex-col items-center justify-center bg-background relative overflow-hidden px-7">
-      <div className="absolute inset-0 opacity-30" style={{ background: `radial-gradient(ellipse at center top, ${glowColor} 0%, transparent 70%)`, maskImage: "radial-gradient(ellipse at center top, black 20%, transparent 70%)", WebkitMaskImage: "radial-gradient(ellipse at center top, black 20%, transparent 70%)" }} />
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/40 pointer-events-none" />
+    <div className={`phone-container min-h-screen flex flex-col items-center justify-center bg-background relative overflow-hidden px-7 ${isStoic ? "stoic-grain" : ""}`}>
+      {/* Background */}
+      {isStoic ? (
+        <>
+          <div className="absolute inset-0">
+            <img
+              src="/images/stoic-thinker-ai.jpg"
+              alt=""
+              className="w-full h-full object-cover object-top opacity-20"
+              style={{ filter: "grayscale(100%) contrast(1.3)" }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/50" />
+            <div className="stoic-vignette absolute inset-0" />
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="absolute inset-0 opacity-30" style={{ background: `radial-gradient(ellipse at center top, ${glowColor} 0%, transparent 70%)`, maskImage: "radial-gradient(ellipse at center top, black 20%, transparent 70%)", WebkitMaskImage: "radial-gradient(ellipse at center top, black 20%, transparent 70%)" }} />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/40 pointer-events-none" />
+        </>
+      )}
+
       <motion.div className="relative z-10 w-full max-w-sm" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-        <h1 className="font-serif text-[36px] text-foreground text-center mb-1">Aurelius</h1>
-        <p className="text-[10px] tracking-[0.35em] uppercase text-foreground/50 text-center mb-10">Thinking Lab</p>
+        {isStoic ? (
+          <>
+            <h1 className="stoic-text text-[44px] text-white text-center mb-0 tracking-[0.04em]">AURELIUS</h1>
+            <p className="stoic-text text-[10px] tracking-[0.5em] text-white/30 text-center mb-10">THINKING LAB</p>
+          </>
+        ) : (
+          <>
+            <h1 className="font-serif text-[36px] text-foreground text-center mb-1">Aurelius</h1>
+            <p className="text-[10px] tracking-[0.35em] uppercase text-foreground/50 text-center mb-10">Thinking Lab</p>
+          </>
+        )}
 
         <AnimatePresence mode="wait">
           {mode === "forgot" ? (
@@ -82,27 +119,28 @@ const AuthPage = () => {
               {resetSent ? (
                 <div className="text-center">
                   <div className="text-4xl mb-4">📧</div>
-                  <h3 className="font-serif text-lg text-foreground mb-2">Check your email</h3>
-                  <p className="text-xs text-foreground/40 font-light mb-6 leading-relaxed">
-                    We sent a password reset link to <span className="text-foreground/70">{email}</span>. Click the link in the email to set a new password.
+                  <h3 className={`text-lg mb-2 ${isStoic ? "stoic-text text-white tracking-[0.04em]" : "font-serif text-foreground"}`}>
+                    {isStoic ? "CHECK YOUR EMAIL" : "Check your email"}
+                  </h3>
+                  <p className={`text-xs font-light mb-6 leading-relaxed ${isStoic ? "text-white/35" : "text-foreground/40"}`}>
+                    We sent a password reset link to <span className={isStoic ? "text-white/60" : "text-foreground/70"}>{email}</span>. Click the link in the email to set a new password.
                   </p>
-                  <button onClick={() => switchMode("login")}
-                    className="w-full bg-primary text-primary-foreground rounded-xl py-3 text-sm font-medium hover:bg-primary/90 transition-colors">
-                    Back to Sign In
+                  <button onClick={() => switchMode("login")} className={btnClass}>
+                    {isStoic ? "BACK TO SIGN IN" : "Back to Sign In"}
                   </button>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                  <button type="button" onClick={() => switchMode("login")} className="flex items-center gap-1 text-xs text-foreground/40 hover:text-foreground/60 transition-colors mb-2">
+                  <button type="button" onClick={() => switchMode("login")} className={`flex items-center gap-1 text-xs transition-colors mb-2 ${isStoic ? "text-white/30 hover:text-white/50" : "text-foreground/40 hover:text-foreground/60"}`}>
                     <ArrowLeft className="w-3.5 h-3.5" /> Back to sign in
                   </button>
-                  <h3 className="font-serif text-lg text-foreground -mt-2">Reset your password</h3>
-                  <p className="text-xs text-foreground/40 font-light -mt-2">Enter your email and we'll send you a reset link.</p>
-                  <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required
-                    className="w-full glass-card rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-foreground/25 font-light outline-none focus:border-foreground/30 transition-colors bg-transparent" />
-                  <button type="submit" disabled={loading}
-                    className="w-full bg-primary text-primary-foreground rounded-xl py-3 text-sm font-medium mt-2 hover:bg-primary/90 transition-colors disabled:opacity-50">
-                    {loading ? "Sending..." : "Send Reset Link"}
+                  <h3 className={`text-lg -mt-2 ${isStoic ? "stoic-text text-white tracking-[0.04em]" : "font-serif text-foreground"}`}>
+                    {isStoic ? "RESET YOUR PASSWORD" : "Reset your password"}
+                  </h3>
+                  <p className={`text-xs font-light -mt-2 ${isStoic ? "text-white/30" : "text-foreground/40"}`}>Enter your email and we'll send you a reset link.</p>
+                  <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className={inputClass} />
+                  <button type="submit" disabled={loading} className={btnClass}>
+                    {loading ? "Sending..." : isStoic ? "SEND RESET LINK" : "Send Reset Link"}
                   </button>
                 </form>
               )}
@@ -111,24 +149,20 @@ const AuthPage = () => {
             <motion.div key="auth" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.3 }}>
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 {mode === "signup" && (
-                  <input type="text" placeholder="Display name" value={displayName} onChange={(e) => setDisplayName(e.target.value)}
-                    className="w-full glass-card rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-foreground/25 font-light outline-none focus:border-foreground/30 transition-colors bg-transparent" />
+                  <input type="text" placeholder="Display name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} className={inputClass} />
                 )}
-                <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required
-                  className="w-full glass-card rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-foreground/25 font-light outline-none focus:border-foreground/30 transition-colors bg-transparent" />
-                <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6}
-                  className="w-full glass-card rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-foreground/25 font-light outline-none focus:border-foreground/30 transition-colors bg-transparent" />
+                <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className={inputClass} />
+                <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className={inputClass} />
                 {mode === "login" && (
-                  <button type="button" onClick={() => switchMode("forgot")} className="text-xs text-foreground/40 text-right -mt-2 hover:text-foreground/60 transition-colors">
+                  <button type="button" onClick={() => switchMode("forgot")} className={`text-xs text-right -mt-2 transition-colors ${isStoic ? "text-white/25 hover:text-white/40" : "text-foreground/40 hover:text-foreground/60"}`}>
                     Forgot password?
                   </button>
                 )}
-                <button type="submit" disabled={loading}
-                  className="w-full bg-primary text-primary-foreground rounded-xl py-3 text-sm font-medium mt-2 hover:bg-primary/90 transition-colors disabled:opacity-50">
-                  {loading ? "..." : mode === "login" ? "Enter" : "Join the Academy"}
+                <button type="submit" disabled={loading} className={btnClass}>
+                  {loading ? "..." : mode === "login" ? (isStoic ? "ENTER" : "Enter") : (isStoic ? "JOIN THE ACADEMY" : "Join the Academy")}
                 </button>
               </form>
-              <button onClick={() => switchMode(mode === "login" ? "signup" : "login")} className="text-xs text-foreground/40 mt-6 text-center w-full hover:text-foreground/60 transition-colors">
+              <button onClick={() => switchMode(mode === "login" ? "signup" : "login")} className={`text-xs mt-6 text-center w-full transition-colors ${isStoic ? "text-white/25 hover:text-white/40" : "text-foreground/40 hover:text-foreground/60"}`}>
                 {mode === "login" ? "New to the academy? Create an account" : "Already a member? Sign in"}
               </button>
             </motion.div>

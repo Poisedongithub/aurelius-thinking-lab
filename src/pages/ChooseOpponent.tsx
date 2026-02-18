@@ -7,6 +7,7 @@ import { apiGet } from "@/lib/api";
 import { useGamification } from "@/hooks/useGamification";
 import { TabBar } from "@/components/TabBar";
 import { ArrowLeft, Zap, Lock } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
 
 const getMasteryTier = (points: number) => {
   if (points >= 500) return { label: "Master", color: "text-foreground" };
@@ -19,6 +20,8 @@ const getMasteryTier = (points: number) => {
 const ChooseOpponent = () => {
   const navigate = useNavigate();
   const { levelInfo, loading: gamLoading } = useGamification();
+  const { theme } = useTheme();
+  const isStoic = theme === "original";
   const [philosopherScores, setPhilosopherScores] = useState<Record<string, { points: number; spars: number }>>({});
 
   useEffect(() => {
@@ -43,11 +46,20 @@ const ChooseOpponent = () => {
   const userLevel = gamLoading ? 1 : levelInfo.level;
 
   return (
-    <div className="phone-container min-h-screen flex flex-col bg-background">
+    <div className={`phone-container min-h-screen flex flex-col bg-background ${isStoic ? "stoic-grain" : ""}`}>
       <button onClick={() => navigate("/home")} className="p-7 pb-0 text-foreground/50"><ArrowLeft className="w-5 h-5" /></button>
       <div className="px-7 pt-3 pb-6">
-        <h2 className="font-serif text-[28px] text-foreground">Choose Your Opponent</h2>
-        <p className="text-xs text-foreground/35 font-light">{philosophers.filter((p) => userLevel >= p.unlockLevel).length} of {philosophers.length} unlocked</p>
+        {isStoic ? (
+          <>
+            <h2 className="stoic-text text-[28px] text-white tracking-[0.04em]">CHOOSE YOUR OPPONENT</h2>
+            <p className="text-[10px] text-white/25 tracking-[0.15em] uppercase">{philosophers.filter((p) => userLevel >= p.unlockLevel).length} of {philosophers.length} unlocked</p>
+          </>
+        ) : (
+          <>
+            <h2 className="font-serif text-[28px] text-foreground">Choose Your Opponent</h2>
+            <p className="text-xs text-foreground/35 font-light">{philosophers.filter((p) => userLevel >= p.unlockLevel).length} of {philosophers.length} unlocked</p>
+          </>
+        )}
       </div>
       <div className="flex-1 px-7 flex flex-col gap-4 overflow-y-auto pb-4">
         {philosophers.map((p, i) => {
@@ -59,22 +71,26 @@ const ChooseOpponent = () => {
             <motion.button key={p.id} onClick={() => isUnlocked && navigate(`/arena/topic/${p.id}`)}
               className={`glass-card rounded-2xl p-5 flex gap-4 items-center text-left transition-all ${isUnlocked ? "hover:bg-card/60 hover:border-border cursor-pointer" : "opacity-40 cursor-not-allowed"}`}
               initial={{ opacity: 0, y: 10 }} animate={{ opacity: isUnlocked ? 1 : 0.4, y: 0 }} transition={{ duration: 0.3, delay: i * 0.08 }}>
-              <div className={`w-[60px] h-[60px] rounded-full border border-border/60 shrink-0 flex items-center justify-center bg-gradient-to-br from-muted to-background font-serif text-2xl ${isUnlocked ? "text-foreground" : "text-foreground/30"}`}>
+              <div className={`w-[60px] h-[60px] rounded-full border shrink-0 flex items-center justify-center bg-gradient-to-br from-muted to-background text-2xl ${
+                isStoic
+                  ? `border-white/[0.08] ${isUnlocked ? "text-white stoic-text" : "text-white/30"}`
+                  : `border-border/60 font-serif ${isUnlocked ? "text-foreground" : "text-foreground/30"}`
+              }`}>
                 {isUnlocked ? p.initials : <Lock className="w-5 h-5" />}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-serif text-xl text-foreground">{p.name}</h3>
+                  <h3 className={isStoic ? "stoic-text text-[18px] text-white tracking-[0.03em]" : "font-serif text-xl text-foreground"}>{isStoic ? p.name.toUpperCase() : p.name}</h3>
                   {isUnlocked && stats && stats.points > 0 && (
-                    <div className="flex items-center gap-1 shrink-0"><Zap className="w-3 h-3 text-foreground/50" /><span className="font-serif text-sm text-foreground/60">{stats.points}</span></div>
+                    <div className="flex items-center gap-1 shrink-0"><Zap className="w-3 h-3 text-foreground/50" /><span className={`text-sm text-foreground/60 ${isStoic ? "stoic-text" : "font-serif"}`}>{stats.points}</span></div>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-foreground/40 tracking-[0.12em] uppercase">{p.school}</span>
+                  <span className={`text-[10px] tracking-[0.12em] uppercase ${isStoic ? "text-white/30" : "text-foreground/40"}`}>{p.school}</span>
                   {isUnlocked && stats && stats.points > 0 && <span className={`text-[9px] tracking-[0.1em] uppercase ${tier.color}`}>· {tier.label}</span>}
                   {!isUnlocked && levelData && <span className="text-[9px] tracking-[0.1em] uppercase text-foreground/30">· Lv.{p.unlockLevel} {levelData.title}</span>}
                 </div>
-                <p className="text-xs text-foreground/30 font-light leading-snug mt-1">{p.description}</p>
+                <p className={`text-xs font-light leading-snug mt-1 ${isStoic ? "text-white/20" : "text-foreground/30"}`}>{p.description}</p>
               </div>
             </motion.button>
           );

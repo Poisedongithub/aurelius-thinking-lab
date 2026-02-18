@@ -7,12 +7,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { useGamification } from "@/hooks/useGamification";
 import { apiPost } from "@/lib/api";
 import { toast } from "sonner";
+import { useTheme } from "@/hooks/useTheme";
 
 const BASE_QUESTIONS = 30;
 
 const DilemmaQuiz = () => {
   const navigate = useNavigate();
   useAuth();
+  const { theme } = useTheme();
+  const isStoic = theme === "original";
   const { onDilemmaAnswer } = useGamification();
   const sessionId = useMemo(() => crypto.randomUUID(), []);
   const baseQuestions = useMemo(() => pickDilemmas(BASE_QUESTIONS), []);
@@ -82,13 +85,13 @@ const DilemmaQuiz = () => {
 
   if (!current) {
     if (loadingAI) {
-      return (<div className="phone-container min-h-screen flex flex-col items-center justify-center bg-background gap-4"><Loader2 className="w-6 h-6 text-foreground/40 animate-spin" /><p className="text-sm text-foreground/40 font-light">Generating new dilemma…</p></div>);
+      return (<div className={`phone-container min-h-screen flex flex-col items-center justify-center bg-background gap-4 ${isStoic ? "stoic-grain" : ""}`}><Loader2 className="w-6 h-6 text-foreground/40 animate-spin" /><p className="text-sm text-foreground/40 font-light">Generating new dilemma…</p></div>);
     }
     return null;
   }
 
   return (
-    <div className="phone-container min-h-screen flex flex-col bg-background">
+    <div className={`phone-container min-h-screen flex flex-col bg-background ${isStoic ? "stoic-grain" : ""}`}>
       <div className="shrink-0 px-7 pt-6 pb-5">
         <div className="flex items-center justify-between mb-5">
           <button onClick={() => navigate("/home")} className="text-foreground/40 hover:text-foreground/60 transition-colors"><ArrowLeft className="w-5 h-5" /></button>

@@ -18,9 +18,9 @@ export const themes: ThemeOption[] = [
   },
   {
     id: "original",
-    name: "Original",
-    description: "Black & white",
-    preview: { bg: "#0a0a0a", accent: "#e6e6e6", text: "#ededed" },
+    name: "Dark Stoic",
+    description: "Black & marble",
+    preview: { bg: "#000000", accent: "#1a1a1a", text: "#f2f2f2" },
   },
   {
     id: "ocean",
@@ -44,7 +44,7 @@ const ThemeContext = createContext<ThemeContextType>({
 
 const glowColors: Record<ThemeId, string> = {
   "cherry-blossom": "hsl(340 62% 54%)",
-  "original": "hsl(0 0% 70%)",
+  "original": "hsl(0 0% 30%)",
   "ocean": "hsl(185 50% 55%)",
 };
 
