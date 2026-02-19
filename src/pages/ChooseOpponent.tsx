@@ -22,6 +22,7 @@ const ChooseOpponent = () => {
   const { levelInfo, loading: gamLoading } = useGamification();
   const { theme } = useTheme();
   const isStoic = theme === "original";
+  const isOcean = theme === "ocean";
   const [philosopherScores, setPhilosopherScores] = useState<Record<string, { points: number; spars: number }>>({});
 
   useEffect(() => {
@@ -46,7 +47,7 @@ const ChooseOpponent = () => {
   const userLevel = gamLoading ? 1 : levelInfo.level;
 
   return (
-    <div className={`phone-container min-h-screen flex flex-col bg-background ${isStoic ? "stoic-grain" : ""}`}>
+    <div className={`phone-container min-h-screen flex flex-col bg-background ${isStoic ? "stoic-grain" : ""} ${isOcean ? "ocean-shimmer" : ""}`}>
       <button onClick={() => navigate("/home")} className="p-7 pb-0 text-foreground/50"><ArrowLeft className="w-5 h-5" /></button>
       <div className="px-7 pt-3 pb-6">
         {isStoic ? (

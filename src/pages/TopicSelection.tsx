@@ -12,9 +12,10 @@ const TopicSelection = () => {
   const philosopher = philosophers.find((p) => p.id === philosopherId);
   const { theme } = useTheme();
   const isStoic = theme === "original";
+  const isOcean = theme === "ocean";
 
   return (
-    <div className={`phone-container min-h-screen flex flex-col bg-background relative overflow-hidden ${isStoic ? "stoic-grain" : ""}`}>
+    <div className={`phone-container min-h-screen flex flex-col bg-background relative overflow-hidden ${isStoic ? "stoic-grain" : ""} ${isOcean ? "ocean-shimmer" : ""}`}>
       <div className="absolute -top-24 -right-24 w-[400px] h-[400px] bg-radial-[at_center] from-foreground/3 to-transparent pointer-events-none" />
       <button onClick={() => navigate("/arena")} className="p-7 pb-0 text-foreground/50 relative z-10"><ArrowLeft className="w-5 h-5" /></button>
       <div className="px-7 pt-3 pb-6 relative z-10">

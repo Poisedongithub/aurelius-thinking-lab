@@ -25,8 +25,8 @@ export const themes: ThemeOption[] = [
   {
     id: "ocean",
     name: "Ocean",
-    description: "Bondi blue & sand",
-    preview: { bg: "#0b1e26", accent: "#c2956b", text: "#f2f2f2" },
+    description: "Tropical teal & sand",
+    preview: { bg: "#006895", accent: "#0699ba", text: "#dfdcd2" },
   },
 ];
 
@@ -45,7 +45,7 @@ const ThemeContext = createContext<ThemeContextType>({
 const glowColors: Record<ThemeId, string> = {
   "cherry-blossom": "hsl(340 62% 54%)",
   "original": "hsl(0 0% 30%)",
-  "ocean": "hsl(185 50% 55%)",
+  "ocean": "hsl(191 94% 38%)",
 };
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {

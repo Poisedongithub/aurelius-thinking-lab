@@ -34,6 +34,7 @@ const ProfileScreen = () => {
   const { toast } = useToast();
   const { theme } = useTheme();
   const isStoic = theme === "original";
+  const isOcean = theme === "ocean";
   const { streak, levelInfo, unlockedIds, loading: gamLoading } = useGamification();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -85,7 +86,7 @@ const ProfileScreen = () => {
   ];
 
   return (
-    <div className={`phone-container min-h-screen flex flex-col bg-background ${isStoic ? "stoic-grain" : ""}`}>
+    <div className={`phone-container min-h-screen flex flex-col bg-background ${isStoic ? "stoic-grain" : ""} ${isOcean ? "ocean-shimmer" : ""}`}>
       <div className="flex justify-end px-7 pt-6">
         <button onClick={handleLogout} className="text-foreground/40 hover:text-foreground/70 transition-colors"><LogOut className="w-5 h-5" /></button>
       </div>

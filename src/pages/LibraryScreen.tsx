@@ -16,6 +16,7 @@ const LibraryScreen = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const isStoic = theme === "original";
+  const isOcean = theme === "ocean";
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,7 +36,7 @@ const LibraryScreen = () => {
   const formatDate = (iso: string) => { const d = new Date(iso); return d.toLocaleDateString("en-US", { month: "short", day: "numeric" }); };
 
   return (
-    <div className={`phone-container min-h-screen flex flex-col bg-background ${isStoic ? "stoic-grain" : ""}`}>
+    <div className={`phone-container min-h-screen flex flex-col bg-background ${isStoic ? "stoic-grain" : ""} ${isOcean ? "ocean-shimmer" : ""}`}>
       <div className="px-7 pt-8 pb-4">
         <h1 className="font-serif text-[28px] text-foreground">Library</h1>
         <p className="text-[11px] text-foreground/35 tracking-[0.15em] uppercase mt-1">Past sparring sessions</p>
