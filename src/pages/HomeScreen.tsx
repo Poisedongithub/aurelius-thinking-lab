@@ -58,8 +58,20 @@ const HomeScreen = () => {
       icon: (<svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.3} strokeLinecap="round" strokeLinejoin="round"><line x1="6" y1="2" x2="18" y2="2"/><line x1="6" y1="22" x2="18" y2="22"/><path d="M8 2c0 4 0 6 4 10-4 4-4 6-4 10"/><path d="M16 2c0 4 0 6-4 10 4 4 4 6 4 10"/></svg>) },
   ];
 
-  // Ocean palette accent colors for cards
-  const oceanCardAccents = [ocean.brightTeal, ocean.turquoise, ocean.seafoam];
+  // Ocean: each card gets a distinct accent from the palette
+  const oceanCardColors = [
+    { accent: ocean.deepBlue, bg: ocean.deepBlue + "12", border: ocean.deepBlue + "25" },
+    { accent: ocean.brightTeal, bg: ocean.brightTeal + "12", border: ocean.brightTeal + "25" },
+    { accent: ocean.turquoise, bg: ocean.turquoise + "12", border: ocean.turquoise + "25" },
+  ];
+
+  // Ocean: dilemma card colors cycle through all 5
+  const oceanDilemmaColors = [
+    { bg: ocean.deepBlue, accent: ocean.sand },
+    { bg: ocean.brightTeal, accent: "#ffffff" },
+    { bg: ocean.turquoise, accent: ocean.sand },
+    { bg: ocean.seafoam, accent: ocean.deepBlue },
+  ];
 
   return (
     <div className={`phone-container min-h-screen flex flex-col bg-background relative overflow-hidden ${isStoic ? "stoic-grain" : ""} ${isOcean ? "ocean-shimmer" : ""}`}>
@@ -73,15 +85,10 @@ const HomeScreen = () => {
         </>
       ) : isOcean ? (
         <>
-          {/* Ocean: multi-color gradient background with water feel */}
-          <div className="absolute top-0 left-0 right-0 h-[520px]" style={{
-            background: `
-              radial-gradient(ellipse 120% 80% at 20% 10%, ${ocean.deepBlue}60 0%, transparent 60%),
-              radial-gradient(ellipse 100% 60% at 80% 30%, ${ocean.brightTeal}40 0%, transparent 50%),
-              radial-gradient(ellipse 80% 40% at 50% 70%, ${ocean.turquoise}20 0%, transparent 40%)
-            `
+          {/* Ocean: top area has a vibrant deep blue to teal gradient — like looking at the ocean from the beach */}
+          <div className="absolute top-0 left-0 right-0 h-[360px]" style={{
+            background: `linear-gradient(180deg, ${ocean.deepBlue} 0%, ${ocean.brightTeal} 40%, ${ocean.turquoise} 65%, ${ocean.seafoam} 85%, ${ocean.sand} 100%)`
           }} />
-          <div className="absolute top-0 left-0 right-0 h-[520px] bg-gradient-to-b from-transparent via-background/40 to-background pointer-events-none" />
         </>
       ) : (
         <>
@@ -101,8 +108,8 @@ const HomeScreen = () => {
                 </>
               ) : isOcean ? (
                 <>
-                  <h1 className="font-serif text-4xl leading-tight" style={{ color: ocean.sand }}>Sharpen<br />Your Mind</h1>
-                  <p className="text-sm font-light mt-1" style={{ color: ocean.seafoam + "80" }}>The arena awaits</p>
+                  <h1 className="font-serif text-4xl leading-tight text-white drop-shadow-md">Sharpen<br />Your Mind</h1>
+                  <p className="text-sm font-light mt-1 text-white/70">The arena awaits</p>
                 </>
               ) : (
                 <>
@@ -116,17 +123,15 @@ const HomeScreen = () => {
                 {streak.current_streak > 0 && (
                   <div className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 ${
                     isStoic ? "border border-white/10 bg-white/[0.03]" :
-                    isOcean ? "border rounded-full" : "glass-card"
+                    isOcean ? "" : "glass-card"
                   }`}
-                  style={isOcean ? { borderColor: ocean.brightTeal + "30", background: ocean.deepBlue + "30" } : {}}>
-                    <Flame className="w-4 h-4" style={isOcean ? { color: ocean.brightTeal } : {}} />
-                    <span className={`text-lg ${isStoic ? "stoic-text text-foreground" : "font-serif text-foreground"}`}>{streak.current_streak}</span>
+                  style={isOcean ? { background: "rgba(255,255,255,0.25)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.3)" } : {}}>
+                    <Flame className="w-4 h-4" style={isOcean ? { color: ocean.sand } : {}} />
+                    <span className={`text-lg ${isStoic ? "stoic-text text-foreground" : isOcean ? "font-serif text-white" : "font-serif text-foreground"}`}>{streak.current_streak}</span>
                   </div>
                 )}
-                <div className={`text-[10px] uppercase ${isStoic ? "stoic-text tracking-[0.15em] text-foreground/30" : "tracking-[0.1em]"}`}
-                  style={isOcean ? { color: ocean.seafoam + "80" } : { color: undefined }}>
-                  {!isOcean && <span className="text-foreground/30">Lv.{levelInfo.level} · {levelInfo.title}</span>}
-                  {isOcean && `Lv.${levelInfo.level} · ${levelInfo.title}`}
+                <div className={`text-[10px] uppercase ${isStoic ? "stoic-text tracking-[0.15em] text-foreground/30" : isOcean ? "tracking-[0.1em] text-white/60" : "tracking-[0.1em] text-foreground/30"}`}>
+                  Lv.{levelInfo.level} · {levelInfo.title}
                 </div>
               </div>
             )}
@@ -134,14 +139,14 @@ const HomeScreen = () => {
           {!gamLoading && levelInfo.nextLevel && (
             <div className="mt-4 mb-6">
               <div className="flex justify-between mb-1">
-                <span className="text-[10px]" style={isOcean ? { color: ocean.seafoam + "60" } : {}}>{!isOcean && <span className="text-foreground/25">{levelInfo.totalXp} XP</span>}{isOcean && `${levelInfo.totalXp} XP`}</span>
-                <span className="text-[10px]" style={isOcean ? { color: ocean.seafoam + "60" } : {}}>{!isOcean && <span className="text-foreground/25">{levelInfo.nextLevel.xp} XP</span>}{isOcean && `${levelInfo.nextLevel.xp} XP`}</span>
+                <span className={`text-[10px] ${isOcean ? "text-white/50" : "text-foreground/25"}`}>{levelInfo.totalXp} XP</span>
+                <span className={`text-[10px] ${isOcean ? "text-white/50" : "text-foreground/25"}`}>{levelInfo.nextLevel.xp} XP</span>
               </div>
               <div className={`h-[3px] rounded-full overflow-hidden ${isStoic ? "bg-white/[0.06]" : isOcean ? "" : "bg-foreground/8"}`}
-                style={isOcean ? { background: ocean.deepBlue + "60" } : {}}>
+                style={isOcean ? { background: "rgba(255,255,255,0.2)" } : {}}>
                 <motion.div
                   className={`h-full rounded-full ${isStoic ? "bg-white/40" : isOcean ? "" : "bg-primary/60"}`}
-                  style={isOcean ? { background: `linear-gradient(90deg, ${ocean.deepBlue}, ${ocean.brightTeal}, ${ocean.turquoise})` } : {}}
+                  style={isOcean ? { background: `linear-gradient(90deg, ${ocean.sand}, #ffffff)` } : {}}
                   initial={{ width: 0 }}
                   animate={{ width: `${levelInfo.progress}%` }}
                   transition={{ duration: 0.8 }}
@@ -160,10 +165,10 @@ const HomeScreen = () => {
           </motion.div>
         )}
 
-        {/* Ocean gradient divider */}
+        {/* Ocean: sand-colored accent divider */}
         {isOcean && (
           <motion.div className="mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.3 }}>
-            <div className="ocean-divider" />
+            <div className="h-[2px] rounded-full" style={{ background: `linear-gradient(90deg, ${ocean.sand}00, ${ocean.sand}, ${ocean.seafoam}, ${ocean.brightTeal}, ${ocean.brightTeal}00)` }} />
           </motion.div>
         )}
 
@@ -182,13 +187,13 @@ const HomeScreen = () => {
                 isStoic ? "border border-white/[0.08] text-white/50" : isOcean ? "" : "border border-border/60 text-foreground/55"
               }`}
               style={isOcean ? {
-                border: `1px solid ${oceanCardAccents[i]}30`,
-                color: oceanCardAccents[i],
-                background: `${oceanCardAccents[i]}10`
+                border: `1px solid ${oceanCardColors[i].border}`,
+                color: oceanCardColors[i].accent,
+                background: oceanCardColors[i].bg
               } : {}}>
                 {card.icon}
               </div>
-              <div>
+              <div className="flex-1">
                 {isStoic ? (
                   <>
                     <h3 className="stoic-text text-[18px] text-white tracking-[0.04em]">{card.title.toUpperCase()}</h3>
@@ -196,16 +201,22 @@ const HomeScreen = () => {
                   </>
                 ) : isOcean ? (
                   <>
-                    <h3 className="font-serif text-xl" style={{ color: ocean.sand }}>{card.title}</h3>
-                    <p className="text-xs font-light" style={{ color: ocean.seafoam + "80" }}>{card.oceanDesc}</p>
+                    <h3 className="font-serif text-xl" style={{ color: ocean.deepBlue }}>{card.title}</h3>
+                    <p className="text-xs font-light" style={{ color: ocean.turquoise }}>{card.oceanDesc}</p>
                   </>
                 ) : (
                   <>
                     <h3 className="font-serif text-xl text-foreground">{card.title}</h3>
-                    <p className="text-xs text-foreground/35 font-light">{card.desc}</p>
+                    <p className="text-xs text-foreground/40 font-light">{card.desc}</p>
                   </>
                 )}
               </div>
+              {/* Ocean: sand-colored arrow indicator */}
+              {isOcean && (
+                <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: ocean.sand, color: ocean.deepBlue }}>
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
+                </div>
+              )}
             </motion.button>
           ))}
         </div>
@@ -219,11 +230,12 @@ const HomeScreen = () => {
             <h2 className="font-serif text-2xl text-foreground mb-1">Visual Philosophy</h2>
           )}
           <p className={`text-xs font-light mb-5 ${isStoic ? "text-white/25 tracking-[0.1em] uppercase" : ""}`}
-            style={isOcean ? { color: ocean.seafoam + "70" } : {}}>
+            style={isOcean ? { color: ocean.turquoise } : {}}>
             {isStoic ? "CONFRONT THE GREAT DILEMMAS" : "Classic dilemmas that define moral thought"}
           </p>
 
-          <motion.button onClick={() => navigate("/dilemma")} className={`w-full rounded-2xl overflow-hidden mb-4 ${isStoic ? "border border-white/[0.06]" : isOcean ? "glass-card" : "glass-card"}`} whileTap={{ scale: 0.98 }}
+          {/* Moral Dilemma Quiz card */}
+          <motion.button onClick={() => navigate("/dilemma")} className={`w-full rounded-2xl overflow-hidden mb-4 ${isStoic ? "border border-white/[0.06]" : ""}`} whileTap={{ scale: 0.98 }}
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.6 }}>
             <div className="relative h-[200px]">
               {isStoic ? (
@@ -233,12 +245,15 @@ const HomeScreen = () => {
                 </>
               ) : isOcean ? (
                 <>
+                  {/* Vibrant gradient using all 5 colors */}
                   <div className="w-full h-full" style={{
-                    background: `linear-gradient(135deg, ${ocean.deepBlue}90 0%, ${ocean.brightTeal}60 40%, ${ocean.turquoise}40 70%, ${ocean.seafoam}20 100%)`
+                    background: `linear-gradient(135deg, ${ocean.deepBlue} 0%, ${ocean.brightTeal} 25%, ${ocean.turquoise} 50%, ${ocean.seafoam} 75%, ${ocean.sand} 100%)`
                   }} />
                   <div className="absolute inset-0" style={{
-                    background: `linear-gradient(to top, hsla(198, 100%, 8%, 0.9) 0%, transparent 60%)`
+                    background: `linear-gradient(to top, rgba(0,104,149,0.85) 0%, rgba(0,104,149,0.3) 40%, transparent 70%)`
                   }} />
+                  {/* Sand-colored accent bar at top */}
+                  <div className="absolute top-0 left-0 right-0 h-[3px]" style={{ background: `linear-gradient(90deg, ${ocean.sand}, ${ocean.seafoam}, ${ocean.turquoise})` }} />
                 </>
               ) : (
                 <>
@@ -254,8 +269,8 @@ const HomeScreen = () => {
                   </>
                 ) : isOcean ? (
                   <>
-                    <h3 className="font-serif text-xl leading-snug" style={{ color: ocean.sand }}>Moral Dilemma Quiz</h3>
-                    <p className="text-[12px] font-light mt-1" style={{ color: ocean.seafoam + "90" }}>30 questions to reveal your moral alignment</p>
+                    <h3 className="font-serif text-xl leading-snug text-white">Moral Dilemma Quiz</h3>
+                    <p className="text-[12px] font-light mt-1" style={{ color: ocean.sand }}>30 questions to reveal your moral alignment</p>
                   </>
                 ) : (
                   <>
@@ -267,19 +282,13 @@ const HomeScreen = () => {
             </div>
           </motion.button>
 
+          {/* Dilemma cards carousel */}
           <div className="flex gap-4 overflow-x-auto pb-4 -mx-7 px-7 snap-x snap-mandatory scrollbar-hide" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
             {dilemmas.map((d, i) => {
-              // Ocean: cycle through palette colors for each dilemma card
-              const oceanColors = [
-                { from: ocean.deepBlue, to: ocean.brightTeal },
-                { from: ocean.brightTeal, to: ocean.turquoise },
-                { from: ocean.turquoise, to: ocean.seafoam },
-                { from: ocean.deepBlue, to: ocean.turquoise },
-              ];
               return (
                 <motion.button key={d.title} onClick={() => navigate(d.path)} className="shrink-0 w-[220px] snap-start group"
                   initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.7 + i * 0.1 }}>
-                  <div className={`relative w-full h-[280px] rounded-2xl overflow-hidden mb-3 ${isStoic ? "border border-white/[0.06]" : isOcean ? "glass-card" : ""}`}>
+                  <div className={`relative w-full h-[280px] rounded-2xl overflow-hidden mb-3 ${isStoic ? "border border-white/[0.06]" : ""}`}>
                     {isStoic ? (
                       <>
                         <img
@@ -291,15 +300,16 @@ const HomeScreen = () => {
                       </>
                     ) : isOcean ? (
                       <>
+                        {/* Each card uses a distinct palette color as its primary bg */}
                         <div className="w-full h-full transition-transform duration-500 group-hover:scale-105" style={{
-                          background: `linear-gradient(160deg, ${oceanColors[i].from}50 0%, ${oceanColors[i].to}30 100%)`
+                          background: `linear-gradient(160deg, ${oceanDilemmaColors[i].bg} 0%, ${oceanDilemmaColors[i].bg}cc 100%)`
                         }} />
                         <div className="absolute inset-0" style={{
-                          background: `linear-gradient(to top, hsla(198, 100%, 8%, 0.85) 0%, transparent 50%)`
+                          background: `linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%)`
                         }} />
-                        {/* Decorative wave at top of card */}
-                        <div className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl" style={{
-                          background: `linear-gradient(90deg, ${oceanColors[i].from}, ${oceanColors[i].to})`
+                        {/* Sand accent bar at top */}
+                        <div className="absolute top-0 left-0 right-0 h-[3px]" style={{
+                          background: ocean.sand
                         }} />
                       </>
                     ) : (
@@ -316,8 +326,10 @@ const HomeScreen = () => {
                         </>
                       ) : isOcean ? (
                         <>
-                          <h3 className="font-serif text-lg leading-snug" style={{ color: ocean.sand }}>{d.title}</h3>
-                          <p className="text-[11px] font-light mt-1" style={{ color: ocean.seafoam + "80" }}>{d.desc}</p>
+                          {/* Sand-colored tag chip */}
+                          <div className="inline-block px-2 py-0.5 rounded-full text-[9px] font-medium mb-2 ocean-sand-chip">{["Ethics", "Identity", "Reality", "Justice"][i]}</div>
+                          <h3 className="font-serif text-lg leading-snug text-white">{d.title}</h3>
+                          <p className="text-[11px] font-light mt-1" style={{ color: oceanDilemmaColors[i].accent + "cc" }}>{d.desc}</p>
                         </>
                       ) : (
                         <>
@@ -333,8 +345,9 @@ const HomeScreen = () => {
           </div>
         </motion.div>
 
+        {/* Bottom quote */}
         <div className={`mt-6 py-6 border-t mb-2 ${isStoic ? "border-white/[0.06]" : isOcean ? "" : "border-border/40"}`}
-          style={isOcean ? { borderTopWidth: "1px", borderImage: `linear-gradient(90deg, transparent, ${ocean.brightTeal}30, ${ocean.turquoise}30, transparent) 1` } : {}}>
+          style={isOcean ? { borderTop: `2px solid ${ocean.seafoam}40` } : {}}>
           {isStoic ? (
             <>
               <p className="stoic-text text-[18px] text-white/50 leading-relaxed tracking-[0.04em] text-center">"{quote.text.toUpperCase()}"</p>
@@ -342,8 +355,8 @@ const HomeScreen = () => {
             </>
           ) : isOcean ? (
             <>
-              <p className="font-serif italic text-[15px] leading-relaxed text-center" style={{ color: ocean.seafoam }}>"{quote.text}"</p>
-              <span className="text-[10px] tracking-[0.1em] uppercase mt-2 block text-center" style={{ color: ocean.brightTeal + "60" }}>{quote.author}</span>
+              <p className="font-serif italic text-[15px] leading-relaxed text-center" style={{ color: ocean.deepBlue }}>"{quote.text}"</p>
+              <span className="text-[10px] tracking-[0.1em] uppercase mt-2 block text-center" style={{ color: ocean.turquoise }}>{quote.author}</span>
             </>
           ) : (
             <>

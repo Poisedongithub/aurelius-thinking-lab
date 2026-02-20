@@ -91,21 +91,25 @@ const AuthPage = () => {
     ? "w-full rounded-xl py-3 text-sm font-medium mt-2 transition-colors disabled:opacity-50"
     : "w-full bg-primary text-primary-foreground rounded-xl py-3 text-sm font-medium mt-2 hover:bg-primary/90 transition-colors disabled:opacity-50";
 
+  // Ocean input: white bg with seafoam border on sand background
   const oceanInputStyle = isOcean ? {
-    color: ocean.sand,
-    background: `${ocean.deepBlue}40`,
-    border: `1px solid ${ocean.seafoam}20`,
+    color: ocean.deepBlue,
+    background: "rgba(255,255,255,0.75)",
+    border: `1px solid ${ocean.seafoam}`,
+    borderRadius: "0.75rem",
   } : {};
 
-  const oceanInputFocusClass = isOcean ? "focus:border-[#0699ba50]" : "";
+  const oceanInputFocusClass = isOcean ? "focus:border-[#0699ba] placeholder:text-[#8ec2b7]" : "";
 
+  // Ocean button: deep blue bg with sand text
   const oceanBtnStyle = isOcean ? {
-    background: `linear-gradient(135deg, ${ocean.brightTeal}, ${ocean.turquoise})`,
-    color: "#001a26",
+    background: ocean.deepBlue,
+    color: ocean.sand,
   } : {};
 
   return (
-    <div className={`phone-container min-h-screen flex flex-col items-center justify-center bg-background relative overflow-hidden px-7 ${isStoic ? "stoic-grain" : ""}`}>
+    <div className={`phone-container min-h-screen flex flex-col items-center justify-center relative overflow-hidden px-7 ${isStoic ? "stoic-grain" : ""}`}
+      style={isOcean ? { background: `linear-gradient(180deg, ${ocean.brightTeal} 0%, ${ocean.seafoam} 40%, ${ocean.sand} 100%)` } : {}}>
       {/* Background */}
       {isStoic ? (
         <>
@@ -117,17 +121,12 @@ const AuthPage = () => {
         </>
       ) : isOcean ? (
         <>
-          {/* Ocean: deep gradient with water-like radials */}
-          <div className="absolute inset-0" style={{
+          {/* Subtle light caustics on the gradient */}
+          <div className="absolute inset-0 opacity-10" style={{
             background: `
-              radial-gradient(ellipse 100% 80% at 50% 20%, ${ocean.deepBlue}50 0%, transparent 60%),
-              radial-gradient(ellipse 80% 60% at 30% 80%, ${ocean.brightTeal}20 0%, transparent 50%),
-              radial-gradient(ellipse 60% 40% at 80% 60%, ${ocean.turquoise}15 0%, transparent 40%)
+              radial-gradient(ellipse 60% 40% at 25% 25%, rgba(255,255,255,0.4) 0%, transparent 60%),
+              radial-gradient(ellipse 50% 50% at 75% 70%, rgba(255,255,255,0.3) 0%, transparent 50%)
             `
-          }} />
-          {/* Subtle bottom sand glow */}
-          <div className="absolute bottom-0 left-0 right-0 h-[20%]" style={{
-            background: `linear-gradient(to top, ${ocean.sand}06 0%, transparent 100%)`
           }} />
         </>
       ) : (
@@ -148,12 +147,12 @@ const AuthPage = () => {
             {/* Wave icon */}
             <div className="flex justify-center mb-4">
               <svg className="w-8 h-8" viewBox="0 0 40 40" fill="none">
-                <path d="M4 20c4-4 8-4 12 0s8 4 12 0 8-4 12 0" stroke={ocean.seafoam} strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
-                <path d="M4 26c4-4 8-4 12 0s8 4 12 0 8-4 12 0" stroke={ocean.brightTeal} strokeWidth="1.5" strokeLinecap="round" opacity="0.3" />
+                <path d="M4 20c4-4 8-4 12 0s8 4 12 0 8-4 12 0" stroke={ocean.deepBlue} strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+                <path d="M4 26c4-4 8-4 12 0s8 4 12 0 8-4 12 0" stroke={ocean.deepBlue} strokeWidth="1.5" strokeLinecap="round" opacity="0.3" />
               </svg>
             </div>
-            <h1 className="font-serif text-[36px] text-center mb-1 ocean-gradient-text">Aurelius</h1>
-            <p className="text-[10px] tracking-[0.35em] uppercase text-center mb-10" style={{ color: ocean.seafoam + "80" }}>Thinking Lab</p>
+            <h1 className="font-serif text-[36px] text-center mb-1" style={{ color: ocean.deepBlue }}>Aurelius</h1>
+            <p className="text-[10px] tracking-[0.35em] uppercase text-center mb-10" style={{ color: ocean.deepBlue + "80" }}>Thinking Lab</p>
           </>
         ) : (
           <>
@@ -169,11 +168,11 @@ const AuthPage = () => {
                 <div className="text-center">
                   <div className="text-4xl mb-4">📧</div>
                   <h3 className={`text-lg mb-2 ${isStoic ? "stoic-text text-white tracking-[0.04em]" : "font-serif"}`}
-                    style={isOcean ? { color: ocean.sand } : {}}>
+                    style={isOcean ? { color: ocean.deepBlue } : {}}>
                     {isStoic ? "CHECK YOUR EMAIL" : "Check your email"}
                   </h3>
                   <p className={`text-xs font-light mb-6 leading-relaxed ${isStoic ? "text-white/35" : ""}`}
-                    style={isOcean ? { color: ocean.seafoam + "90" } : {}}>
+                    style={isOcean ? { color: ocean.deepBlue + "90" } : {}}>
                     We sent a password reset link to <span style={isOcean ? { color: ocean.brightTeal } : {}} className={isStoic ? "text-white/60" : isOcean ? "" : "text-foreground/70"}>{email}</span>. Click the link in the email to set a new password.
                   </p>
                   <button onClick={() => switchMode("login")} className={btnClass} style={oceanBtnStyle}>
@@ -183,15 +182,15 @@ const AuthPage = () => {
               ) : (
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                   <button type="button" onClick={() => switchMode("login")} className={`flex items-center gap-1 text-xs transition-colors mb-2 ${isStoic ? "text-white/30 hover:text-white/50" : ""}`}
-                    style={isOcean ? { color: ocean.seafoam + "80" } : {}}>
+                    style={isOcean ? { color: ocean.deepBlue + "80" } : {}}>
                     <ArrowLeft className="w-3.5 h-3.5" /> Back to sign in
                   </button>
                   <h3 className={`text-lg -mt-2 ${isStoic ? "stoic-text text-white tracking-[0.04em]" : "font-serif"}`}
-                    style={isOcean ? { color: ocean.sand } : {}}>
+                    style={isOcean ? { color: ocean.deepBlue } : {}}>
                     {isStoic ? "RESET YOUR PASSWORD" : "Reset your password"}
                   </h3>
                   <p className={`text-xs font-light -mt-2 ${isStoic ? "text-white/30" : ""}`}
-                    style={isOcean ? { color: ocean.seafoam + "70" } : {}}>
+                    style={isOcean ? { color: ocean.turquoise } : {}}>
                     Enter your email and we'll send you a reset link.
                   </p>
                   <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required
@@ -215,7 +214,7 @@ const AuthPage = () => {
                   className={`${inputClass} ${oceanInputFocusClass}`} style={oceanInputStyle} />
                 {mode === "login" && (
                   <button type="button" onClick={() => switchMode("forgot")} className={`text-xs text-right -mt-2 transition-colors ${isStoic ? "text-white/25 hover:text-white/40" : ""}`}
-                    style={isOcean ? { color: ocean.seafoam + "70" } : {}}>
+                    style={isOcean ? { color: ocean.deepBlue + "70" } : {}}>
                     Forgot password?
                   </button>
                 )}
@@ -225,7 +224,7 @@ const AuthPage = () => {
               </form>
               <button onClick={() => switchMode(mode === "login" ? "signup" : "login")}
                 className={`text-xs mt-6 text-center w-full transition-colors ${isStoic ? "text-white/25 hover:text-white/40" : ""}`}
-                style={isOcean ? { color: ocean.seafoam + "70" } : {}}>
+                style={isOcean ? { color: ocean.deepBlue + "70" } : {}}>
                 {mode === "login" ? "New to the academy? Create an account" : "Already a member? Sign in"}
               </button>
             </motion.div>

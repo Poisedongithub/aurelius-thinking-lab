@@ -26,7 +26,7 @@ export const themes: ThemeOption[] = [
     id: "ocean",
     name: "Ocean",
     description: "Tropical teal & sand",
-    preview: { bg: "#006895", accent: "#0699ba", text: "#dfdcd2" },
+    preview: { bg: "#dfdcd2", accent: "#0699ba", text: "#006895" },
   },
 ];
 

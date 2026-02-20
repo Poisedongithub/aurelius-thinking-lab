@@ -107,51 +107,51 @@
 
   /* ===== OCEAN — Tropical beach palette: deep blue, teal, turquoise, seafoam, sand ===== */
   [data-theme="ocean"] {
-    /* Background: very dark deep ocean blue */
-    --background: 198 100% 8%;
-    /* Foreground: warm sand for readability */
-    --foreground: 46 17% 85%;
-    /* Card: dark teal-blue with slight warmth */
-    --card: 198 70% 12%;
-    --card-foreground: 46 17% 85%;
-    --popover: 198 70% 10%;
-    --popover-foreground: 46 17% 85%;
-    /* Primary: bright teal (#0699ba) */
-    --primary: 191 94% 38%;
-    --primary-foreground: 198 100% 5%;
-    /* Secondary: deep ocean blue (#006895) */
-    --secondary: 198 100% 18%;
-    --secondary-foreground: 46 17% 85%;
-    /* Muted: dark ocean */
-    --muted: 198 60% 14%;
-    /* Muted foreground: soft seafoam (#8ec2b7) */
-    --muted-foreground: 167 30% 66%;
-    /* Accent: turquoise (#1ea5b0) */
+    /* Background: warm sand (#dfdcd2) — the beach itself */
+    --background: 43 18% 86%;
+    /* Foreground: deep ocean blue for text on sand */
+    --foreground: 198 100% 29%;
+    /* Card: white with slight sand warmth */
+    --card: 43 20% 96%;
+    --card-foreground: 198 100% 22%;
+    --popover: 43 20% 96%;
+    --popover-foreground: 198 100% 22%;
+    /* Primary: deep ocean blue (#006895) — bold, anchoring */
+    --primary: 198 100% 29%;
+    --primary-foreground: 43 18% 95%;
+    /* Secondary: bright teal (#0699ba) — vibrant accent */
+    --secondary: 191 94% 38%;
+    --secondary-foreground: 0 0% 100%;
+    /* Muted: light sand */
+    --muted: 43 15% 82%;
+    /* Muted foreground: seafoam for subtle text */
+    --muted-foreground: 198 60% 35%;
+    /* Accent: turquoise (#1ea5b0) — highlights */
     --accent: 185 71% 40%;
-    --accent-foreground: 46 17% 90%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 72% 50%;
     --destructive-foreground: 0 85% 97%;
     /* Border: seafoam-tinted */
-    --border: 185 30% 22%;
-    /* Input: dark teal */
-    --input: 198 50% 16%;
+    --border: 167 20% 75%;
+    /* Input: white-sand */
+    --input: 43 18% 90%;
     /* Ring: bright teal */
     --ring: 191 94% 38%;
-    --sidebar-background: 198 100% 7%;
-    --sidebar-foreground: 46 17% 85%;
-    --sidebar-primary: 191 94% 38%;
-    --sidebar-primary-foreground: 198 100% 5%;
-    --sidebar-accent: 198 100% 18%;
-    --sidebar-accent-foreground: 46 17% 85%;
-    --sidebar-border: 185 30% 22%;
+    --sidebar-background: 43 18% 84%;
+    --sidebar-foreground: 198 100% 29%;
+    --sidebar-primary: 198 100% 29%;
+    --sidebar-primary-foreground: 43 18% 95%;
+    --sidebar-accent: 191 94% 38%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 167 20% 75%;
     --sidebar-ring: 191 94% 38%;
     /* Charts use all 5 palette colors */
     --chart-1: 198 100% 29%;
     --chart-2: 191 94% 38%;
     --chart-3: 185 71% 40%;
     --chart-4: 167 30% 66%;
-    --chart-5: 46 17% 85%;
-    --sidebar: 198 100% 7%;
+    --chart-5: 43 18% 70%;
+    --sidebar: 43 18% 84%;
     /* Glow: bright teal */
     --theme-glow: 191 94% 38%;
     --theme-glow-light: 185 71% 40%;
@@ -251,19 +251,21 @@
     box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.8);
   }
 
-  /* ===== OCEAN THEME — Tropical water shimmer & glass effects ===== */
+  /* ===== OCEAN THEME — Light sand base with tropical water accents ===== */
   [data-theme="ocean"] .glass-card {
     @apply backdrop-blur-sm;
-    background: linear-gradient(135deg, hsla(198, 100%, 29%, 0.15) 0%, hsla(191, 94%, 38%, 0.08) 100%);
-    border: 1px solid hsla(167, 30%, 66%, 0.15);
+    background: rgba(255, 255, 255, 0.65);
+    border: 1px solid rgba(142, 194, 183, 0.35);
+    box-shadow: 0 2px 12px rgba(0, 104, 149, 0.06);
   }
 
   [data-theme="ocean"] .glass-card:hover {
-    background: linear-gradient(135deg, hsla(198, 100%, 29%, 0.22) 0%, hsla(191, 94%, 38%, 0.14) 100%);
-    border-color: hsla(167, 30%, 66%, 0.25);
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(6, 153, 186, 0.4);
+    box-shadow: 0 4px 16px rgba(0, 104, 149, 0.1);
   }
 
-  /* Ocean water shimmer overlay */
+  /* Ocean water shimmer overlay — subtle on light bg */
   [data-theme="ocean"] .ocean-shimmer::before {
     content: "";
     position: absolute;
@@ -274,9 +276,9 @@
     background: linear-gradient(
       110deg,
       transparent 20%,
-      hsla(191, 94%, 38%, 0.03) 40%,
-      hsla(185, 71%, 40%, 0.06) 50%,
-      hsla(191, 94%, 38%, 0.03) 60%,
+      hsla(191, 94%, 38%, 0.04) 40%,
+      hsla(185, 71%, 40%, 0.07) 50%,
+      hsla(191, 94%, 38%, 0.04) 60%,
       transparent 80%
     );
     animation: ocean-wave 8s ease-in-out infinite;
@@ -289,22 +291,34 @@
     50% { transform: translateX(30%); }
   }
 
-  /* Ocean gradient text */
+  /* Ocean gradient text — deep blue to teal */
   .ocean-gradient-text {
-    background: linear-gradient(135deg, #0699ba 0%, #1ea5b0 40%, #8ec2b7 100%);
+    background: linear-gradient(135deg, #006895 0%, #0699ba 40%, #1ea5b0 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* Ocean card accent bar */
+  /* Ocean card accent bar — all 5 colors */
   .ocean-accent-bar {
-    background: linear-gradient(90deg, #006895, #0699ba, #1ea5b0, #8ec2b7);
+    background: linear-gradient(90deg, #006895, #0699ba, #1ea5b0, #8ec2b7, #dfdcd2);
   }
 
-  /* Ocean section divider */
+  /* Ocean section divider — seafoam to sand */
   .ocean-divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #0699ba40, #1ea5b040, #8ec2b740, transparent);
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #0699ba60, #1ea5b060, #8ec2b760, #dfdcd260, transparent);
+  }
+
+  /* Sand highlight chip — for tags, badges, labels */
+  .ocean-sand-chip {
+    background: #dfdcd2;
+    color: #006895;
+    border: 1px solid rgba(142, 194, 183, 0.4);
+  }
+
+  /* Sand highlight bar — warm accent stripe */
+  .ocean-sand-bar {
+    background: linear-gradient(90deg, #dfdcd2, #8ec2b7);
   }
 }
