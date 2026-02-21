@@ -137,9 +137,9 @@ const SplashScreen = () => {
         <h1
           style={{
             fontFamily: "'Instrument Serif', serif",
-            fontSize: "clamp(64px, 18vw, 120px)",
+            fontSize: "clamp(40px, 12vw, 72px)",
             color: "#ffffff",
-            letterSpacing: "0.04em",
+            letterSpacing: "0.02em",
             fontWeight: 400,
             fontStyle: "italic",
             textAlign: "center",
@@ -147,6 +147,8 @@ const SplashScreen = () => {
             textTransform: "lowercase",
             textShadow: "0 2px 20px rgba(0,0,0,0.5), 0 0 60px rgba(0,0,0,0.3)",
             userSelect: "none",
+            padding: "0 20px",
+            wordBreak: "keep-all",
           }}
         >
           {splashWord}
