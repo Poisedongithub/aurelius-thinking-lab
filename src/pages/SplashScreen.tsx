@@ -141,7 +141,7 @@ const SplashScreen = () => {
             color: "#ffffff",
             letterSpacing: "0.02em",
             fontWeight: 400,
-            fontStyle: "italic",
+            fontStyle: "normal",
             textAlign: "center",
             lineHeight: 1,
             textTransform: "lowercase",
