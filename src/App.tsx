@@ -17,6 +17,8 @@ import DilemmaQuiz from "./pages/DilemmaQuiz";
 import DilemmaResults from "./pages/DilemmaResults";
 import ClassicDilemma from "./pages/ClassicDilemma";
 import ResetPassword from "./pages/ResetPassword";
+import OnboardingScreen from "./pages/OnboardingScreen";
+import ProgressDashboard from "./pages/ProgressDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +32,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<SplashScreen />} />
+            <Route path="/onboarding" element={<OnboardingScreen />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/home" element={<HomeScreen />} />
             <Route path="/arena" element={<ChooseOpponent />} />
@@ -39,6 +42,7 @@ const App = () => (
             <Route path="/arena/spar/:philosopherId/:topicId" element={<SparringArena />} />
             <Route path="/library" element={<LibraryScreen />} />
             <Route path="/profile" element={<ProfileScreen />} />
+            <Route path="/progress" element={<ProgressDashboard />} />
             <Route path="/dilemma" element={<DilemmaQuiz />} />
             <Route path="/dilemma/results" element={<DilemmaResults />} />
             <Route path="/dilemma/:dilemmaId" element={<ClassicDilemma />} />

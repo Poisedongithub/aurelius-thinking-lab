@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { TabBar } from "@/components/TabBar";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Zap, Flame, Trophy, Lock, Eye, EyeOff } from "lucide-react";
+import { LogOut, Zap, Flame, Trophy, Lock, Eye, EyeOff, TrendingUp } from "lucide-react";
 import { ThemeSelector } from "@/components/ThemeSelector";
 import { useGamification } from "@/hooks/useGamification";
 import { useToast } from "@/components/ui/use-toast";
@@ -167,6 +167,25 @@ const ProfileScreen = () => {
             </div>
           </motion.div>
         )}
+
+        <motion.button
+          onClick={() => navigate("/progress")}
+          className="glass-card rounded-2xl p-5 w-full text-left"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.22 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-primary/70" />
+            </div>
+            <div>
+              <h4 className="font-serif text-base text-foreground/70">Progress Dashboard</h4>
+              <p className="text-[11px] text-foreground/35 font-light">Philosophical DNA, debate record, moral alignment</p>
+            </div>
+          </div>
+        </motion.button>
 
         <motion.div className="glass-card rounded-2xl p-5" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
           <ThemeSelector />

@@ -6,7 +6,12 @@ import { useTheme } from "@/hooks/useTheme";
 const SplashScreen = () => {
   const navigate = useNavigate();
   const { glowColor, theme } = useTheme();
-  useEffect(() => { const timer = setTimeout(() => navigate("/home"), 3000); return () => clearTimeout(timer); }, [navigate]);
+  useEffect(() => {
+    const hasOnboarded = localStorage.getItem("aurelius-onboarded");
+    const destination = hasOnboarded ? "/home" : "/onboarding";
+    const timer = setTimeout(() => navigate(destination), 3000);
+    return () => clearTimeout(timer);
+  }, [navigate]);
 
   const isStoic = theme === "original";
   const isOcean = theme === "ocean";
