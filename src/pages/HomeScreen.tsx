@@ -33,6 +33,15 @@ const ocean = {
   sand: "#dfdcd2",
 };
 
+// Cherry Blossom palette colors for direct use
+const sakura = {
+  deepPink: "#D6275A",
+  mediumPink: "#E8527A",
+  coralPink: "#F4A0B0",
+  blush: "#F8C8D4",
+  powderBlue: "#C5D1E0",
+};
+
 const HomeScreen = () => {
   const navigate = useNavigate();
   useAuth();
@@ -41,24 +50,29 @@ const HomeScreen = () => {
   const quote = dailyQuotes[new Date().getDay() % dailyQuotes.length];
   const isStoic = theme === "original";
   const isOcean = theme === "ocean";
+  const isCherry = theme === "cherry-blossom";
   const stoicQuote = stoicMotivations[new Date().getDay() % stoicMotivations.length];
 
   const cards = [
     { title: "Choose Opponent", desc: "Select your philosophical challenger", action: () => navigate("/arena"),
       stoicDesc: "ENTER THE ARENA",
       oceanDesc: "Select your challenger",
+      cherryDesc: "Select your challenger",
       icon: (<svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.3} strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="21" x2="15" y2="5"/><polyline points="13,3 17,3 17,7"/><line x1="21" y1="21" x2="9" y2="5"/><polyline points="7,3 11,3 7,7"/><line x1="8" y1="16" x2="16" y2="16"/></svg>) },
     { title: "Library", desc: "Explore philosophical concepts", action: () => navigate("/library"),
       stoicDesc: "REVIEW YOUR BATTLES",
       oceanDesc: "Explore the depths",
+      cherryDesc: "Explore the collection",
       icon: (<svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.3} strokeLinecap="round" strokeLinejoin="round"><path d="M5 14c0-5 3-9 7-10 4 1 7 5 7 10"/><line x1="3" y1="14" x2="21" y2="14"/><path d="M5 14c0 3 1 5 3 6h8c2-1 3-3 3-6"/></svg>) },
     { title: "Daily Challenge", desc: "Today's philosophical question", action: () => navigate("/dilemma"),
       stoicDesc: "TEST YOUR RESOLVE",
       oceanDesc: "Today's question",
+      cherryDesc: "Today's reflection",
       icon: (<svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.3} strokeLinecap="round" strokeLinejoin="round"><line x1="6" y1="2" x2="18" y2="2"/><line x1="6" y1="22" x2="18" y2="22"/><path d="M8 2c0 4 0 6 4 10-4 4-4 6-4 10"/><path d="M16 2c0 4 0 6-4 10 4 4 4 6 4 10"/></svg>) },
     { title: "Moral Court", desc: "Judge today's ethical case", action: () => navigate("/court"),
       stoicDesc: "DELIVER JUSTICE",
       oceanDesc: "Today's moral case",
+      cherryDesc: "Today's moral case",
       icon: (<svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.3} strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v4"/><path d="M4 7h16"/><path d="M4 7l2 10h12l2-10"/><path d="M8 17v4"/><path d="M16 17v4"/><path d="M6 21h12"/><circle cx="12" cy="7" r="1"/></svg>) },
   ];
 
@@ -70,6 +84,14 @@ const HomeScreen = () => {
     { accent: ocean.seafoam, bg: ocean.seafoam + "20", border: ocean.seafoam + "40" },
   ];
 
+  // Cherry Blossom: each card gets a distinct accent from the palette
+  const cherryCardColors = [
+    { accent: sakura.deepPink, bg: sakura.deepPink + "10", border: sakura.deepPink + "25" },
+    { accent: sakura.mediumPink, bg: sakura.mediumPink + "10", border: sakura.mediumPink + "25" },
+    { accent: sakura.coralPink, bg: sakura.coralPink + "18", border: sakura.coralPink + "35" },
+    { accent: sakura.powderBlue, bg: sakura.powderBlue + "25", border: sakura.powderBlue + "50" },
+  ];
+
   // Ocean: dilemma card colors cycle through all 5
   const oceanDilemmaColors = [
     { bg: ocean.deepBlue, accent: ocean.sand },
@@ -78,9 +100,17 @@ const HomeScreen = () => {
     { bg: ocean.seafoam, accent: ocean.deepBlue },
   ];
 
+  // Cherry Blossom: dilemma card colors
+  const cherryDilemmaColors = [
+    { bg: sakura.deepPink, accent: "#ffffff" },
+    { bg: sakura.mediumPink, accent: "#ffffff" },
+    { bg: sakura.coralPink, accent: sakura.deepPink },
+    { bg: sakura.powderBlue, accent: sakura.deepPink },
+  ];
+
   return (
-    <div className={`phone-container min-h-screen flex flex-col bg-background relative overflow-hidden ${isStoic ? "stoic-grain" : ""} ${isOcean ? "ocean-shimmer" : ""}`}>
-      {/* Background: Stoic statue, Ocean gradient, or default glow */}
+    <div className={`phone-container min-h-screen flex flex-col bg-background relative overflow-hidden ${isStoic ? "stoic-grain" : ""} ${isOcean ? "ocean-shimmer" : ""} ${isCherry ? "sakura-drift" : ""}`}>
+      {/* Background: Stoic statue, Ocean gradient, Cherry Blossom gradient, or default glow */}
       {isStoic ? (
         <>
           <div className="absolute top-0 left-0 right-0 h-[520px]">
@@ -90,9 +120,15 @@ const HomeScreen = () => {
         </>
       ) : isOcean ? (
         <>
-          {/* Ocean: top area has a vibrant deep blue to teal gradient — like looking at the ocean from the beach */}
           <div className="absolute top-0 left-0 right-0 h-[360px]" style={{
             background: `linear-gradient(180deg, ${ocean.deepBlue} 0%, ${ocean.brightTeal} 40%, ${ocean.turquoise} 65%, ${ocean.seafoam} 85%, ${ocean.sand} 100%)`
+          }} />
+        </>
+      ) : isCherry ? (
+        <>
+          {/* Cherry Blossom: beautiful gradient from deep pink through blush to powder blue */}
+          <div className="absolute top-0 left-0 right-0 h-[380px]" style={{
+            background: `linear-gradient(180deg, ${sakura.deepPink} 0%, ${sakura.mediumPink} 30%, ${sakura.coralPink} 55%, ${sakura.blush} 80%, hsl(345, 60%, 94%) 100%)`
           }} />
         </>
       ) : (
@@ -116,6 +152,11 @@ const HomeScreen = () => {
                   <h1 className="font-serif text-4xl leading-tight text-white drop-shadow-md">Sharpen<br />Your Mind</h1>
                   <p className="text-sm font-light mt-1 text-white/70">The arena awaits</p>
                 </>
+              ) : isCherry ? (
+                <>
+                  <h1 className="font-serif text-4xl leading-tight text-white drop-shadow-md">Sharpen<br />Your Mind</h1>
+                  <p className="text-sm font-light mt-1 text-white/70">The arena awaits</p>
+                </>
               ) : (
                 <>
                   <h1 className="font-serif text-4xl leading-tight text-foreground">Sharpen<br />Your Mind</h1>
@@ -128,14 +169,14 @@ const HomeScreen = () => {
                 {streak.current_streak > 0 && (
                   <div className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 ${
                     isStoic ? "border border-white/10 bg-white/[0.03]" :
-                    isOcean ? "" : "glass-card"
+                    (isOcean || isCherry) ? "" : "glass-card"
                   }`}
-                  style={isOcean ? { background: "rgba(255,255,255,0.25)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.3)" } : {}}>
-                    <Flame className="w-4 h-4" style={isOcean ? { color: ocean.sand } : {}} />
-                    <span className={`text-lg ${isStoic ? "stoic-text text-foreground" : isOcean ? "font-serif text-white" : "font-serif text-foreground"}`}>{streak.current_streak}</span>
+                  style={(isOcean || isCherry) ? { background: "rgba(255,255,255,0.25)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.3)" } : {}}>
+                    <Flame className="w-4 h-4" style={isOcean ? { color: ocean.sand } : isCherry ? { color: sakura.blush } : {}} />
+                    <span className={`text-lg ${isStoic ? "stoic-text text-foreground" : (isOcean || isCherry) ? "font-serif text-white" : "font-serif text-foreground"}`}>{streak.current_streak}</span>
                   </div>
                 )}
-                <div className={`text-[10px] uppercase ${isStoic ? "stoic-text tracking-[0.15em] text-foreground/30" : isOcean ? "tracking-[0.1em] text-white/60" : "tracking-[0.1em] text-foreground/30"}`}>
+                <div className={`text-[10px] uppercase ${isStoic ? "stoic-text tracking-[0.15em] text-foreground/30" : (isOcean || isCherry) ? "tracking-[0.1em] text-white/60" : "tracking-[0.1em] text-foreground/30"}`}>
                   Lv.{levelInfo.level} · {levelInfo.title}
                 </div>
               </div>
@@ -144,14 +185,14 @@ const HomeScreen = () => {
           {!gamLoading && levelInfo.nextLevel && (
             <div className="mt-4 mb-6">
               <div className="flex justify-between mb-1">
-                <span className={`text-[10px] ${isOcean ? "text-white/50" : "text-foreground/25"}`}>{levelInfo.totalXp} XP</span>
-                <span className={`text-[10px] ${isOcean ? "text-white/50" : "text-foreground/25"}`}>{levelInfo.nextLevel.xp} XP</span>
+                <span className={`text-[10px] ${(isOcean || isCherry) ? "text-white/50" : "text-foreground/25"}`}>{levelInfo.totalXp} XP</span>
+                <span className={`text-[10px] ${(isOcean || isCherry) ? "text-white/50" : "text-foreground/25"}`}>{levelInfo.nextLevel.xp} XP</span>
               </div>
-              <div className={`h-[3px] rounded-full overflow-hidden ${isStoic ? "bg-white/[0.06]" : isOcean ? "" : "bg-foreground/8"}`}
-                style={isOcean ? { background: "rgba(255,255,255,0.2)" } : {}}>
+              <div className={`h-[3px] rounded-full overflow-hidden ${isStoic ? "bg-white/[0.06]" : (isOcean || isCherry) ? "" : "bg-foreground/8"}`}
+                style={(isOcean || isCherry) ? { background: "rgba(255,255,255,0.2)" } : {}}>
                 <motion.div
-                  className={`h-full rounded-full ${isStoic ? "bg-white/40" : isOcean ? "" : "bg-primary/60"}`}
-                  style={isOcean ? { background: `linear-gradient(90deg, ${ocean.sand}, #ffffff)` } : {}}
+                  className={`h-full rounded-full ${isStoic ? "bg-white/40" : (isOcean || isCherry) ? "" : "bg-primary/60"}`}
+                  style={isOcean ? { background: `linear-gradient(90deg, ${ocean.sand}, #ffffff)` } : isCherry ? { background: `linear-gradient(90deg, ${sakura.blush}, #ffffff)` } : {}}
                   initial={{ width: 0 }}
                   animate={{ width: `${levelInfo.progress}%` }}
                   transition={{ duration: 0.8 }}
@@ -177,24 +218,35 @@ const HomeScreen = () => {
           </motion.div>
         )}
 
+        {/* Cherry Blossom: sakura accent divider using all 5 colors */}
+        {isCherry && (
+          <motion.div className="mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.3 }}>
+            <div className="h-[2px] rounded-full sakura-accent-bar" style={{ opacity: 0.5 }} />
+          </motion.div>
+        )}
+
         <div className="flex flex-col gap-3">
           {cards.map((card, i) => (
             <motion.button key={card.title} onClick={card.action}
               className={`rounded-2xl p-6 flex items-center gap-5 text-left transition-all ${
                 isStoic
                   ? "border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/[0.12]"
-                  : isOcean
+                  : (isOcean || isCherry)
                   ? "glass-card"
                   : "glass-card hover:bg-card/60 hover:border-border"
               }`}
               initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 + i * 0.1 }}>
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
-                isStoic ? "border border-white/[0.08] text-white/50" : isOcean ? "" : "border border-border/60 text-foreground/55"
+                isStoic ? "border border-white/[0.08] text-white/50" : (isOcean || isCherry) ? "" : "border border-border/60 text-foreground/55"
               }`}
               style={isOcean ? {
                 border: `1px solid ${oceanCardColors[i].border}`,
                 color: oceanCardColors[i].accent,
                 background: oceanCardColors[i].bg
+              } : isCherry ? {
+                border: `1px solid ${cherryCardColors[i].border}`,
+                color: cherryCardColors[i].accent,
+                background: cherryCardColors[i].bg
               } : {}}>
                 {card.icon}
               </div>
@@ -209,6 +261,11 @@ const HomeScreen = () => {
                     <h3 className="font-serif text-xl" style={{ color: ocean.deepBlue }}>{card.title}</h3>
                     <p className="text-xs font-light" style={{ color: ocean.turquoise }}>{card.oceanDesc}</p>
                   </>
+                ) : isCherry ? (
+                  <>
+                    <h3 className="font-serif text-xl" style={{ color: sakura.deepPink }}>{card.title}</h3>
+                    <p className="text-xs font-light" style={{ color: sakura.mediumPink }}>{card.cherryDesc}</p>
+                  </>
                 ) : (
                   <>
                     <h3 className="font-serif text-xl text-foreground">{card.title}</h3>
@@ -222,6 +279,12 @@ const HomeScreen = () => {
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
                 </div>
               )}
+              {/* Cherry Blossom: powder blue arrow indicator */}
+              {isCherry && (
+                <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: sakura.powderBlue, color: sakura.deepPink }}>
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
+                </div>
+              )}
             </motion.button>
           ))}
         </div>
@@ -231,11 +294,13 @@ const HomeScreen = () => {
             <h2 className="stoic-text text-[24px] text-white tracking-[0.04em] mb-1">VISUAL PHILOSOPHY</h2>
           ) : isOcean ? (
             <h2 className="font-serif text-2xl mb-1 ocean-gradient-text">Visual Philosophy</h2>
+          ) : isCherry ? (
+            <h2 className="font-serif text-2xl mb-1 sakura-gradient-text">Visual Philosophy</h2>
           ) : (
             <h2 className="font-serif text-2xl text-foreground mb-1">Visual Philosophy</h2>
           )}
           <p className={`text-xs font-light mb-5 ${isStoic ? "text-white/25 tracking-[0.1em] uppercase" : ""}`}
-            style={isOcean ? { color: ocean.turquoise } : {}}>
+            style={isOcean ? { color: ocean.turquoise } : isCherry ? { color: sakura.mediumPink } : {}}>
             {isStoic ? "CONFRONT THE GREAT DILEMMAS" : "Classic dilemmas that define moral thought"}
           </p>
 
@@ -250,15 +315,25 @@ const HomeScreen = () => {
                 </>
               ) : isOcean ? (
                 <>
-                  {/* Vibrant gradient using all 5 colors */}
                   <div className="w-full h-full" style={{
                     background: `linear-gradient(135deg, ${ocean.deepBlue} 0%, ${ocean.brightTeal} 25%, ${ocean.turquoise} 50%, ${ocean.seafoam} 75%, ${ocean.sand} 100%)`
                   }} />
                   <div className="absolute inset-0" style={{
                     background: `linear-gradient(to top, rgba(0,104,149,0.85) 0%, rgba(0,104,149,0.3) 40%, transparent 70%)`
                   }} />
-                  {/* Sand-colored accent bar at top */}
                   <div className="absolute top-0 left-0 right-0 h-[3px]" style={{ background: `linear-gradient(90deg, ${ocean.sand}, ${ocean.seafoam}, ${ocean.turquoise})` }} />
+                </>
+              ) : isCherry ? (
+                <>
+                  {/* Cherry Blossom: vibrant gradient using all 5 colors */}
+                  <div className="w-full h-full" style={{
+                    background: `linear-gradient(135deg, ${sakura.deepPink} 0%, ${sakura.mediumPink} 25%, ${sakura.coralPink} 50%, ${sakura.blush} 75%, ${sakura.powderBlue} 100%)`
+                  }} />
+                  <div className="absolute inset-0" style={{
+                    background: `linear-gradient(to top, rgba(214,39,90,0.85) 0%, rgba(214,39,90,0.3) 40%, transparent 70%)`
+                  }} />
+                  {/* Blush accent bar at top */}
+                  <div className="absolute top-0 left-0 right-0 h-[3px] sakura-accent-bar" />
                 </>
               ) : (
                 <>
@@ -276,6 +351,11 @@ const HomeScreen = () => {
                   <>
                     <h3 className="font-serif text-xl leading-snug text-white">Moral Dilemma Quiz</h3>
                     <p className="text-[12px] font-light mt-1" style={{ color: ocean.sand }}>30 questions to reveal your moral alignment</p>
+                  </>
+                ) : isCherry ? (
+                  <>
+                    <h3 className="font-serif text-xl leading-snug text-white">Moral Dilemma Quiz</h3>
+                    <p className="text-[12px] font-light mt-1" style={{ color: sakura.blush }}>30 questions to reveal your moral alignment</p>
                   </>
                 ) : (
                   <>
@@ -305,16 +385,28 @@ const HomeScreen = () => {
                       </>
                     ) : isOcean ? (
                       <>
-                        {/* Each card uses a distinct palette color as its primary bg */}
                         <div className="w-full h-full transition-transform duration-500 group-hover:scale-105" style={{
                           background: `linear-gradient(160deg, ${oceanDilemmaColors[i].bg} 0%, ${oceanDilemmaColors[i].bg}cc 100%)`
                         }} />
                         <div className="absolute inset-0" style={{
                           background: `linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%)`
                         }} />
-                        {/* Sand accent bar at top */}
                         <div className="absolute top-0 left-0 right-0 h-[3px]" style={{
                           background: ocean.sand
+                        }} />
+                      </>
+                    ) : isCherry ? (
+                      <>
+                        {/* Cherry Blossom: each card uses a distinct palette color */}
+                        <div className="w-full h-full transition-transform duration-500 group-hover:scale-105" style={{
+                          background: `linear-gradient(160deg, ${cherryDilemmaColors[i].bg} 0%, ${cherryDilemmaColors[i].bg}cc 100%)`
+                        }} />
+                        <div className="absolute inset-0" style={{
+                          background: `linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 50%)`
+                        }} />
+                        {/* Blush accent bar at top */}
+                        <div className="absolute top-0 left-0 right-0 h-[3px]" style={{
+                          background: sakura.blush
                         }} />
                       </>
                     ) : (
@@ -331,10 +423,15 @@ const HomeScreen = () => {
                         </>
                       ) : isOcean ? (
                         <>
-                          {/* Sand-colored tag chip */}
                           <div className="inline-block px-2 py-0.5 rounded-full text-[9px] font-medium mb-2 ocean-sand-chip">{["Ethics", "Identity", "Reality", "Justice"][i]}</div>
                           <h3 className="font-serif text-lg leading-snug text-white">{d.title}</h3>
                           <p className="text-[11px] font-light mt-1" style={{ color: oceanDilemmaColors[i].accent + "cc" }}>{d.desc}</p>
+                        </>
+                      ) : isCherry ? (
+                        <>
+                          <div className="inline-block px-2 py-0.5 rounded-full text-[9px] font-medium mb-2 sakura-blue-chip">{["Ethics", "Identity", "Reality", "Justice"][i]}</div>
+                          <h3 className="font-serif text-lg leading-snug text-white">{d.title}</h3>
+                          <p className="text-[11px] font-light mt-1" style={{ color: cherryDilemmaColors[i].accent + "cc" }}>{d.desc}</p>
                         </>
                       ) : (
                         <>
@@ -351,8 +448,8 @@ const HomeScreen = () => {
         </motion.div>
 
         {/* Bottom quote */}
-        <div className={`mt-6 py-6 border-t mb-2 ${isStoic ? "border-white/[0.06]" : isOcean ? "" : "border-border/40"}`}
-          style={isOcean ? { borderTop: `2px solid ${ocean.seafoam}40` } : {}}>
+        <div className={`mt-6 py-6 border-t mb-2 ${isStoic ? "border-white/[0.06]" : isOcean ? "" : isCherry ? "" : "border-border/40"}`}
+          style={isOcean ? { borderTop: `2px solid ${ocean.seafoam}40` } : isCherry ? { borderTop: `2px solid ${sakura.coralPink}40` } : {}}>
           {isStoic ? (
             <>
               <p className="stoic-text text-[18px] text-white/50 leading-relaxed tracking-[0.04em] text-center">"{quote.text.toUpperCase()}"</p>
@@ -362,6 +459,11 @@ const HomeScreen = () => {
             <>
               <p className="font-serif italic text-[15px] leading-relaxed text-center" style={{ color: ocean.deepBlue }}>"{quote.text}"</p>
               <span className="text-[10px] tracking-[0.1em] uppercase mt-2 block text-center" style={{ color: ocean.turquoise }}>{quote.author}</span>
+            </>
+          ) : isCherry ? (
+            <>
+              <p className="font-serif italic text-[15px] leading-relaxed text-center" style={{ color: sakura.deepPink }}>"{quote.text}"</p>
+              <span className="text-[10px] tracking-[0.1em] uppercase mt-2 block text-center" style={{ color: sakura.mediumPink }}>{quote.author}</span>
             </>
           ) : (
             <>
