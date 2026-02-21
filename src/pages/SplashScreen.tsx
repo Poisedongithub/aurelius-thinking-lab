@@ -140,7 +140,7 @@ const SplashScreen = () => {
             fontSize: "clamp(64px, 18vw, 120px)",
             color: "#ffffff",
             letterSpacing: "0.04em",
-            fontWeight: 700,
+            fontWeight: 400,
             fontStyle: "italic",
             textAlign: "center",
             lineHeight: 1,
