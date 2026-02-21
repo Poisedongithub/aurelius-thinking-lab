@@ -131,13 +131,13 @@ const AuthPage = () => {
         </>
       ) : isOcean ? (
         <>
-          {/* Subtle light caustics on the gradient */}
-          <div className="absolute inset-0 opacity-10" style={{
-            background: `
-              radial-gradient(ellipse 60% 40% at 25% 25%, rgba(255,255,255,0.4) 0%, transparent 60%),
-              radial-gradient(ellipse 50% 50% at 75% 70%, rgba(255,255,255,0.3) 0%, transparent 50%)
-            `
-          }} />
+          {/* Ocean: calm horizon image as auth background */}
+          <div className="absolute inset-0">
+            <img src="/images/ocean-horizon.jpg" alt="" className="w-full h-full object-cover opacity-30" />
+            <div className="absolute inset-0" style={{
+              background: `linear-gradient(to top, ${ocean.sand}ee 0%, ${ocean.seafoam}80 40%, ${ocean.brightTeal}40 70%, transparent 100%)`
+            }} />
+          </div>
         </>
       ) : isCherry ? (
         <>

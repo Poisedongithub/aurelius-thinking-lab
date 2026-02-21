@@ -120,9 +120,13 @@ const HomeScreen = () => {
         </>
       ) : isOcean ? (
         <>
-          <div className="absolute top-0 left-0 right-0 h-[360px]" style={{
-            background: `linear-gradient(180deg, ${ocean.deepBlue} 0%, ${ocean.brightTeal} 40%, ${ocean.turquoise} 65%, ${ocean.seafoam} 85%, ${ocean.sand} 100%)`
-          }} />
+          {/* Ocean: dramatic wave image with teal gradient overlay */}
+          <div className="absolute top-0 left-0 right-0 h-[520px]">
+            <img src="/images/ocean-hero.jpg" alt="" className="w-full h-full object-cover object-center opacity-50" />
+            <div className="absolute inset-0" style={{
+              background: `linear-gradient(to bottom, ${ocean.deepBlue}60 0%, ${ocean.brightTeal}70 30%, ${ocean.turquoise}80 55%, ${ocean.seafoam}bb 80%, ${ocean.sand} 100%)`
+            }} />
+          </div>
         </>
       ) : isCherry ? (
         <>
@@ -318,11 +322,10 @@ const HomeScreen = () => {
                 </>
               ) : isOcean ? (
                 <>
-                  <div className="w-full h-full" style={{
-                    background: `linear-gradient(135deg, ${ocean.deepBlue} 0%, ${ocean.brightTeal} 25%, ${ocean.turquoise} 50%, ${ocean.seafoam} 75%, ${ocean.sand} 100%)`
-                  }} />
+                  {/* Ocean: underwater light rays */}
+                  <img src="/images/ocean-underwater.jpg" alt="" className="w-full h-full object-cover opacity-70" />
                   <div className="absolute inset-0" style={{
-                    background: `linear-gradient(to top, rgba(0,104,149,0.85) 0%, rgba(0,104,149,0.3) 40%, transparent 70%)`
+                    background: `linear-gradient(to top, ${ocean.deepBlue}dd 0%, ${ocean.deepBlue}50 40%, transparent 70%)`
                   }} />
                   <div className="absolute top-0 left-0 right-0 h-[3px]" style={{ background: `linear-gradient(90deg, ${ocean.sand}, ${ocean.seafoam}, ${ocean.turquoise})` }} />
                 </>
@@ -385,11 +388,13 @@ const HomeScreen = () => {
                       </>
                     ) : isOcean ? (
                       <>
-                        <div className="w-full h-full transition-transform duration-500 group-hover:scale-105" style={{
-                          background: `linear-gradient(160deg, ${oceanDilemmaColors[i].bg} 0%, ${oceanDilemmaColors[i].bg}cc 100%)`
-                        }} />
+                        {/* Ocean: each card gets a different ocean image */}
+                        <img
+                          src={["/images/ocean-turquoise.jpg", "/images/ocean-waves.jpg", "/images/ocean-coral.jpg", "/images/ocean-crashing.jpg"][i]}
+                          alt="" className="w-full h-full object-cover opacity-60 transition-transform duration-500 group-hover:scale-105"
+                        />
                         <div className="absolute inset-0" style={{
-                          background: `linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%)`
+                          background: `linear-gradient(to top, ${ocean.deepBlue}cc 0%, ${ocean.deepBlue}40 40%, transparent 60%)`
                         }} />
                         <div className="absolute top-0 left-0 right-0 h-[3px]" style={{
                           background: ocean.sand
