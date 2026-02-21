@@ -126,10 +126,13 @@ const HomeScreen = () => {
         </>
       ) : isCherry ? (
         <>
-          {/* Cherry Blossom: beautiful gradient from deep pink through blush to powder blue */}
-          <div className="absolute top-0 left-0 right-0 h-[380px]" style={{
-            background: `linear-gradient(180deg, ${sakura.deepPink} 0%, ${sakura.mediumPink} 30%, ${sakura.coralPink} 55%, ${sakura.blush} 80%, hsl(345, 60%, 94%) 100%)`
-          }} />
+          {/* Cherry Blossom: sakura tree image with pink gradient overlay */}
+          <div className="absolute top-0 left-0 right-0 h-[520px]">
+            <img src="/images/sakura-hero.jpg" alt="" className="w-full h-full object-cover object-top opacity-50" />
+            <div className="absolute inset-0" style={{
+              background: `linear-gradient(to bottom, ${sakura.deepPink}40 0%, ${sakura.mediumPink}60 30%, ${sakura.coralPink}80 55%, ${sakura.blush}cc 80%, hsl(345, 60%, 94%) 100%)`
+            }} />
+          </div>
         </>
       ) : (
         <>
@@ -325,14 +328,11 @@ const HomeScreen = () => {
                 </>
               ) : isCherry ? (
                 <>
-                  {/* Cherry Blossom: vibrant gradient using all 5 colors */}
-                  <div className="w-full h-full" style={{
-                    background: `linear-gradient(135deg, ${sakura.deepPink} 0%, ${sakura.mediumPink} 25%, ${sakura.coralPink} 50%, ${sakura.blush} 75%, ${sakura.powderBlue} 100%)`
-                  }} />
+                  {/* Cherry Blossom: sunset lake with sakura trees */}
+                  <img src="/images/sakura-sunset.jpg" alt="" className="w-full h-full object-cover opacity-70" />
                   <div className="absolute inset-0" style={{
-                    background: `linear-gradient(to top, rgba(214,39,90,0.85) 0%, rgba(214,39,90,0.3) 40%, transparent 70%)`
+                    background: `linear-gradient(to top, ${sakura.deepPink}dd 0%, ${sakura.deepPink}50 40%, transparent 70%)`
                   }} />
-                  {/* Blush accent bar at top */}
                   <div className="absolute top-0 left-0 right-0 h-[3px] sakura-accent-bar" />
                 </>
               ) : (
@@ -397,14 +397,14 @@ const HomeScreen = () => {
                       </>
                     ) : isCherry ? (
                       <>
-                        {/* Cherry Blossom: each card uses a distinct palette color */}
-                        <div className="w-full h-full transition-transform duration-500 group-hover:scale-105" style={{
-                          background: `linear-gradient(160deg, ${cherryDilemmaColors[i].bg} 0%, ${cherryDilemmaColors[i].bg}cc 100%)`
-                        }} />
+                        {/* Cherry Blossom: each card gets a different sakura image */}
+                        <img
+                          src={["/images/sakura-blossoms.jpeg", "/images/sakura-petals.jpg", "/images/sakura-temple.webp", "/images/sakura-falling.jpg"][i]}
+                          alt="" className="w-full h-full object-cover opacity-60 transition-transform duration-500 group-hover:scale-105"
+                        />
                         <div className="absolute inset-0" style={{
-                          background: `linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 50%)`
+                          background: `linear-gradient(to top, ${sakura.deepPink}cc 0%, ${sakura.deepPink}40 40%, transparent 60%)`
                         }} />
-                        {/* Blush accent bar at top */}
                         <div className="absolute top-0 left-0 right-0 h-[3px]" style={{
                           background: sakura.blush
                         }} />

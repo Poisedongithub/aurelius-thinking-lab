@@ -18,6 +18,15 @@ const ocean = {
   sand: "#dfdcd2",
 };
 
+// Cherry Blossom palette
+const sakura = {
+  deepPink: "#D6275A",
+  mediumPink: "#E8527A",
+  coralPink: "#F4A0B0",
+  blush: "#F8C8D4",
+  powderBlue: "#C5D1E0",
+};
+
 const AuthPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -30,6 +39,7 @@ const AuthPage = () => {
   const { glowColor, theme } = useTheme();
   const isStoic = theme === "original";
   const isOcean = theme === "ocean";
+  const isCherry = theme === "cherry-blossom";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,6 +138,16 @@ const AuthPage = () => {
               radial-gradient(ellipse 50% 50% at 75% 70%, rgba(255,255,255,0.3) 0%, transparent 50%)
             `
           }} />
+        </>
+      ) : isCherry ? (
+        <>
+          {/* Cherry Blossom: dreamy pathway image as auth background */}
+          <div className="absolute inset-0">
+            <img src="/images/sakura-pathway.jpg" alt="" className="w-full h-full object-cover opacity-30" />
+            <div className="absolute inset-0" style={{
+              background: `linear-gradient(to top, ${sakura.blush}ee 0%, ${sakura.coralPink}80 40%, ${sakura.mediumPink}40 70%, transparent 100%)`
+            }} />
+          </div>
         </>
       ) : (
         <>
