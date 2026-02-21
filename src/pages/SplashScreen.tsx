@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 const SPLASH_IMAGES = [
@@ -12,6 +12,19 @@ const SPLASH_IMAGES = [
   "/images/splash-sisyphus.jpeg",
 ];
 
+const SPLASH_WORDS = [
+  "thinkinglab",
+  "strength",
+  "power",
+  "discipline",
+  "stoicism",
+  "conquer",
+  "resilience",
+  "fortitude",
+  "wisdom",
+  "relentless",
+];
+
 const CYCLE_INTERVAL = 300; // 0.3 seconds per image
 const TOTAL_DURATION = 5000; // 5 seconds total
 
@@ -19,6 +32,12 @@ const SplashScreen = () => {
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [fadeOut, setFadeOut] = useState(false);
+
+  // Pick a random word once on mount
+  const splashWord = useMemo(
+    () => SPLASH_WORDS[Math.floor(Math.random() * SPLASH_WORDS.length)],
+    []
+  );
 
   // Preload all images immediately
   useEffect(() => {
@@ -102,7 +121,7 @@ const SplashScreen = () => {
         }}
       />
 
-      {/* "thinkinglab" text overlay — white Instrument Serif */}
+      {/* Random power word overlay — white Instrument Serif */}
       <div
         style={{
           position: "absolute",
@@ -122,14 +141,15 @@ const SplashScreen = () => {
             color: "#ffffff",
             letterSpacing: "0.04em",
             fontWeight: 700,
-            fontStyle: "normal",
+            fontStyle: "italic",
             textAlign: "center",
             lineHeight: 1,
+            textTransform: "lowercase",
             textShadow: "0 2px 20px rgba(0,0,0,0.5), 0 0 60px rgba(0,0,0,0.3)",
             userSelect: "none",
           }}
         >
-          thinkinglab
+          {splashWord}
         </h1>
       </div>
 
