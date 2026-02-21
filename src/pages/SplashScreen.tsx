@@ -137,7 +137,7 @@ const SplashScreen = () => {
         <h1
           style={{
             fontFamily: "'Instrument Serif', serif",
-            fontSize: "clamp(56px, 14vw, 96px)",
+            fontSize: "clamp(80px, 22vw, 160px)",
             color: "#ffffff",
             letterSpacing: "0.04em",
             fontWeight: 700,
