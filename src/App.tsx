@@ -19,6 +19,8 @@ import ClassicDilemma from "./pages/ClassicDilemma";
 import ResetPassword from "./pages/ResetPassword";
 import OnboardingScreen from "./pages/OnboardingScreen";
 import ProgressDashboard from "./pages/ProgressDashboard";
+import MoralCourt from "./pages/MoralCourt";
+import CourtHistory from "./pages/CourtHistory";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,6 +48,8 @@ const App = () => (
             <Route path="/dilemma" element={<DilemmaQuiz />} />
             <Route path="/dilemma/results" element={<DilemmaResults />} />
             <Route path="/dilemma/:dilemmaId" element={<ClassicDilemma />} />
+            <Route path="/court" element={<MoralCourt />} />
+            <Route path="/court/history" element={<CourtHistory />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

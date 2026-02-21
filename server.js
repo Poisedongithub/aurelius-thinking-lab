@@ -520,6 +520,252 @@ app.post("/api/data/dilemma_responses", async (req, res) => {
   res.json({ success: true });
 });
 
+// ══════════════════════════════════════════════════
+// ── DAILY MORAL COURT ENDPOINTS ──
+// ══════════════════════════════════════════════════
+
+// Generate today's court case (AI-generated, cached per day)
+const courtCaseCache = {}; // { "YYYY-MM-DD": caseData }
+
+app.get("/api/court/daily-case", async (req, res) => {
+  try {
+    const today = new Date().toISOString().split("T")[0];
+    
+    // Check cache first
+    if (courtCaseCache[today]) {
+      return res.json({ case: courtCaseCache[today] });
+    }
+
+    // Check Supabase for today's case
+    if (supabaseAdmin) {
+      const { data: existing } = await supabaseAdmin
+        .from("court_cases")
+        .select("*")
+        .eq("case_date", today)
+        .single();
+      if (existing) {
+        courtCaseCache[today] = existing;
+        return res.json({ case: existing });
+      }
+    }
+
+    // Generate a new case via AI
+    const data = await callDeepSeek([
+      { role: "system", content: `You are a legal and moral philosophy expert who creates compelling ethical court cases. Generate a morally ambiguous case for a "Daily Moral Court" where users act as judge.
+
+The case must:
+- Be inspired by real-world ethical tensions (medical ethics, technology, justice, environmental, corporate, personal)
+- Have NO clear right answer — reasonable people should disagree
+- Include specific names, details, and circumstances to feel real
+- Present two clear opposing sides
+
+Respond with ONLY a valid JSON object (no markdown) in this exact format:
+{
+  "title": "Short evocative case title (3-6 words)",
+  "category": "one of: Medical Ethics, Criminal Justice, Technology, Environment, Corporate, Personal Freedom, Education, War & Conflict, Family, Scientific Ethics",
+  "scenario": "A vivid 4-6 sentence description of the case. Include specific names, ages, and circumstances. End with the core moral tension.",
+  "defendant": "Name and brief description of the person on trial",
+  "charge": "What they are accused of or what decision is being questioned",
+  "prosecution": {
+    "philosopher": "one of: marcus-aurelius, nietzsche, socrates, machiavelli, sun-tzu, confucius, simone-de-beauvoir, lao-tzu",
+    "position": "A 2-sentence summary of why this person should be found GUILTY or why the action was WRONG"
+  },
+  "defense": {
+    "philosopher": "a DIFFERENT philosopher from the list above",
+    "position": "A 2-sentence summary of why this person should be found NOT GUILTY or why the action was JUSTIFIED"
+  },
+  "verdict_options": [
+    { "label": "Guilty", "description": "Brief description of what this verdict means" },
+    { "label": "Not Guilty", "description": "Brief description of what this verdict means" },
+    { "label": "Guilty with Mercy", "description": "Guilty but with reduced consequences due to circumstances" }
+  ],
+  "moral_dimensions": ["dimension1", "dimension2"] 
+}` },
+      { role: "user", content: `Generate today's court case. Today is ${today}. Make it thought-provoking and timely.` },
+    ]);
+
+    let raw = data.choices?.[0]?.message?.content || "{}";
+    if (raw.startsWith("```")) raw = raw.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
+    const caseData = JSON.parse(raw);
+    caseData.case_date = today;
+    caseData.id = `court-${today}`;
+
+    // Store in Supabase
+    if (supabaseAdmin) {
+      try {
+        await supabaseAdmin.from("court_cases").upsert({
+          id: caseData.id,
+          case_date: today,
+          title: caseData.title,
+          category: caseData.category,
+          scenario: caseData.scenario,
+          defendant: caseData.defendant,
+          charge: caseData.charge,
+          prosecution: caseData.prosecution,
+          defense: caseData.defense,
+          verdict_options: caseData.verdict_options,
+          moral_dimensions: caseData.moral_dimensions,
+        }, { onConflict: "id" });
+      } catch (dbErr) {
+        console.error("Court case DB save error (non-fatal):", dbErr.message);
+      }
+    }
+
+    courtCaseCache[today] = caseData;
+    res.json({ case: caseData });
+  } catch (err) {
+    console.error("daily-case error:", err);
+    res.status(500).json({ error: "Failed to generate court case" });
+  }
+});
+
+// Get AI philosopher argument (prosecution or defense)
+app.post("/api/court/argument", async (req, res) => {
+  try {
+    const { philosopher, position, scenario, side, userQuestion } = req.body;
+    const prompt = philosopherPrompts[philosopher] || philosopherPrompts["marcus-aurelius"];
+    
+    const systemContent = `${prompt}\n\nYou are in a MORAL COURT as the ${side === "prosecution" ? "PROSECUTION" : "DEFENSE"} advocate. The case: ${scenario}\n\nYour position: ${position}\n\nDeliver your argument passionately and in character. If the user (the judge) asks you a question, answer it while staying in character and defending your position. Keep responses to 3-4 sentences maximum.`;
+    
+    const messages = [
+      { role: "system", content: systemContent },
+    ];
+    
+    if (userQuestion) {
+      messages.push({ role: "user", content: userQuestion });
+    } else {
+      messages.push({ role: "user", content: `Present your ${side === "prosecution" ? "prosecution" : "defense"} argument to the court.` });
+    }
+
+    const data = await callDeepSeek(messages);
+    const content = data.choices?.[0]?.message?.content || "The court awaits my words...";
+    
+    // Stream the response
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    const words = content.split(/(\s+)/);
+    for (let i = 0; i < words.length; i++) {
+      const chunk = { id: "court-" + Date.now(), object: "chat.completion.chunk", created: Math.floor(Date.now() / 1000), model: "deepseek-chat", choices: [{ index: 0, delta: { content: words[i] }, finish_reason: null }] };
+      res.write(`data: ${JSON.stringify(chunk)}\n\n`);
+    }
+    res.write(`data: ${JSON.stringify({ id: "court-" + Date.now(), object: "chat.completion.chunk", created: Math.floor(Date.now() / 1000), model: "deepseek-chat", choices: [{ index: 0, delta: {}, finish_reason: "stop" }] })}\n\n`);
+    res.write("data: [DONE]\n\n");
+    res.end();
+  } catch (err) {
+    console.error("court argument error:", err);
+    res.status(500).json({ error: "Failed to generate argument" });
+  }
+});
+
+// Submit verdict
+app.post("/api/court/verdict", async (req, res) => {
+  try {
+    const user = await getUser(req);
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
+    const { case_id, case_date, verdict, reasoning } = req.body;
+    
+    if (supabaseAdmin) {
+      await supabaseAdmin.from("court_verdicts").upsert({
+        user_id: user.id,
+        case_id,
+        case_date,
+        verdict,
+        reasoning: reasoning || "",
+      }, { onConflict: "user_id,case_id" });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    console.error("verdict submit error:", err);
+    res.status(500).json({ error: "Failed to submit verdict" });
+  }
+});
+
+// Get user's verdict for a case
+app.get("/api/court/my-verdict", async (req, res) => {
+  try {
+    const user = await getUser(req);
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
+    const { case_id } = req.query;
+    if (!case_id) return res.json({ data: null });
+    
+    const { data } = await supabaseAdmin
+      .from("court_verdicts")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("case_id", case_id)
+      .single();
+    res.json({ data: data || null });
+  } catch (err) {
+    res.json({ data: null });
+  }
+});
+
+// Get community verdict statistics for a case
+app.get("/api/court/stats", async (req, res) => {
+  try {
+    const { case_id } = req.query;
+    if (!case_id) return res.json({ stats: {} });
+    
+    const { data: verdicts } = await supabaseAdmin
+      .from("court_verdicts")
+      .select("verdict")
+      .eq("case_id", case_id);
+    
+    const total = verdicts?.length || 0;
+    const counts = {};
+    (verdicts || []).forEach(v => {
+      counts[v.verdict] = (counts[v.verdict] || 0) + 1;
+    });
+    
+    const stats = {};
+    Object.keys(counts).forEach(k => {
+      stats[k] = { count: counts[k], percentage: total > 0 ? Math.round((counts[k] / total) * 100) : 0 };
+    });
+    
+    res.json({ stats, total });
+  } catch (err) {
+    console.error("court stats error:", err);
+    res.json({ stats: {}, total: 0 });
+  }
+});
+
+// Get user's verdict history (judicial record)
+app.get("/api/court/history", async (req, res) => {
+  try {
+    const user = await getUser(req);
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
+    
+    const { data: verdicts } = await supabaseAdmin
+      .from("court_verdicts")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(30);
+    
+    // Fetch corresponding case titles
+    const caseIds = (verdicts || []).map(v => v.case_id);
+    let cases = [];
+    if (caseIds.length > 0) {
+      const { data: caseData } = await supabaseAdmin
+        .from("court_cases")
+        .select("id, title, category, case_date")
+        .in("id", caseIds);
+      cases = caseData || [];
+    }
+    
+    const history = (verdicts || []).map(v => {
+      const c = cases.find(c => c.id === v.case_id);
+      return { ...v, case_title: c?.title || "Unknown Case", case_category: c?.category || "", case_date: c?.case_date || v.case_date };
+    });
+    
+    res.json({ data: history });
+  } catch (err) {
+    console.error("court history error:", err);
+    res.json({ data: [] });
+  }
+});
+
 // ── Serve static files from dist/ ──
 app.use(express.static(path.join(__dirname, "dist")));
 

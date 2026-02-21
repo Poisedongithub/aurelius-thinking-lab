@@ -56,6 +56,10 @@ const HomeScreen = () => {
       stoicDesc: "TEST YOUR RESOLVE",
       oceanDesc: "Today's question",
       icon: (<svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.3} strokeLinecap="round" strokeLinejoin="round"><line x1="6" y1="2" x2="18" y2="2"/><line x1="6" y1="22" x2="18" y2="22"/><path d="M8 2c0 4 0 6 4 10-4 4-4 6-4 10"/><path d="M16 2c0 4 0 6-4 10 4 4 4 6 4 10"/></svg>) },
+    { title: "Moral Court", desc: "Judge today's ethical case", action: () => navigate("/court"),
+      stoicDesc: "DELIVER JUSTICE",
+      oceanDesc: "Today's moral case",
+      icon: (<svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.3} strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v4"/><path d="M4 7h16"/><path d="M4 7l2 10h12l2-10"/><path d="M8 17v4"/><path d="M16 17v4"/><path d="M6 21h12"/><circle cx="12" cy="7" r="1"/></svg>) },
   ];
 
   // Ocean: each card gets a distinct accent from the palette
@@ -63,6 +67,7 @@ const HomeScreen = () => {
     { accent: ocean.deepBlue, bg: ocean.deepBlue + "12", border: ocean.deepBlue + "25" },
     { accent: ocean.brightTeal, bg: ocean.brightTeal + "12", border: ocean.brightTeal + "25" },
     { accent: ocean.turquoise, bg: ocean.turquoise + "12", border: ocean.turquoise + "25" },
+    { accent: ocean.seafoam, bg: ocean.seafoam + "20", border: ocean.seafoam + "40" },
   ];
 
   // Ocean: dilemma card colors cycle through all 5
