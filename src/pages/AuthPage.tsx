@@ -141,9 +141,9 @@ const AuthPage = () => {
         </>
       ) : isCherry ? (
         <>
-          {/* Cherry Blossom: samurai silhouette under moonlit cherry blossoms */}
+          {/* Cherry Blossom: dreamy pathway image as auth background */}
           <div className="absolute inset-0">
-            <img src="/images/samurai-moonlight.jpg" alt="" className="w-full h-full object-cover object-top opacity-35" />
+            <img src="/images/sakura-pathway.jpg" alt="" className="w-full h-full object-cover opacity-30" />
             <div className="absolute inset-0" style={{
               background: `linear-gradient(to top, ${sakura.blush}ee 0%, ${sakura.coralPink}80 40%, ${sakura.mediumPink}40 70%, transparent 100%)`
             }} />
