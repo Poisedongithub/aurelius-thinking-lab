@@ -130,11 +130,11 @@ const HomeScreen = () => {
         </>
       ) : isCherry ? (
         <>
-          {/* Cherry Blossom: sakura tree image with pink gradient overlay */}
+          {/* Cherry Blossom: samurai under cherry blossom tree with pink gradient overlay */}
           <div className="absolute top-0 left-0 right-0 h-[520px]">
-            <img src="/images/sakura-hero.jpg" alt="" className="w-full h-full object-cover object-top opacity-50" />
+            <img src="/images/samurai-cherry.jpg" alt="" className="w-full h-full object-cover object-center opacity-55" />
             <div className="absolute inset-0" style={{
-              background: `linear-gradient(to bottom, ${sakura.deepPink}40 0%, ${sakura.mediumPink}60 30%, ${sakura.coralPink}80 55%, ${sakura.blush}cc 80%, hsl(345, 60%, 94%) 100%)`
+              background: `linear-gradient(to bottom, ${sakura.deepPink}30 0%, ${sakura.mediumPink}50 30%, ${sakura.coralPink}70 55%, ${sakura.blush}cc 80%, hsl(345, 60%, 94%) 100%)`
             }} />
           </div>
         </>
@@ -331,8 +331,8 @@ const HomeScreen = () => {
                 </>
               ) : isCherry ? (
                 <>
-                  {/* Cherry Blossom: sunset lake with sakura trees */}
-                  <img src="/images/sakura-sunset.jpg" alt="" className="w-full h-full object-cover opacity-70" />
+                  {/* Cherry Blossom: samurai with Mt Fuji and cherry blossoms */}
+                  <img src="/images/samurai-fuji.jpg" alt="" className="w-full h-full object-cover object-top opacity-75" />
                   <div className="absolute inset-0" style={{
                     background: `linear-gradient(to top, ${sakura.deepPink}dd 0%, ${sakura.deepPink}50 40%, transparent 70%)`
                   }} />
@@ -402,10 +402,10 @@ const HomeScreen = () => {
                       </>
                     ) : isCherry ? (
                       <>
-                        {/* Cherry Blossom: each card gets a different sakura image */}
+                        {/* Cherry Blossom: mix of samurai and sakura images */}
                         <img
-                          src={["/images/sakura-blossoms.jpeg", "/images/sakura-petals.jpg", "/images/sakura-temple.webp", "/images/sakura-falling.jpg"][i]}
-                          alt="" className="w-full h-full object-cover opacity-60 transition-transform duration-500 group-hover:scale-105"
+                          src={["/images/samurai-silhouette.jpg", "/images/sakura-petals.jpg", "/images/samurai-dark.jpg", "/images/samurai-sunset.jpg"][i]}
+                          alt="" className="w-full h-full object-cover opacity-65 transition-transform duration-500 group-hover:scale-105"
                         />
                         <div className="absolute inset-0" style={{
                           background: `linear-gradient(to top, ${sakura.deepPink}cc 0%, ${sakura.deepPink}40 40%, transparent 60%)`
