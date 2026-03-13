@@ -140,10 +140,10 @@ export default function TickerAnalysis() {
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-1">
         {/* Price Stats */}
         <div className="grid grid-cols-4 gap-2 mb-4">
-          <StatBox label="Market Cap" value={formatMarketCap(quote.marketCap)} />
+          <StatBox label="Market Cap" value={quote.marketCap ? formatMarketCap(quote.marketCap) : "—"} />
           <StatBox label="Volume" value={formatVol(quote.volume)} />
-          <StatBox label="52W High" value={`$${quote.yearHigh?.toFixed(2) || "—"}`} />
-          <StatBox label="52W Low" value={`$${quote.yearLow?.toFixed(2) || "—"}`} />
+          <StatBox label="52W High" value={quote.fiftyTwoWeekHigh ? `$${quote.fiftyTwoWeekHigh.toFixed(2)}` : "—"} />
+          <StatBox label="52W Low" value={quote.fiftyTwoWeekLow ? `$${quote.fiftyTwoWeekLow.toFixed(2)}` : "—"} />
         </div>
 
         {/* Performance */}
@@ -201,7 +201,7 @@ export default function TickerAnalysis() {
         {/* Attribution */}
         <div className="text-center mt-8 pb-4">
           <p className="text-[10px] text-gray-300 font-mono">
-            Live data via Financial Modeling Prep · Analysis powered by DeepSeek AI
+            Live data via Yahoo Finance · Analysis powered by DeepSeek AI
           </p>
         </div>
       </div>

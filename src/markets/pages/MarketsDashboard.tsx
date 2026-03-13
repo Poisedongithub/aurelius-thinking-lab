@@ -185,7 +185,7 @@ export default function MarketsDashboard() {
         {/* Data source attribution */}
         <div className="text-center mt-8 pb-4">
           <p className="text-[10px] text-gray-300 font-mono">
-            Live prices via Financial Modeling Prep · Analysis powered by AI
+            Live prices via Yahoo Finance · Analysis powered by AI
           </p>
         </div>
       </div>
@@ -221,10 +221,10 @@ function TickerCard({ ticker, onClick }: { ticker: DashboardTicker; onClick: () 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3 text-[10px] font-mono text-gray-400">
           <span>Vol: {formatVol(ticker.volume)}</span>
-          <span>MCap: {formatMarketCap(ticker.marketCap)}</span>
+          {ticker.marketCap ? <span>MCap: {formatMarketCap(ticker.marketCap)}</span> : null}
         </div>
         <div className="flex items-center gap-1 text-[10px] font-mono text-gray-400">
-          <span>52W: ${ticker.yearLow.toFixed(0)} — ${ticker.yearHigh.toFixed(0)}</span>
+          {ticker.yearHigh && ticker.yearLow ? <span>52W: ${ticker.yearLow.toFixed(0)} — ${ticker.yearHigh.toFixed(0)}</span> : null}
         </div>
       </div>
     </div>

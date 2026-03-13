@@ -1,4 +1,4 @@
-// Markets API service — 100% live data from FMP + DeepSeek AI
+// Markets API service — 100% live data from Yahoo Finance + DeepSeek AI
 // Every ticker gets live prices and AI-generated analysis
 
 const API_BASE = "/api/markets";
@@ -12,12 +12,14 @@ export interface LiveQuote {
   price: number;
   change: number;
   volume: number;
-  marketCap: number;
-  yearHigh: number;
-  yearLow: number;
-  previousClose: number;
-  dayHigh: number;
-  dayLow: number;
+  marketCap: number | null;
+  yearHigh: number | null;
+  yearLow: number | null;
+  fiftyTwoWeekHigh: number | null;
+  fiftyTwoWeekLow: number | null;
+  previousClose: number | null;
+  dayHigh: number | null;
+  dayLow: number | null;
   sector?: string;
   industry?: string;
   description?: string;
@@ -35,17 +37,19 @@ export interface DashboardTicker {
   price: number;
   change: number;
   volume: number;
-  marketCap: number;
+  marketCap: number | null;
   sector: string;
   industry: string;
-  yearHigh: number;
-  yearLow: number;
+  yearHigh: number | null;
+  yearLow: number | null;
 }
 
 export interface SearchResult {
   symbol: string;
   name: string;
   exchange: string;
+  sector?: string;
+  industry?: string;
 }
 
 export interface AIAnalysis {

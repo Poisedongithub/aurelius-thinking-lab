@@ -767,86 +767,102 @@ app.get("/api/court/history", async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════
-// ── MARKETS API ENDPOINTS (FMP — Financial Modeling Prep) ──
+// ── MARKETS API ENDPOINTS (Yahoo Finance — free, all tickers) ──
 // ══════════════════════════════════════════════════
 
-const FMP_API_KEY = process.env.FMP_API_KEY || "FYCMWqYfmh3qO7oOWTIbXdiHf1MUXVEL";
-const FMP_BASE = "https://financialmodelingprep.com/stable";
+const YF_BASE = "https://query1.finance.yahoo.com";
+const YF_HEADERS = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" };
 
-// Helper: fetch from FMP with API key
-async function fmpFetch(endpoint, params = {}) {
-  const url = new URL(`${FMP_BASE}/${endpoint}`);
-  url.searchParams.set("apikey", FMP_API_KEY);
+// Helper: fetch from Yahoo Finance
+async function yfFetch(path, params = {}) {
+  const url = new URL(`${YF_BASE}${path}`);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
-  const response = await fetch(url.toString());
-  if (!response.ok) throw new Error(`FMP returned ${response.status}: ${await response.text()}`);
+  const response = await fetch(url.toString(), { headers: YF_HEADERS });
+  if (!response.ok) throw new Error(`Yahoo Finance returned ${response.status}`);
   return response.json();
 }
 
-// FMP — get live stock quote + historical chart
+// Yahoo Finance — get live stock quote + historical chart
 app.get("/api/markets/quote/:symbol", async (req, res) => {
   try {
     const { symbol } = req.params;
     
-    // Fetch quote and historical data in parallel
-    const [quoteData, histData, profileData] = await Promise.all([
-      fmpFetch("quote", { symbol }),
-      fmpFetch("historical-price-eod/full", { symbol }).catch(() => []),
-      fmpFetch("profile", { symbol }).catch(() => []),
+    // Fetch 3-month chart (includes current quote in meta) and search for sector info
+    const [chartResp, searchResp] = await Promise.all([
+      yfFetch(`/v8/finance/chart/${encodeURIComponent(symbol)}`, {
+        interval: "1d", range: "3mo", includeAdjustedClose: "true"
+      }),
+      yfFetch(`/v1/finance/search`, {
+        q: symbol, quotesCount: "1", newsCount: "0"
+      }).catch(() => null),
     ]);
     
-    const quote = Array.isArray(quoteData) ? quoteData[0] : quoteData;
-    if (!quote) return res.status(404).json({ error: "Symbol not found" });
+    const result = chartResp?.chart?.result?.[0];
+    if (!result) return res.status(404).json({ error: "Symbol not found" });
     
-    const profile = Array.isArray(profileData) ? profileData[0] : profileData;
-    const history = Array.isArray(histData) ? histData : [];
+    const meta = result.meta;
+    const timestamps = result.timestamp || [];
+    const quotes = result.indicators?.quote?.[0] || {};
+    const adjClose = result.indicators?.adjclose?.[0]?.adjclose || [];
     
-    // Calculate period returns from historical data
-    const currentPrice = quote.price;
+    // Build chart data (last 30 trading days)
+    const chartData = [];
+    const startIdx = Math.max(0, timestamps.length - 30);
+    for (let i = startIdx; i < timestamps.length; i++) {
+      if (quotes.close?.[i] != null) {
+        chartData.push({
+          date: new Date(timestamps[i] * 1000).toISOString().split("T")[0],
+          open: quotes.open?.[i] || 0,
+          high: quotes.high?.[i] || 0,
+          low: quotes.low?.[i] || 0,
+          close: quotes.close[i],
+          volume: quotes.volume?.[i] || 0,
+          adjClose: adjClose[i] || quotes.close[i],
+        });
+      }
+    }
+    
+    // Calculate period returns
+    const currentPrice = meta.regularMarketPrice;
     const getReturn = (daysBack) => {
-      if (history.length <= daysBack) return null;
-      const pastPrice = history[daysBack]?.close;
-      if (!pastPrice) return null;
-      return ((currentPrice - pastPrice) / pastPrice * 100);
+      const idx = timestamps.length - 1 - daysBack;
+      if (idx < 0 || !quotes.close?.[idx]) return null;
+      return ((currentPrice - quotes.close[idx]) / quotes.close[idx] * 100);
     };
     
-    // Build chart data (last 30 days)
-    const chartData = history.slice(0, 30).reverse().map(d => ({
-      date: d.date,
-      open: d.open,
-      high: d.high,
-      low: d.low,
-      close: d.close,
-      volume: d.volume,
-      adjClose: d.close,
-    }));
+    // Get sector/industry from search results
+    const searchQuote = searchResp?.quotes?.[0];
+    
+    // Estimate market cap from price * shares (not always available)
+    // Yahoo chart meta doesn't include marketCap directly, but we can estimate
+    const volume = meta.regularMarketVolume || 0;
     
     res.json({
-      symbol: quote.symbol,
-      name: quote.name || profile?.companyName || symbol,
-      exchange: quote.exchange || profile?.exchange || "",
-      currency: profile?.currency || "USD",
+      symbol: meta.symbol,
+      name: meta.longName || meta.shortName || symbol,
+      exchange: meta.fullExchangeName || meta.exchangeName || "",
+      currency: meta.currency || "USD",
       price: currentPrice,
-      previousClose: quote.previousClose,
-      dayHigh: quote.dayHigh,
-      dayLow: quote.dayLow,
-      fiftyTwoWeekHigh: quote.yearHigh,
-      fiftyTwoWeekLow: quote.yearLow,
-      volume: quote.volume,
-      marketCap: quote.marketCap,
-      change: quote.changePercentage,
-      sector: profile?.sector || "",
-      industry: profile?.industry || "",
-      description: profile?.description || "",
-      ceo: profile?.ceo || "",
-      website: profile?.website || "",
-      image: profile?.image || "",
+      previousClose: meta.chartPreviousClose || meta.previousClose || null,
+      dayHigh: meta.regularMarketDayHigh || null,
+      dayLow: meta.regularMarketDayLow || null,
+      fiftyTwoWeekHigh: meta.fiftyTwoWeekHigh || null,
+      fiftyTwoWeekLow: meta.fiftyTwoWeekLow || null,
+      volume: volume,
+      marketCap: null, // Yahoo chart doesn't provide this directly
+      change: meta.chartPreviousClose ? ((currentPrice - meta.chartPreviousClose) / meta.chartPreviousClose * 100) : 0,
+      sector: searchQuote?.sector || searchQuote?.sectorDisp || "",
+      industry: searchQuote?.industry || searchQuote?.industryDisp || "",
+      description: "",
+      ceo: "",
+      website: "",
+      image: "",
       performance: {
-        "1D": quote.changePercentage,
+        "1D": meta.chartPreviousClose ? ((currentPrice - meta.chartPreviousClose) / meta.chartPreviousClose * 100) : 0,
         "1W": getReturn(5),
         "1M": getReturn(21),
         "3M": getReturn(63),
-        "YTD": getReturn(Math.min(history.length - 1, 252)),
+        "YTD": null,
       },
       chart: chartData,
     });
@@ -856,7 +872,7 @@ app.get("/api/markets/quote/:symbol", async (req, res) => {
   }
 });
 
-// FMP — batch quotes for multiple symbols (individual calls since batch is premium)
+// Yahoo Finance — batch quotes for multiple symbols
 app.get("/api/markets/batch", async (req, res) => {
   try {
     const symbols = (req.query.symbols || "").split(",").filter(Boolean);
@@ -864,21 +880,27 @@ app.get("/api/markets/batch", async (req, res) => {
     
     const quotes = await Promise.all(symbols.map(async (symbol) => {
       try {
-        const data = await fmpFetch("quote", { symbol });
-        const q = Array.isArray(data) ? data[0] : data;
-        if (!q) return { symbol, error: true };
+        const data = await yfFetch(`/v8/finance/chart/${encodeURIComponent(symbol)}`, {
+          interval: "1d", range: "5d"
+        });
+        const result = data?.chart?.result?.[0];
+        if (!result) return { symbol, error: true };
+        const meta = result.meta;
+        const prevClose = meta.chartPreviousClose || meta.previousClose;
+        const price = meta.regularMarketPrice;
+        const changePct = prevClose ? ((price - prevClose) / prevClose * 100) : 0;
         return {
-          symbol: q.symbol,
-          name: q.name || symbol,
-          exchange: q.exchange || "",
-          price: q.price,
-          change: q.changePercentage,
-          volume: q.volume,
-          marketCap: q.marketCap,
-          yearHigh: q.yearHigh,
-          yearLow: q.yearLow,
-          priceAvg50: q.priceAvg50,
-          priceAvg200: q.priceAvg200,
+          symbol: meta.symbol,
+          name: meta.longName || meta.shortName || symbol,
+          exchange: meta.fullExchangeName || meta.exchangeName || "",
+          price: price,
+          change: changePct,
+          volume: meta.regularMarketVolume || 0,
+          marketCap: null,
+          yearHigh: meta.fiftyTwoWeekHigh || null,
+          yearLow: meta.fiftyTwoWeekLow || null,
+          priceAvg50: null,
+          priceAvg200: null,
         };
       } catch {
         return { symbol, error: true };
@@ -892,34 +914,26 @@ app.get("/api/markets/batch", async (req, res) => {
   }
 });
 
-// FMP — search tickers by name or symbol
+// Yahoo Finance — search tickers by name or symbol
 app.get("/api/markets/search", async (req, res) => {
   try {
     const query = req.query.q || "";
     if (!query) return res.json({ results: [] });
     
-    // Try both symbol and name search
-    const [symbolResults, nameResults] = await Promise.all([
-      fmpFetch("search-symbol", { query }).catch(() => []),
-      fmpFetch("search-name", { query }).catch(() => []),
-    ]);
+    const data = await yfFetch("/v1/finance/search", {
+      q: query, quotesCount: "10", newsCount: "0"
+    });
     
-    const allResults = [...(Array.isArray(symbolResults) ? symbolResults : []), ...(Array.isArray(nameResults) ? nameResults : [])];
-    
-    // Deduplicate by symbol
-    const seen = new Set();
-    const results = allResults
-      .filter(r => {
-        if (seen.has(r.symbol)) return false;
-        seen.add(r.symbol);
-        return true;
-      })
+    const results = (data.quotes || [])
+      .filter(r => r.quoteType === "EQUITY" && r.isYahooFinance)
       .slice(0, 10)
       .map(r => ({
         symbol: r.symbol,
-        name: r.name || r.symbol,
-        exchange: r.exchangeFullName || r.exchange || "",
-        currency: r.currency || "USD",
+        name: r.longname || r.shortname || r.symbol,
+        exchange: r.exchDisp || r.exchange || "",
+        currency: "USD",
+        sector: r.sectorDisp || r.sector || "",
+        industry: r.industryDisp || r.industry || "",
       }));
     
     res.json({ results });
@@ -929,27 +943,50 @@ app.get("/api/markets/search", async (req, res) => {
   }
 });
 
-// FMP — company profile
+// Yahoo Finance — company profile (basic info from search)
 app.get("/api/markets/profile/:symbol", async (req, res) => {
   try {
     const { symbol } = req.params;
-    const data = await fmpFetch("profile", { symbol });
-    const profile = Array.isArray(data) ? data[0] : data;
-    if (!profile) return res.status(404).json({ error: "Profile not found" });
-    res.json(profile);
+    const data = await yfFetch("/v1/finance/search", {
+      q: symbol, quotesCount: "1", newsCount: "0"
+    });
+    const quote = data?.quotes?.[0];
+    if (!quote) return res.status(404).json({ error: "Profile not found" });
+    res.json({
+      symbol: quote.symbol,
+      companyName: quote.longname || quote.shortname || symbol,
+      exchange: quote.exchDisp || quote.exchange || "",
+      sector: quote.sectorDisp || quote.sector || "",
+      industry: quote.industryDisp || quote.industry || "",
+    });
   } catch (err) {
     console.error("Markets profile error:", err.message);
     res.status(500).json({ error: "Failed to fetch profile" });
   }
 });
 
-// FMP — historical price data
+// Yahoo Finance — historical price data
 app.get("/api/markets/history/:symbol", async (req, res) => {
   try {
     const { symbol } = req.params;
-    const data = await fmpFetch("historical-price-eod/full", { symbol });
-    const history = Array.isArray(data) ? data : [];
-    res.json({ symbol, history: history.slice(0, 365) }); // Last year of data
+    const data = await yfFetch(`/v8/finance/chart/${encodeURIComponent(symbol)}`, {
+      interval: "1d", range: "1y", includeAdjustedClose: "true"
+    });
+    const result = data?.chart?.result?.[0];
+    if (!result) return res.status(404).json({ error: "Symbol not found" });
+    
+    const timestamps = result.timestamp || [];
+    const quotes = result.indicators?.quote?.[0] || {};
+    const history = timestamps.map((ts, i) => ({
+      date: new Date(ts * 1000).toISOString().split("T")[0],
+      open: quotes.open?.[i] || 0,
+      high: quotes.high?.[i] || 0,
+      low: quotes.low?.[i] || 0,
+      close: quotes.close?.[i] || 0,
+      volume: quotes.volume?.[i] || 0,
+    })).filter(d => d.close > 0);
+    
+    res.json({ symbol, history });
   } catch (err) {
     console.error("Markets history error:", err.message);
     res.status(500).json({ error: "Failed to fetch history" });
