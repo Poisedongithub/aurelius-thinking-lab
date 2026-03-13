@@ -22,6 +22,9 @@ import ProgressDashboard from "./pages/ProgressDashboard";
 import MoralCourt from "./pages/MoralCourt";
 import CourtHistory from "./pages/CourtHistory";
 import NotFound from "./pages/NotFound";
+import MarketsDashboard from "./markets/pages/MarketsDashboard";
+import TickerAnalysis from "./markets/pages/TickerAnalysis";
+import ThemeAnalysis from "./markets/pages/ThemeAnalysis";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +54,9 @@ const App = () => (
             <Route path="/court" element={<MoralCourt />} />
             <Route path="/court/history" element={<CourtHistory />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/markets" element={<MarketsDashboard />} />
+            <Route path="/markets/ticker/:symbol" element={<TickerAnalysis />} />
+            <Route path="/markets/theme/:themeId" element={<ThemeAnalysis />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
