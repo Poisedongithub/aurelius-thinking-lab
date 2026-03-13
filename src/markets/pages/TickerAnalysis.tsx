@@ -1,5 +1,7 @@
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getTickerAnalysis } from "../data/mockData";
+import { getTickerAnalysis, type TickerAnalysis as TickerAnalysisType } from "../data/mockData";
+import { getTickerWithLivePrice } from "../data/api";
 import {
   SectionCard, Tag, DirectionArrow, ConfidenceDots, TrendBadge,
   ProcessScoreCard, SourceBadge, StatBox, EmptyState, ScoreBar,
@@ -8,7 +10,21 @@ import {
 export default function TickerAnalysis() {
   const { symbol } = useParams<{ symbol: string }>();
   const navigate = useNavigate();
-  const data = getTickerAnalysis(symbol || "");
+  const [data, setData] = useState<TickerAnalysisType | null>(getTickerAnalysis(symbol || ""));
+  const [livePrices, setLivePrices] = useState(false);
+
+  useEffect(() => {
+    if (!symbol) return;
+    let cancelled = false;
+    (async () => {
+      const liveData = await getTickerWithLivePrice(symbol);
+      if (!cancelled && liveData) {
+        setData(liveData);
+        setLivePrices(true);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [symbol]);
 
   if (!data) return <EmptyState message={`Ticker ${symbol} not found`} />;
 
@@ -22,7 +38,10 @@ export default function TickerAnalysis() {
         <div className="max-w-3xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <button onClick={() => navigate("/markets")} className="text-xs text-gray-400 hover:text-gray-600 font-mono">← DASHBOARD</button>
-            <span className="text-[10px] font-mono text-gray-400">Updated {data.lastUpdated}</span>
+            <div className="flex items-center gap-2">
+              {livePrices && <span className="flex items-center gap-1 text-[10px] font-mono text-emerald-600"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />LIVE</span>}
+              <span className="text-[10px] font-mono text-gray-400">Updated {data.lastUpdated}</span>
+            </div>
           </div>
           <div className="flex items-center justify-between mt-3">
             <div>

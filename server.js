@@ -766,6 +766,311 @@ app.get("/api/court/history", async (req, res) => {
   }
 });
 
+// ══════════════════════════════════════════════════
+// ── MARKETS API ENDPOINTS (FMP — Financial Modeling Prep) ──
+// ══════════════════════════════════════════════════
+
+const FMP_API_KEY = process.env.FMP_API_KEY || "FYCMWqYfmh3qO7oOWTIbXdiHf1MUXVEL";
+const FMP_BASE = "https://financialmodelingprep.com/stable";
+
+// Helper: fetch from FMP with API key
+async function fmpFetch(endpoint, params = {}) {
+  const url = new URL(`${FMP_BASE}/${endpoint}`);
+  url.searchParams.set("apikey", FMP_API_KEY);
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+  const response = await fetch(url.toString());
+  if (!response.ok) throw new Error(`FMP returned ${response.status}: ${await response.text()}`);
+  return response.json();
+}
+
+// FMP — get live stock quote + historical chart
+app.get("/api/markets/quote/:symbol", async (req, res) => {
+  try {
+    const { symbol } = req.params;
+    
+    // Fetch quote and historical data in parallel
+    const [quoteData, histData, profileData] = await Promise.all([
+      fmpFetch("quote", { symbol }),
+      fmpFetch("historical-price-eod/full", { symbol }).catch(() => []),
+      fmpFetch("profile", { symbol }).catch(() => []),
+    ]);
+    
+    const quote = Array.isArray(quoteData) ? quoteData[0] : quoteData;
+    if (!quote) return res.status(404).json({ error: "Symbol not found" });
+    
+    const profile = Array.isArray(profileData) ? profileData[0] : profileData;
+    const history = Array.isArray(histData) ? histData : [];
+    
+    // Calculate period returns from historical data
+    const currentPrice = quote.price;
+    const getReturn = (daysBack) => {
+      if (history.length <= daysBack) return null;
+      const pastPrice = history[daysBack]?.close;
+      if (!pastPrice) return null;
+      return ((currentPrice - pastPrice) / pastPrice * 100);
+    };
+    
+    // Build chart data (last 30 days)
+    const chartData = history.slice(0, 30).reverse().map(d => ({
+      date: d.date,
+      open: d.open,
+      high: d.high,
+      low: d.low,
+      close: d.close,
+      volume: d.volume,
+      adjClose: d.close,
+    }));
+    
+    res.json({
+      symbol: quote.symbol,
+      name: quote.name || profile?.companyName || symbol,
+      exchange: quote.exchange || profile?.exchange || "",
+      currency: profile?.currency || "USD",
+      price: currentPrice,
+      previousClose: quote.previousClose,
+      dayHigh: quote.dayHigh,
+      dayLow: quote.dayLow,
+      fiftyTwoWeekHigh: quote.yearHigh,
+      fiftyTwoWeekLow: quote.yearLow,
+      volume: quote.volume,
+      marketCap: quote.marketCap,
+      change: quote.changePercentage,
+      sector: profile?.sector || "",
+      industry: profile?.industry || "",
+      description: profile?.description || "",
+      ceo: profile?.ceo || "",
+      website: profile?.website || "",
+      image: profile?.image || "",
+      performance: {
+        "1D": quote.changePercentage,
+        "1W": getReturn(5),
+        "1M": getReturn(21),
+        "3M": getReturn(63),
+        "YTD": getReturn(Math.min(history.length - 1, 252)),
+      },
+      chart: chartData,
+    });
+  } catch (err) {
+    console.error("Markets quote error:", err.message);
+    res.status(500).json({ error: "Failed to fetch stock data", details: err.message });
+  }
+});
+
+// FMP — batch quotes for multiple symbols (individual calls since batch is premium)
+app.get("/api/markets/batch", async (req, res) => {
+  try {
+    const symbols = (req.query.symbols || "").split(",").filter(Boolean);
+    if (symbols.length === 0) return res.json({ quotes: [] });
+    
+    const quotes = await Promise.all(symbols.map(async (symbol) => {
+      try {
+        const data = await fmpFetch("quote", { symbol });
+        const q = Array.isArray(data) ? data[0] : data;
+        if (!q) return { symbol, error: true };
+        return {
+          symbol: q.symbol,
+          name: q.name || symbol,
+          exchange: q.exchange || "",
+          price: q.price,
+          change: q.changePercentage,
+          volume: q.volume,
+          marketCap: q.marketCap,
+          yearHigh: q.yearHigh,
+          yearLow: q.yearLow,
+          priceAvg50: q.priceAvg50,
+          priceAvg200: q.priceAvg200,
+        };
+      } catch {
+        return { symbol, error: true };
+      }
+    }));
+    
+    res.json({ quotes: quotes.filter(q => !q.error) });
+  } catch (err) {
+    console.error("Markets batch error:", err.message);
+    res.status(500).json({ error: "Failed to fetch batch quotes" });
+  }
+});
+
+// FMP — search tickers by name or symbol
+app.get("/api/markets/search", async (req, res) => {
+  try {
+    const query = req.query.q || "";
+    if (!query) return res.json({ results: [] });
+    
+    // Try both symbol and name search
+    const [symbolResults, nameResults] = await Promise.all([
+      fmpFetch("search-symbol", { query }).catch(() => []),
+      fmpFetch("search-name", { query }).catch(() => []),
+    ]);
+    
+    const allResults = [...(Array.isArray(symbolResults) ? symbolResults : []), ...(Array.isArray(nameResults) ? nameResults : [])];
+    
+    // Deduplicate by symbol
+    const seen = new Set();
+    const results = allResults
+      .filter(r => {
+        if (seen.has(r.symbol)) return false;
+        seen.add(r.symbol);
+        return true;
+      })
+      .slice(0, 10)
+      .map(r => ({
+        symbol: r.symbol,
+        name: r.name || r.symbol,
+        exchange: r.exchangeFullName || r.exchange || "",
+        currency: r.currency || "USD",
+      }));
+    
+    res.json({ results });
+  } catch (err) {
+    console.error("Markets search error:", err.message);
+    res.json({ results: [] });
+  }
+});
+
+// FMP — company profile
+app.get("/api/markets/profile/:symbol", async (req, res) => {
+  try {
+    const { symbol } = req.params;
+    const data = await fmpFetch("profile", { symbol });
+    const profile = Array.isArray(data) ? data[0] : data;
+    if (!profile) return res.status(404).json({ error: "Profile not found" });
+    res.json(profile);
+  } catch (err) {
+    console.error("Markets profile error:", err.message);
+    res.status(500).json({ error: "Failed to fetch profile" });
+  }
+});
+
+// FMP — historical price data
+app.get("/api/markets/history/:symbol", async (req, res) => {
+  try {
+    const { symbol } = req.params;
+    const data = await fmpFetch("historical-price-eod/full", { symbol });
+    const history = Array.isArray(data) ? data : [];
+    res.json({ symbol, history: history.slice(0, 365) }); // Last year of data
+  } catch (err) {
+    console.error("Markets history error:", err.message);
+    res.status(500).json({ error: "Failed to fetch history" });
+  }
+});
+
+// AI-powered stock analysis using DeepSeek
+app.post("/api/markets/analyze", async (req, res) => {
+  try {
+    const { symbol, name, price, change, section } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    
+    const sectionPrompts = {
+      "attention-trigger": `Analyze what's driving attention to ${symbol} (${name}) right now. Price: $${price}, change: ${change}%. Identify the key catalyst (earnings, news, sector rotation, volume spike). Format as JSON: { "triggers": ["tag1", "tag2"], "summary": "2-3 sentences", "whyNow": "1-2 sentences on why this name matters right now" }`,
+      
+      "what-moved": `What moved ${symbol} (${name}) recently? Price: $${price}, change: ${change}%. Identify 2-3 key catalysts with impact scores (1-10). Format as JSON: { "summary": "1 sentence", "catalysts": [{ "title": "...", "description": "...", "impact": 8 }] }`,
+      
+      "industry-chain": `Map the industry supply chain for ${symbol} (${name}). Identify upstream suppliers, downstream customers, and key competitors. Format as JSON: { "summary": "2 sentences about position in chain", "nodes": [{ "name": "...", "role": "supplier|competitor|customer|partner", "tickers": ["XXX"] }], "bottlenecks": ["..."] }`,
+      
+      "leverage-point": `Assess the competitive leverage of ${symbol} (${name}). Score 0-100 on pricing power, switching costs, network effects, and market position. Format as JSON: { "score": 85, "summary": "2-3 sentences", "tags": ["tag1"], "bestLeverageType": "technical|fundamental|structural" }`,
+      
+      "peer-readthrough": `Identify 3 peer companies whose recent results or commentary have implications for ${symbol} (${name}). Format as JSON: { "peers": [{ "ticker": "XXX", "name": "...", "signal": "bull|bear|neutral", "quote": "key quote from earnings/commentary", "implication": "what it means for ${symbol}", "date": "2025-XX-XX" }] }`,
+      
+      "follow-money": `Analyze the money flow for ${symbol} (${name}). Look at capex trends, contract wins, backlog, institutional buying. Score 0-100. Format as JSON: { "score": 85, "type": "structural|cyclical|speculative", "summary": "2-3 sentences", "signals": [{ "type": "capex budget|signed contract|backlog", "strength": "strong|moderate|weak", "description": "...", "amount": "$XX" }] }`,
+      
+      "company-numbers": `Provide key financial metrics for ${symbol} (${name}). Format as JSON: { "metrics": { "revGrowth": "+XX% YoY", "epsGrowth": "+XX% YoY", "grossMargin": "XX%", "opMargin": "XX%", "fcfMargin": "XX%", "guidance": "Above/Below/In-line consensus" }, "summary": "2-3 sentences" }`,
+      
+      "segments": `Break down ${symbol} (${name}) by business segment. Format as JSON: { "segments": [{ "name": "...", "status": "accelerating|stable|decelerating", "role": "core|supporting|irrelevant", "description": "...", "importance": 85 }] }`,
+      
+      "contracts": `Assess adoption proof and contract wins for ${symbol} (${name}). Score 0-100. Format as JSON: { "score": 85, "summary": "2 sentences", "contracts": [{ "customer": "...", "status": "signed|expanding|pilot", "description": "..." }] }`,
+      
+      "valuation": `Provide valuation context for ${symbol} (${name}) at $${price}. Format as JSON: { "multiples": { "pe": "XXx", "evSales": "XXx", "evEbitda": "XXx" }, "assessment": "cheap|fair|expensive|priced for perfection", "summary": "2-3 sentences", "vsHistory": "...", "vsPeers": "..." }`,
+      
+      "ownership": `Analyze ownership and sentiment for ${symbol} (${name}). Format as JSON: { "institutional": "XX%", "shortInterest": "X.X%", "crowding": "low|moderate|elevated", "sentiment": "bearish|neutral|bullish|extremely bullish", "summary": "2-3 sentences" }`,
+      
+      "thesis": `Write an investment thesis for ${symbol} (${name}) at $${price}. Format as JSON: { "summary": "3-4 sentences", "bullCase": "2-3 sentences", "bearCase": "2-3 sentences", "whatChangesIt": "2-3 sentences", "watchItems": ["item1", "item2", "item3"] }`,
+      
+      "process-score": `Score ${symbol} (${name}) across the research process dimensions. Format as JSON: { "totalScore": 85, "conviction": "lead|high|moderate|low", "breakdown": { "trigger": 5, "catalyst": 8, "leverage": 12, "peers": 8, "moneyFlow": 12, "numbers": 8, "segments": 8, "contracts": 8, "valuation": 6, "ownership": 5 } }`,
+      
+      "evidence": `List 5-6 key evidence sources for ${symbol} (${name}) analysis. Format as JSON: { "sources": [{ "type": "earnings release|transcript|news|contract|analyst|ownership", "title": "...", "source": "...", "date": "2025-XX-XX", "summary": "1-2 sentences" }] }`,
+    };
+    
+    const prompt = sectionPrompts[section];
+    if (!prompt) return res.status(400).json({ error: "Invalid section" });
+    
+    const messages = [
+      { role: "system", content: "You are an elite equity research analyst at a top hedge fund. Provide institutional-grade analysis. Always respond with valid JSON only — no markdown, no code blocks, no explanation text. Just the JSON object." },
+      { role: "user", content: prompt }
+    ];
+    
+    const data = await callDeepSeek(messages);
+    const content = data.choices?.[0]?.message?.content || "{}";
+    
+    // Try to parse JSON from the response
+    let parsed;
+    try {
+      // Strip markdown code blocks if present
+      const cleaned = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      parsed = JSON.parse(cleaned);
+    } catch {
+      parsed = { raw: content, parseError: true };
+    }
+    
+    res.json({ section, symbol, analysis: parsed });
+  } catch (err) {
+    console.error("Markets analyze error:", err);
+    res.status(500).json({ error: "Analysis failed", details: err.message || String(err) });
+  }
+});
+
+// Full ticker analysis — generate all sections at once
+app.post("/api/markets/full-analysis", async (req, res) => {
+  try {
+    const { symbol, name, price, change } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    
+    const prompt = `You are an elite equity research analyst. Provide a comprehensive analysis of ${symbol} (${name}) at $${price} (${change}% today).
+
+Return a complete JSON object with ALL of these sections:
+{
+  "attentionTrigger": { "triggers": ["tag1"], "summary": "...", "whyNow": "..." },
+  "whatMoved": { "summary": "...", "catalysts": [{ "title": "...", "description": "...", "impact": 8 }] },
+  "industryChain": { "summary": "...", "nodes": [{ "name": "...", "role": "...", "tickers": [] }], "bottlenecks": [] },
+  "leveragePoint": { "score": 85, "summary": "...", "tags": [], "bestLeverageType": "..." },
+  "peerReadthrough": { "peers": [{ "ticker": "...", "name": "...", "signal": "bull", "quote": "...", "implication": "...", "date": "..." }] },
+  "followMoney": { "score": 85, "type": "structural", "summary": "...", "signals": [] },
+  "companyNumbers": { "metrics": { "revGrowth": "...", "epsGrowth": "...", "grossMargin": "...", "opMargin": "...", "fcfMargin": "...", "guidance": "..." }, "summary": "..." },
+  "segments": { "segments": [{ "name": "...", "status": "...", "role": "...", "description": "...", "importance": 85 }] },
+  "contracts": { "score": 85, "summary": "...", "contracts": [] },
+  "valuation": { "multiples": { "pe": "...", "evSales": "...", "evEbitda": "..." }, "assessment": "...", "summary": "...", "vsHistory": "...", "vsPeers": "..." },
+  "ownership": { "institutional": "...", "shortInterest": "...", "crowding": "...", "sentiment": "...", "summary": "..." },
+  "thesis": { "summary": "...", "bullCase": "...", "bearCase": "...", "whatChangesIt": "...", "watchItems": [] },
+  "processScore": { "totalScore": 85, "conviction": "lead", "breakdown": {} },
+  "evidence": { "sources": [{ "type": "...", "title": "...", "source": "...", "date": "...", "summary": "..." }] }
+}
+
+Respond with ONLY valid JSON. No markdown, no code blocks.`;
+    
+    const messages = [
+      { role: "system", content: "You are an elite equity research analyst at a top hedge fund. Always respond with valid JSON only." },
+      { role: "user", content: prompt }
+    ];
+    
+    const data = await callDeepSeek(messages);
+    const content = data.choices?.[0]?.message?.content || "{}";
+    
+    let parsed;
+    try {
+      const cleaned = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      parsed = JSON.parse(cleaned);
+    } catch {
+      parsed = { raw: content, parseError: true };
+    }
+    
+    res.json({ symbol, analysis: parsed });
+  } catch (err) {
+    console.error("Markets full-analysis error:", err);
+    res.status(500).json({ error: "Full analysis failed" });
+  }
+});
+
 // ── Serve static files from dist/ ──
 app.use(express.static(path.join(__dirname, "dist")));
 

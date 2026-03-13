@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllAnalyses, allThemes, searchTickers, type TickerAnalysis } from "../data/mockData";
+import { getAllAnalyses, allThemes, searchTickers as mockSearch, type TickerAnalysis } from "../data/mockData";
+import { getAllWithLivePrices, hybridSearch } from "../data/api";
 import { Tag, ConfidenceDots, StatBox } from "../components/MarketComponents";
 
 const categories = ["All", "Semiconductors", "Networking", "Internet", "Industrials", "Advertising"];
@@ -9,10 +10,50 @@ export default function MarketsDashboard() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
-  const analyses = search ? searchTickers(search) : getAllAnalyses();
+  const [analyses, setAnalyses] = useState<TickerAnalysis[]>(getAllAnalyses());
+  const [searchResults, setSearchResults] = useState<Array<{ symbol: string; name: string; exchange: string; hasMockData: boolean }>>([]);
+  const [loading, setLoading] = useState(true);
+  const [pricesLive, setPricesLive] = useState(false);
   const theme = allThemes["ai-infrastructure"];
 
-  const filtered = category === "All" ? analyses : analyses.filter((a) => {
+  // Fetch live prices on mount
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const liveData = await getAllWithLivePrices();
+        if (!cancelled && liveData.length > 0) {
+          setAnalyses(liveData);
+          setPricesLive(true);
+        }
+      } catch {
+        // Keep mock data on failure
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Live search with debounce
+  useEffect(() => {
+    if (!search) {
+      setSearchResults([]);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      const results = await hybridSearch(search);
+      setSearchResults(results);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Filter by category
+  const displayAnalyses = search
+    ? analyses.filter(a => a.symbol.toLowerCase().includes(search.toLowerCase()) || a.name.toLowerCase().includes(search.toLowerCase()))
+    : analyses;
+
+  const filtered = category === "All" ? displayAnalyses : displayAnalyses.filter((a) => {
     if (category === "Semiconductors") return ["Semiconductors"].includes(a.industry);
     if (category === "Networking") return a.industry.includes("Networking");
     if (category === "Internet") return a.industry.includes("Internet") || a.industry.includes("Retail");
@@ -38,7 +79,18 @@ export default function MarketsDashboard() {
               <h1 className="text-2xl font-semibold text-gray-900 tracking-tight" style={{ fontFamily: "'Instrument Serif', serif" }}>
                 Markets
               </h1>
-              <p className="text-xs text-gray-400 font-mono mt-1">RESEARCH TERMINAL</p>
+              <div className="flex items-center gap-2 mt-1">
+                <p className="text-xs text-gray-400 font-mono">RESEARCH TERMINAL</p>
+                {pricesLive && (
+                  <span className="flex items-center gap-1 text-[10px] font-mono text-emerald-600">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    LIVE
+                  </span>
+                )}
+                {loading && (
+                  <span className="text-[10px] font-mono text-gray-400 animate-pulse">Loading prices...</span>
+                )}
+              </div>
             </div>
             <button onClick={() => navigate("/home")} className="text-xs text-gray-400 hover:text-gray-600 font-mono">
               ← BACK TO LAB
@@ -55,6 +107,30 @@ export default function MarketsDashboard() {
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm font-mono placeholder:text-gray-400 focus:outline-none focus:border-gray-400 focus:bg-white transition-colors"
             />
+            {/* Live search dropdown */}
+            {search && searchResults.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 max-h-64 overflow-y-auto">
+                {searchResults.map((r) => (
+                  <button
+                    key={r.symbol}
+                    onClick={() => {
+                      navigate(`/markets/ticker/${r.symbol}`);
+                      setSearch("");
+                    }}
+                    className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-mono font-semibold text-gray-900">{r.symbol}</span>
+                      <span className="text-xs text-gray-500 truncate max-w-[200px]">{r.name}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-gray-400 font-mono">{r.exchange}</span>
+                      {r.hasMockData && <span className="text-[10px] px-1.5 py-0.5 bg-emerald-50 text-emerald-600 rounded font-mono">TRACKED</span>}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -77,8 +153,8 @@ export default function MarketsDashboard() {
 
         {/* Stats Row */}
         <div className="grid grid-cols-3 gap-3 mb-6">
-          <StatBox label="Tracked" value={`${Object.keys(getAllAnalyses()).length}`} sub="tickers" />
-          <StatBox label="Top Score" value={`${Math.max(...getAllAnalyses().map(a => a.processScore.total))}`} sub="/ 100" />
+          <StatBox label="Tracked" value={`${analyses.length}`} sub="tickers" />
+          <StatBox label="Top Score" value={`${Math.max(...analyses.map(a => a.processScore.total))}`} sub="/ 100" />
           <StatBox label="Themes" value={`${Object.keys(allThemes).length}`} sub="active" />
         </div>
 
@@ -115,6 +191,13 @@ export default function MarketsDashboard() {
         {filtered.length === 0 && (
           <div className="text-center py-16 text-gray-400 font-mono text-sm">No tickers found</div>
         )}
+
+        {/* Data source attribution */}
+        <div className="text-center mt-8 pb-4">
+          <p className="text-[10px] text-gray-300 font-mono">
+            {pricesLive ? "Live prices via Financial Modeling Prep" : "Using cached price data"} · Analysis powered by AI
+          </p>
+        </div>
       </div>
     </div>
   );
