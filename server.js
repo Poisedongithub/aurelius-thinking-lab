@@ -822,19 +822,37 @@ app.get("/api/markets/quote/:symbol", async (req, res) => {
       }
     }
     
-    // Calculate period returns
+    // Calculate period returns using actual daily closes (not chartPreviousClose which is start-of-range)
     const currentPrice = meta.regularMarketPrice;
+    
+    // Find the actual previous trading day close from the daily data
+    // Walk backwards through closes to find the last non-null close before today
+    const allCloses = quotes.close || [];
+    let previousDayClose = null;
+    for (let i = allCloses.length - 1; i >= 0; i--) {
+      if (allCloses[i] != null && allCloses[i] !== currentPrice) {
+        previousDayClose = allCloses[i];
+        break;
+      }
+    }
+    // If we couldn't find a different close, try the second-to-last non-null
+    if (previousDayClose === null) {
+      const nonNull = allCloses.filter(c => c != null);
+      if (nonNull.length >= 2) previousDayClose = nonNull[nonNull.length - 2];
+    }
+    
     const getReturn = (daysBack) => {
       const idx = timestamps.length - 1 - daysBack;
-      if (idx < 0 || !quotes.close?.[idx]) return null;
-      return ((currentPrice - quotes.close[idx]) / quotes.close[idx] * 100);
+      if (idx < 0 || !allCloses[idx]) return null;
+      return ((currentPrice - allCloses[idx]) / allCloses[idx] * 100);
     };
+    
+    // 1D change: current price vs yesterday's actual close
+    const dayChange = previousDayClose ? ((currentPrice - previousDayClose) / previousDayClose * 100) : 0;
     
     // Get sector/industry from search results
     const searchQuote = searchResp?.quotes?.[0];
     
-    // Estimate market cap from price * shares (not always available)
-    // Yahoo chart meta doesn't include marketCap directly, but we can estimate
     const volume = meta.regularMarketVolume || 0;
     
     res.json({
@@ -843,14 +861,14 @@ app.get("/api/markets/quote/:symbol", async (req, res) => {
       exchange: meta.fullExchangeName || meta.exchangeName || "",
       currency: meta.currency || "USD",
       price: currentPrice,
-      previousClose: meta.chartPreviousClose || meta.previousClose || null,
+      previousClose: previousDayClose || null,
       dayHigh: meta.regularMarketDayHigh || null,
       dayLow: meta.regularMarketDayLow || null,
       fiftyTwoWeekHigh: meta.fiftyTwoWeekHigh || null,
       fiftyTwoWeekLow: meta.fiftyTwoWeekLow || null,
       volume: volume,
-      marketCap: null, // Yahoo chart doesn't provide this directly
-      change: meta.chartPreviousClose ? ((currentPrice - meta.chartPreviousClose) / meta.chartPreviousClose * 100) : 0,
+      marketCap: null,
+      change: dayChange,
       sector: searchQuote?.sector || searchQuote?.sectorDisp || "",
       industry: searchQuote?.industry || searchQuote?.industryDisp || "",
       description: "",
@@ -858,7 +876,7 @@ app.get("/api/markets/quote/:symbol", async (req, res) => {
       website: "",
       image: "",
       performance: {
-        "1D": meta.chartPreviousClose ? ((currentPrice - meta.chartPreviousClose) / meta.chartPreviousClose * 100) : 0,
+        "1D": dayChange,
         "1W": getReturn(5),
         "1M": getReturn(21),
         "3M": getReturn(63),
@@ -886,8 +904,20 @@ app.get("/api/markets/batch", async (req, res) => {
         const result = data?.chart?.result?.[0];
         if (!result) return { symbol, error: true };
         const meta = result.meta;
-        const prevClose = meta.chartPreviousClose || meta.previousClose;
         const price = meta.regularMarketPrice;
+        // Get actual previous day close from daily data (not chartPreviousClose which is start-of-range)
+        const closes = result.indicators?.quote?.[0]?.close || [];
+        let prevClose = null;
+        for (let i = closes.length - 1; i >= 0; i--) {
+          if (closes[i] != null && closes[i] !== price) {
+            prevClose = closes[i];
+            break;
+          }
+        }
+        if (prevClose === null) {
+          const nonNull = closes.filter(c => c != null);
+          if (nonNull.length >= 2) prevClose = nonNull[nonNull.length - 2];
+        }
         const changePct = prevClose ? ((price - prevClose) / prevClose * 100) : 0;
         return {
           symbol: meta.symbol,
