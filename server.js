@@ -787,10 +787,10 @@ app.get("/api/markets/quote/:symbol", async (req, res) => {
   try {
     const { symbol } = req.params;
     
-    // Fetch 3-month chart (includes current quote in meta) and search for sector info
+    // Fetch 1-year chart (includes current quote in meta) and search for sector info
     const [chartResp, searchResp] = await Promise.all([
       yfFetch(`/v8/finance/chart/${encodeURIComponent(symbol)}`, {
-        interval: "1d", range: "3mo", includeAdjustedClose: "true"
+        interval: "1d", range: "1y", includeAdjustedClose: "true"
       }),
       yfFetch(`/v1/finance/search`, {
         q: symbol, quotesCount: "1", newsCount: "0"
@@ -822,29 +822,60 @@ app.get("/api/markets/quote/:symbol", async (req, res) => {
       }
     }
     
-    // Calculate period returns using actual daily closes (not chartPreviousClose which is start-of-range)
+    // Calculate period returns using DATE-BASED lookups (not index offsets)
     const currentPrice = meta.regularMarketPrice;
-    
-    // Find the actual previous trading day close from the daily data
-    // Walk backwards through closes to find the last non-null close before today
     const allCloses = quotes.close || [];
+    
+    // Build date-indexed close map for accurate lookups
+    const closesMap = []; // [{ts, close}] sorted by time
+    for (let i = 0; i < timestamps.length; i++) {
+      if (allCloses[i] != null) {
+        closesMap.push({ ts: timestamps[i] * 1000, close: allCloses[i] });
+      }
+    }
+    
+    // Find the previous trading day close (the last close that is NOT from today)
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
     let previousDayClose = null;
-    for (let i = allCloses.length - 1; i >= 0; i--) {
-      if (allCloses[i] != null && allCloses[i] !== currentPrice) {
-        previousDayClose = allCloses[i];
+    for (let i = closesMap.length - 1; i >= 0; i--) {
+      if (closesMap[i].ts < todayStart.getTime()) {
+        previousDayClose = closesMap[i].close;
         break;
       }
     }
-    // If we couldn't find a different close, try the second-to-last non-null
-    if (previousDayClose === null) {
-      const nonNull = allCloses.filter(c => c != null);
-      if (nonNull.length >= 2) previousDayClose = nonNull[nonNull.length - 2];
+    // Fallback: if market is closed today, use second-to-last close
+    if (previousDayClose === null && closesMap.length >= 2) {
+      previousDayClose = closesMap[closesMap.length - 2].close;
     }
     
-    const getReturn = (daysBack) => {
-      const idx = timestamps.length - 1 - daysBack;
-      if (idx < 0 || !allCloses[idx]) return null;
-      return ((currentPrice - allCloses[idx]) / allCloses[idx] * 100);
+    // Find close nearest to a target date (looking backwards from target)
+    const getCloseAtDate = (targetDate) => {
+      const targetMs = targetDate.getTime();
+      let bestClose = null;
+      for (let i = closesMap.length - 1; i >= 0; i--) {
+        if (closesMap[i].ts <= targetMs) {
+          bestClose = closesMap[i].close;
+          break;
+        }
+      }
+      return bestClose;
+    };
+    
+    const getDateReturn = (calendarDaysBack) => {
+      const target = new Date();
+      target.setDate(target.getDate() - calendarDaysBack);
+      const closeAtTarget = getCloseAtDate(target);
+      if (!closeAtTarget) return null;
+      return ((currentPrice - closeAtTarget) / closeAtTarget * 100);
+    };
+    
+    // YTD: from Jan 1 of current year
+    const getYTDReturn = () => {
+      const jan1 = new Date(new Date().getFullYear(), 0, 1);
+      const closeAtJan1 = getCloseAtDate(jan1);
+      if (!closeAtJan1) return null;
+      return ((currentPrice - closeAtJan1) / closeAtJan1 * 100);
     };
     
     // 1D change: current price vs yesterday's actual close
@@ -877,10 +908,10 @@ app.get("/api/markets/quote/:symbol", async (req, res) => {
       image: "",
       performance: {
         "1D": dayChange,
-        "1W": getReturn(5),
-        "1M": getReturn(21),
-        "3M": getReturn(63),
-        "YTD": null,
+        "1W": getDateReturn(7),
+        "1M": getDateReturn(30),
+        "3M": getDateReturn(90),
+        "YTD": getYTDReturn(),
       },
       chart: chartData,
     });
@@ -905,17 +936,24 @@ app.get("/api/markets/batch", async (req, res) => {
         if (!result) return { symbol, error: true };
         const meta = result.meta;
         const price = meta.regularMarketPrice;
-        // Get actual previous day close from daily data (not chartPreviousClose which is start-of-range)
+        // Get previous trading day close using date-based lookup
+        const batchTimestamps = result.timestamp || [];
         const closes = result.indicators?.quote?.[0]?.close || [];
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
         let prevClose = null;
-        for (let i = closes.length - 1; i >= 0; i--) {
-          if (closes[i] != null && closes[i] !== price) {
+        for (let i = batchTimestamps.length - 1; i >= 0; i--) {
+          if (closes[i] != null && (batchTimestamps[i] * 1000) < todayStart.getTime()) {
             prevClose = closes[i];
             break;
           }
         }
+        // Fallback: if market is closed today, use second-to-last close
         if (prevClose === null) {
-          const nonNull = closes.filter(c => c != null);
+          const nonNull = [];
+          for (let i = 0; i < closes.length; i++) {
+            if (closes[i] != null) nonNull.push(closes[i]);
+          }
           if (nonNull.length >= 2) prevClose = nonNull[nonNull.length - 2];
         }
         const changePct = prevClose ? ((price - prevClose) / prevClose * 100) : 0;
