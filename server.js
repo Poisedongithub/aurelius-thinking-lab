@@ -770,7 +770,8 @@ app.get("/api/court/history", async (req, res) => {
 // ── MARKETS API ENDPOINTS (Yahoo Finance — free, all tickers) ──
 // ══════════════════════════════════════════════════
 
-const YF_BASES = ["https://query1.finance.yahoo.com", "https://query2.finance.yahoo.com"];
+const YF_DIRECT_BASES = ["https://query1.finance.yahoo.com", "https://query2.finance.yahoo.com"];
+const YF_PROXY = "https://api.allorigins.win/raw?url=";
 const YF_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 const YF_HEADERS = { "User-Agent": YF_UA };
 
@@ -779,9 +780,9 @@ const yfCache = new Map(); // key -> { data, ts }
 const YF_CACHE_TTL = 5 * 60 * 1000;       // 5 min fresh TTL
 const YF_STALE_TTL = 60 * 60 * 1000;      // 1 hour stale fallback
 const YF_BATCH_CACHE_TTL = 3 * 60 * 1000; // 3 min for batch
+let yfUseProxy = true; // Start with proxy since Render IPs are often blocked
 
-// Helper: fetch from Yahoo Finance with retry + alternating endpoints + cache
-let yfEndpointIdx = 0;
+// Helper: fetch from Yahoo Finance with proxy + direct fallback + cache
 async function yfFetch(path, params = {}, cacheTTL = YF_CACHE_TTL) {
   // Build cache key
   const paramStr = Object.entries(params).sort().map(([k,v]) => `${k}=${v}`).join("&");
@@ -793,36 +794,52 @@ async function yfFetch(path, params = {}, cacheTTL = YF_CACHE_TTL) {
     return cached.data;
   }
   
-  // Try fetching with retry (alternate endpoints)
+  // Build the Yahoo Finance URL
+  const yfUrl = new URL(`https://query1.finance.yahoo.com${path}`);
+  for (const [k, v] of Object.entries(params)) yfUrl.searchParams.set(k, v);
+  const directUrl = yfUrl.toString();
+  
+  // Try strategies: proxy first (if flagged), then direct, then other proxy
+  const strategies = yfUseProxy
+    ? [
+        { name: "proxy", url: `${YF_PROXY}${encodeURIComponent(directUrl)}`, headers: {} },
+        { name: "direct1", url: directUrl, headers: YF_HEADERS },
+        { name: "direct2", url: directUrl.replace("query1", "query2"), headers: YF_HEADERS },
+      ]
+    : [
+        { name: "direct1", url: directUrl, headers: YF_HEADERS },
+        { name: "direct2", url: directUrl.replace("query1", "query2"), headers: YF_HEADERS },
+        { name: "proxy", url: `${YF_PROXY}${encodeURIComponent(directUrl)}`, headers: {} },
+      ];
+  
   let lastErr = null;
-  for (let attempt = 0; attempt < 3; attempt++) {
+  for (const strategy of strategies) {
     try {
-      const base = YF_BASES[yfEndpointIdx % YF_BASES.length];
-      yfEndpointIdx++;
-      const url = new URL(`${base}${path}`);
-      for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
-      const response = await fetch(url.toString(), {
-        headers: YF_HEADERS,
-        signal: AbortSignal.timeout(10000), // 10s timeout
+      const response = await fetch(strategy.url, {
+        headers: strategy.headers,
+        signal: AbortSignal.timeout(15000),
       });
       if (response.status === 429) {
-        // Rate limited — wait before retry
-        await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
         lastErr = new Error("Yahoo Finance returned 429");
+        if (strategy.name.startsWith("direct")) yfUseProxy = true;
         continue;
       }
-      if (!response.ok) throw new Error(`Yahoo Finance returned ${response.status}`);
+      if (!response.ok) {
+        lastErr = new Error(`Yahoo Finance returned ${response.status}`);
+        continue;
+      }
       const data = await response.json();
       // Store in cache
       yfCache.set(cacheKey, { data, ts: Date.now() });
+      // If direct worked, prefer it next time
+      if (strategy.name.startsWith("direct")) yfUseProxy = false;
       return data;
     } catch (err) {
       lastErr = err;
-      if (attempt < 2) await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
     }
   }
   
-  // All retries failed — try stale cache
+  // All strategies failed — try stale cache
   if (cached && (Date.now() - cached.ts) < YF_STALE_TTL) {
     console.warn(`yfFetch: serving stale cache for ${cacheKey}`);
     return cached.data;
