@@ -771,61 +771,11 @@ app.get("/api/court/history", async (req, res) => {
 // ══════════════════════════════════════════════════
 
 const YF_BASE = "https://query1.finance.yahoo.com";
-const YF_BASE2 = "https://query2.finance.yahoo.com";
 const YF_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 const YF_HEADERS = { "User-Agent": YF_UA };
 
-// Yahoo Finance crumb/cookie cache for authenticated endpoints
-let yfCrumb = null;
-let yfCookies = null;
-let yfCrumbExpiry = 0;
-
-async function getYfCrumb() {
-  if (yfCrumb && Date.now() < yfCrumbExpiry) return { crumb: yfCrumb, cookies: yfCookies };
-  try {
-    // Step 1: Get cookies from fc.yahoo.com
-    const cookieResp = await fetch("https://fc.yahoo.com", {
-      headers: { "User-Agent": YF_UA },
-      redirect: "manual",
-    });
-    const setCookies = cookieResp.headers.getSetCookie?.() || [];
-    const cookieStr = setCookies.map(c => c.split(";")[0]).join("; ");
-    
-    // Step 2: Get crumb using cookies
-    const crumbResp = await fetch(`${YF_BASE2}/v1/test/getcrumb`, {
-      headers: { "User-Agent": YF_UA, "Cookie": cookieStr },
-    });
-    const crumb = await crumbResp.text();
-    if (!crumb || crumb.includes("error") || crumb.includes("{")) {
-      throw new Error("Invalid crumb response");
-    }
-    yfCrumb = crumb;
-    yfCookies = cookieStr;
-    yfCrumbExpiry = Date.now() + 3600000; // Cache for 1 hour
-    return { crumb, cookies: cookieStr };
-  } catch (err) {
-    console.error("Failed to get Yahoo Finance crumb:", err.message);
-    return null;
-  }
-}
-
-// Fetch market cap from Yahoo Finance quoteSummary (requires crumb)
-async function getMarketCap(symbol) {
-  try {
-    const auth = await getYfCrumb();
-    if (!auth) return null;
-    const url = `${YF_BASE2}/v10/finance/quoteSummary/${encodeURIComponent(symbol)}?modules=price&crumb=${encodeURIComponent(auth.crumb)}`;
-    const resp = await fetch(url, {
-      headers: { "User-Agent": YF_UA, "Cookie": auth.cookies },
-    });
-    if (!resp.ok) return null;
-    const data = await resp.json();
-    const raw = data?.quoteSummary?.result?.[0]?.price?.marketCap?.raw;
-    return raw || null;
-  } catch {
-    return null;
-  }
-}
+// Market cap is not available from Yahoo Finance chart API without authenticated endpoints.
+// To avoid 429 rate limiting, we skip market cap for now.
 
 // Helper: fetch from Yahoo Finance
 async function yfFetch(path, params = {}) {
@@ -841,15 +791,14 @@ app.get("/api/markets/quote/:symbol", async (req, res) => {
   try {
     const { symbol } = req.params;
     
-    // Fetch 1-year chart, search for sector info, and get market cap
-    const [chartResp, searchResp, marketCap] = await Promise.all([
+    // Fetch 1-year chart and search for sector info
+    const [chartResp, searchResp] = await Promise.all([
       yfFetch(`/v8/finance/chart/${encodeURIComponent(symbol)}`, {
         interval: "1d", range: "1y", includeAdjustedClose: "true"
       }),
       yfFetch(`/v1/finance/search`, {
         q: symbol, quotesCount: "1", newsCount: "0"
       }).catch(() => null),
-      getMarketCap(symbol),
     ]);
     
     const result = chartResp?.chart?.result?.[0];
@@ -953,7 +902,7 @@ app.get("/api/markets/quote/:symbol", async (req, res) => {
       fiftyTwoWeekHigh: meta.fiftyTwoWeekHigh || null,
       fiftyTwoWeekLow: meta.fiftyTwoWeekLow || null,
       volume: volume,
-      marketCap: marketCap,
+      marketCap: null,
       change: dayChange,
       sector: searchQuote?.sector || searchQuote?.sectorDisp || "",
       industry: searchQuote?.industry || searchQuote?.industryDisp || "",
@@ -984,12 +933,9 @@ app.get("/api/markets/batch", async (req, res) => {
     
     const quotes = await Promise.all(symbols.map(async (symbol) => {
       try {
-        const [data, mktCap] = await Promise.all([
-          yfFetch(`/v8/finance/chart/${encodeURIComponent(symbol)}`, {
+        const data = await yfFetch(`/v8/finance/chart/${encodeURIComponent(symbol)}`, {
             interval: "1d", range: "5d"
-          }),
-          getMarketCap(symbol),
-        ]);
+          });
         const result = data?.chart?.result?.[0];
         if (!result) return { symbol, error: true };
         const meta = result.meta;
@@ -1022,7 +968,7 @@ app.get("/api/markets/batch", async (req, res) => {
           price: price,
           change: changePct,
           volume: meta.regularMarketVolume || 0,
-          marketCap: mktCap,
+          marketCap: null,
           yearHigh: meta.fiftyTwoWeekHigh || null,
           yearLow: meta.fiftyTwoWeekLow || null,
           priceAvg50: null,
