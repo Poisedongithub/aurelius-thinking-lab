@@ -770,21 +770,74 @@ app.get("/api/court/history", async (req, res) => {
 // ── MARKETS API ENDPOINTS (Yahoo Finance — free, all tickers) ──
 // ══════════════════════════════════════════════════
 
-const YF_BASE = "https://query1.finance.yahoo.com";
+const YF_BASES = ["https://query1.finance.yahoo.com", "https://query2.finance.yahoo.com"];
 const YF_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 const YF_HEADERS = { "User-Agent": YF_UA };
 
-// Market cap is not available from Yahoo Finance chart API without authenticated endpoints.
-// To avoid 429 rate limiting, we skip market cap for now.
+// ── In-memory cache for Yahoo Finance responses ──
+const yfCache = new Map(); // key -> { data, ts }
+const YF_CACHE_TTL = 5 * 60 * 1000;       // 5 min fresh TTL
+const YF_STALE_TTL = 60 * 60 * 1000;      // 1 hour stale fallback
+const YF_BATCH_CACHE_TTL = 3 * 60 * 1000; // 3 min for batch
 
-// Helper: fetch from Yahoo Finance
-async function yfFetch(path, params = {}) {
-  const url = new URL(`${YF_BASE}${path}`);
-  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
-  const response = await fetch(url.toString(), { headers: YF_HEADERS });
-  if (!response.ok) throw new Error(`Yahoo Finance returned ${response.status}`);
-  return response.json();
+// Helper: fetch from Yahoo Finance with retry + alternating endpoints + cache
+let yfEndpointIdx = 0;
+async function yfFetch(path, params = {}, cacheTTL = YF_CACHE_TTL) {
+  // Build cache key
+  const paramStr = Object.entries(params).sort().map(([k,v]) => `${k}=${v}`).join("&");
+  const cacheKey = `${path}?${paramStr}`;
+  
+  // Check cache
+  const cached = yfCache.get(cacheKey);
+  if (cached && (Date.now() - cached.ts) < cacheTTL) {
+    return cached.data;
+  }
+  
+  // Try fetching with retry (alternate endpoints)
+  let lastErr = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const base = YF_BASES[yfEndpointIdx % YF_BASES.length];
+      yfEndpointIdx++;
+      const url = new URL(`${base}${path}`);
+      for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+      const response = await fetch(url.toString(), {
+        headers: YF_HEADERS,
+        signal: AbortSignal.timeout(10000), // 10s timeout
+      });
+      if (response.status === 429) {
+        // Rate limited — wait before retry
+        await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+        lastErr = new Error("Yahoo Finance returned 429");
+        continue;
+      }
+      if (!response.ok) throw new Error(`Yahoo Finance returned ${response.status}`);
+      const data = await response.json();
+      // Store in cache
+      yfCache.set(cacheKey, { data, ts: Date.now() });
+      return data;
+    } catch (err) {
+      lastErr = err;
+      if (attempt < 2) await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
+    }
+  }
+  
+  // All retries failed — try stale cache
+  if (cached && (Date.now() - cached.ts) < YF_STALE_TTL) {
+    console.warn(`yfFetch: serving stale cache for ${cacheKey}`);
+    return cached.data;
+  }
+  
+  throw lastErr || new Error("Yahoo Finance fetch failed");
 }
+
+// Clean expired cache entries every 10 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, val] of yfCache.entries()) {
+    if (now - val.ts > YF_STALE_TTL) yfCache.delete(key);
+  }
+}, 10 * 60 * 1000);
 
 // Yahoo Finance — get live stock quote + historical chart
 app.get("/api/markets/quote/:symbol", async (req, res) => {
