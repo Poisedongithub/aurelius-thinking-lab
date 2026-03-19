@@ -146,33 +146,12 @@ export default function TickerAnalysis() {
           <StatBox label="52W Low" value={quote.fiftyTwoWeekLow ? `$${quote.fiftyTwoWeekLow.toFixed(2)}` : "—"} />
         </div>
 
-        {/* Performance */}
-        {quote.performance && (
-          <div className="grid grid-cols-5 gap-2 mb-4">
-            {Object.entries(quote.performance).map(([period, val]) => (
-              <StatBox
-                key={period}
-                label={period}
-                value={val != null ? `${val >= 0 ? "+" : ""}${val.toFixed(1)}%` : "—"}
-              />
-            ))}
-          </div>
-        )}
-
         {/* Company Description */}
         {quote.description && (
           <div className="bg-white border border-gray-200 rounded-lg p-5 mb-4">
             <h3 className="text-sm font-semibold text-gray-900 mb-2">About {quote.name}</h3>
             <p className="text-xs text-gray-600 leading-relaxed line-clamp-4">{quote.description}</p>
             {quote.ceo && <p className="text-[10px] text-gray-400 font-mono mt-2">CEO: {quote.ceo}</p>}
-          </div>
-        )}
-
-        {/* Mini Chart */}
-        {quote.chart && quote.chart.length > 0 && (
-          <div className="bg-white border border-gray-200 rounded-lg p-5 mb-4">
-            <h3 className="text-sm font-semibold text-gray-900 mb-3">30-Day Price</h3>
-            <MiniChart data={quote.chart} />
           </div>
         )}
 
