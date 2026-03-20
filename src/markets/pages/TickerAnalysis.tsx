@@ -5,6 +5,7 @@ import {
   SectionCard, Tag, DirectionArrow, ConfidenceDots,
   StatBox, EmptyState, ScoreBar,
 } from "../components/MarketComponents";
+import JacobChat from "../components/JacobChat";
 
 type SectionKey =
   | "attention-trigger" | "what-moved" | "industry-chain" | "leverage-point"
@@ -184,6 +185,14 @@ export default function TickerAnalysis() {
           </p>
         </div>
       </div>
+
+      {/* Jacob AI Chat */}
+      <JacobChat
+        symbol={quote.symbol}
+        name={quote.name}
+        price={quote.price}
+        change={quote.change || 0}
+      />
     </div>
   );
 }

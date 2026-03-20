@@ -172,3 +172,31 @@ export function formatVolume(vol: number): string {
   if (vol >= 1e3) return `${(vol / 1e3).toFixed(0)}K`;
   return `${vol}`;
 }
+
+// ── Jacob AI Chat ──
+
+export interface JacobMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export async function sendJacobMessage(
+  messages: JacobMessage[],
+  symbol?: string,
+  name?: string,
+  price?: number,
+  change?: number
+): Promise<string> {
+  try {
+    const res = await fetch(`${API_BASE}/jacob`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages, symbol, name, price, change }),
+    });
+    if (!res.ok) throw new Error("Failed");
+    const data = await res.json();
+    return data.response || "";
+  } catch {
+    return "something went wrong. try again.";
+  }
+}
