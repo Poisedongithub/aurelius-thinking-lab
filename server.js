@@ -981,7 +981,7 @@ app.get("/api/markets/quote/:symbol", async (req, res) => {
 // Google Finance — batch quotes for multiple symbols
 app.get("/api/markets/batch", async (req, res) => {
   try {
-    const symbols = (req.query.symbols || "").split(",").filter(Boolean);
+    const symbols = (req.query.symbols || req.query.tickers || "").split(",").filter(Boolean);
     if (symbols.length === 0) return res.json({ quotes: [] });
     
     const quotes = await Promise.all(symbols.map(async (symbol) => {
