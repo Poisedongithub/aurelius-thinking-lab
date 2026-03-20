@@ -39,7 +39,6 @@ export default function TickerAnalysis() {
   const [loadingSections, setLoadingSections] = useState<Set<string>>(new Set());
   const [loadedSections, setLoadedSections] = useState<Set<string>>(new Set());
 
-  // Fetch live quote on mount
   useEffect(() => {
     if (!symbol) return;
     let cancelled = false;
@@ -48,11 +47,7 @@ export default function TickerAnalysis() {
         setLoading(true);
         const data = await fetchLiveQuote(symbol);
         if (!cancelled) {
-          if (data) {
-            setQuote(data);
-          } else {
-            setError(`Could not find data for ${symbol}`);
-          }
+          if (data) { setQuote(data); } else { setError(`Could not find data for ${symbol}`); }
         }
       } catch {
         if (!cancelled) setError("Failed to load stock data");
@@ -63,34 +58,26 @@ export default function TickerAnalysis() {
     return () => { cancelled = true; };
   }, [symbol]);
 
-  // Load a section's AI analysis on demand
   const loadSection = async (sectionKey: SectionKey) => {
     if (!quote || loadedSections.has(sectionKey) || loadingSections.has(sectionKey)) return;
-
     setLoadingSections((prev) => new Set(prev).add(sectionKey));
     try {
-      const analysis = await fetchSectionAnalysis(
-        quote.symbol, quote.name, quote.price, quote.change, sectionKey
-      );
+      const analysis = await fetchSectionAnalysis(quote.symbol, quote.name, quote.price, quote.change, sectionKey);
       setSectionData((prev) => ({ ...prev, [sectionKey]: analysis }));
       setLoadedSections((prev) => new Set(prev).add(sectionKey));
     } catch {
       setSectionData((prev) => ({ ...prev, [sectionKey]: { error: "Failed to generate analysis" } }));
     } finally {
-      setLoadingSections((prev) => {
-        const next = new Set(prev);
-        next.delete(sectionKey);
-        return next;
-      });
+      setLoadingSections((prev) => { const next = new Set(prev); next.delete(sectionKey); return next; });
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
+      <div className="min-h-screen bg-[#060606] flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-sm font-mono text-gray-500">Loading {symbol}...</p>
+          <div className="w-8 h-8 border-2 border-white/10 border-t-white/60 rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm font-mono text-white/30">Loading {symbol}...</p>
         </div>
       </div>
     );
@@ -98,9 +85,9 @@ export default function TickerAnalysis() {
 
   if (error || !quote) {
     return (
-      <div className="min-h-screen bg-[#fafafa]">
-        <div className="max-w-3xl mx-auto px-4 py-8">
-          <button onClick={() => navigate("/markets")} className="text-xs text-gray-400 hover:text-gray-600 font-mono mb-4">← DASHBOARD</button>
+      <div className="min-h-screen bg-[#060606]">
+        <div className="max-w-3xl mx-auto px-5 py-8">
+          <button onClick={() => navigate("/markets")} className="text-[11px] text-white/30 hover:text-white/60 font-mono mb-6 transition-colors">← DASHBOARD</button>
           <EmptyState message={error || `Ticker ${symbol} not found`} />
         </div>
       </div>
@@ -108,63 +95,86 @@ export default function TickerAnalysis() {
   }
 
   const pct = quote.change || 0;
-  const pctColor = pct >= 0 ? "text-emerald-600" : "text-red-600";
+  const isUp = pct >= 0;
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <button onClick={() => navigate("/markets")} className="text-xs text-gray-400 hover:text-gray-600 font-mono">← DASHBOARD</button>
-            <span className="flex items-center gap-1 text-[10px] font-mono text-emerald-600">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+    <div className="min-h-screen bg-[#060606] text-white">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-10 bg-[#060606]/80 backdrop-blur-xl border-b border-white/[0.06]">
+        <div className="max-w-3xl mx-auto px-5 py-4">
+          <div className="flex items-center justify-between mb-3">
+            <button onClick={() => navigate("/markets")} className="text-[11px] text-white/30 hover:text-white/60 font-mono tracking-wide transition-colors">← DASHBOARD</button>
+            <span className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               LIVE
             </span>
           </div>
-          <div className="flex items-center justify-between mt-3">
+          <div className="flex items-center justify-between">
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-bold font-mono text-gray-900">{quote.symbol}</h1>
-                {quote.sector && <Tag label={quote.sector} color="blue" />}
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold font-mono text-white tracking-wide">{quote.symbol}</h1>
+                {quote.sector && (
+                  <span className="text-[9px] font-mono text-white/25 bg-white/[0.04] px-2 py-0.5 rounded-md tracking-wider">{quote.sector.toUpperCase()}</span>
+                )}
               </div>
-              <p className="text-xs text-gray-400 mt-0.5">{quote.name} · {quote.exchange} · {quote.industry || ""}</p>
+              <p className="text-[11px] text-white/25 mt-0.5">{quote.name} · {quote.exchange}</p>
             </div>
             <div className="text-right">
-              <div className="text-xl font-bold font-mono text-gray-900">${quote.price.toFixed(2)}</div>
-              <span className={`text-sm font-mono ${pctColor}`}>{pct >= 0 ? "+" : ""}{pct.toFixed(2)}%</span>
+              <div className="text-2xl font-bold font-mono text-white tabular-nums">${quote.price.toFixed(2)}</div>
+              <span className={`text-sm font-mono tabular-nums ${isUp ? "text-emerald-400" : "text-red-400"}`}>
+                {isUp ? "+" : ""}{pct.toFixed(2)}%
+              </span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 py-6 space-y-1">
-        {/* Price Stats */}
-        <div className="grid grid-cols-4 gap-2 mb-4">
-          <StatBox label="Market Cap" value={quote.marketCap ? formatMarketCap(quote.marketCap) : "—"} />
-          <StatBox label="Volume" value={formatVol(quote.volume)} />
-          <StatBox label="52W High" value={quote.fiftyTwoWeekHigh ? `$${quote.fiftyTwoWeekHigh.toFixed(2)}` : "—"} />
-          <StatBox label="52W Low" value={quote.fiftyTwoWeekLow ? `$${quote.fiftyTwoWeekLow.toFixed(2)}` : "—"} />
+      <div className="max-w-3xl mx-auto px-5 py-6 space-y-4">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-4 gap-2">
+          <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-3 text-center">
+            <div className="text-[9px] text-white/20 font-mono tracking-widest mb-1">MARKET CAP</div>
+            <div className="text-sm font-semibold text-white tabular-nums">{quote.marketCap ? formatMarketCap(quote.marketCap) : "—"}</div>
+          </div>
+          <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-3 text-center">
+            <div className="text-[9px] text-white/20 font-mono tracking-widest mb-1">VOLUME</div>
+            <div className="text-sm font-semibold text-white tabular-nums">{formatVol(quote.volume)}</div>
+          </div>
+          <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-3 text-center">
+            <div className="text-[9px] text-white/20 font-mono tracking-widest mb-1">52W HIGH</div>
+            <div className="text-sm font-semibold text-white tabular-nums">{quote.fiftyTwoWeekHigh ? `$${quote.fiftyTwoWeekHigh.toFixed(2)}` : "—"}</div>
+          </div>
+          <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-3 text-center">
+            <div className="text-[9px] text-white/20 font-mono tracking-widest mb-1">52W LOW</div>
+            <div className="text-sm font-semibold text-white tabular-nums">{quote.fiftyTwoWeekLow ? `$${quote.fiftyTwoWeekLow.toFixed(2)}` : "—"}</div>
+          </div>
         </div>
 
         {/* Company Description */}
         {quote.description && (
-          <div className="bg-white border border-gray-200 rounded-lg p-5 mb-4">
-            <h3 className="text-sm font-semibold text-gray-900 mb-2">About {quote.name}</h3>
-            <p className="text-xs text-gray-600 leading-relaxed line-clamp-4">{quote.description}</p>
-            {quote.ceo && <p className="text-[10px] text-gray-400 font-mono mt-2">CEO: {quote.ceo}</p>}
+          <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
+            <h3 className="text-xs font-semibold text-white/60 font-mono tracking-wider mb-2">ABOUT</h3>
+            <p className="text-[13px] text-white/40 leading-relaxed line-clamp-4">{quote.description}</p>
+            {quote.ceo && <p className="text-[10px] text-white/15 font-mono mt-3">CEO: {quote.ceo}</p>}
           </div>
         )}
 
-        {/* AI Analysis Sections */}
-        <div className="bg-gray-900 text-white rounded-lg p-4 mb-4">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs font-mono">AI RESEARCH PIPELINE</span>
+        {/* AI Pipeline Header */}
+        <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-gradient-to-r from-white/[0.04] to-white/[0.01] p-5">
+          <div className="relative z-10">
+            <div className="flex items-center gap-2.5 mb-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[11px] font-mono text-white/70 tracking-widest">AI RESEARCH PIPELINE</span>
+            </div>
+            <p className="text-[12px] text-white/25 max-w-lg">
+              Click any section below to generate institutional-grade AI analysis for {quote.symbol}. Each section is generated on demand.
+            </p>
           </div>
-          <p className="text-xs text-gray-400">Click any section below to generate institutional-grade AI analysis for {quote.symbol}. Each section is generated on demand.</p>
+          {/* Subtle gradient orb */}
+          <div className="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/[0.03] rounded-full blur-3xl" />
         </div>
 
+        {/* Analysis Sections */}
         {SECTIONS.map(({ key, title, step }) => (
           <AnalysisSection
             key={key}
@@ -178,26 +188,19 @@ export default function TickerAnalysis() {
           />
         ))}
 
-        {/* Attribution */}
-        <div className="text-center mt-8 pb-4">
-          <p className="text-[10px] text-gray-300 font-mono">
-            Live data via Yahoo Finance · Analysis powered by DeepSeek AI
+        <div className="text-center mt-12 pb-6">
+          <p className="text-[10px] text-white/10 font-mono tracking-wider">
+            Live data via Massive API · Analysis powered by DeepSeek AI
           </p>
         </div>
       </div>
 
-      {/* Jacob AI Chat */}
-      <JacobChat
-        symbol={quote.symbol}
-        name={quote.name}
-        price={quote.price}
-        change={quote.change || 0}
-      />
+      <JacobChat symbol={quote.symbol} name={quote.name} price={quote.price} change={quote.change || 0} />
     </div>
   );
 }
 
-// ── Analysis Section Component ──
+// ── Analysis Section ──
 function AnalysisSection({
   sectionKey, title, step, data, isLoading, isLoaded, onLoad,
 }: {
@@ -207,37 +210,36 @@ function AnalysisSection({
 }) {
   if (!isLoaded && !isLoading) {
     return (
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-4">
-        <button
-          onClick={onLoad}
-          className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <span className="w-6 h-6 rounded-full bg-gray-200 text-gray-500 text-xs flex items-center justify-center font-mono">{step}</span>
-            <h3 className="text-sm font-semibold text-gray-400 tracking-tight">{title}</h3>
+      <button
+        onClick={onLoad}
+        className="w-full group bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden hover:bg-white/[0.04] hover:border-white/[0.1] transition-all duration-200"
+      >
+        <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center gap-3.5">
+            <span className="w-7 h-7 rounded-lg bg-white/[0.06] text-white/30 text-xs flex items-center justify-center font-mono group-hover:bg-white/[0.1] group-hover:text-white/50 transition-all">{step}</span>
+            <h3 className="text-sm text-white/30 group-hover:text-white/60 transition-colors">{title}</h3>
           </div>
-          <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-2 py-1 rounded">GENERATE</span>
-        </button>
-      </div>
+          <span className="text-[10px] font-mono text-white/15 bg-white/[0.04] px-2.5 py-1 rounded-md group-hover:text-white/30 group-hover:bg-white/[0.06] transition-all">GENERATE</span>
+        </div>
+      </button>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-4">
-        <div className="px-5 py-4 flex items-center gap-3">
-          <span className="w-6 h-6 rounded-full bg-gray-900 text-white text-xs flex items-center justify-center font-mono">{step}</span>
-          <h3 className="text-sm font-semibold text-gray-900 tracking-tight">{title}</h3>
+      <div className="bg-white/[0.02] border border-white/[0.08] rounded-xl overflow-hidden">
+        <div className="px-5 py-4 flex items-center gap-3.5">
+          <span className="w-7 h-7 rounded-lg bg-white/[0.1] text-white/60 text-xs flex items-center justify-center font-mono">{step}</span>
+          <h3 className="text-sm text-white/60">{title}</h3>
           <div className="ml-auto flex items-center gap-2">
-            <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin" />
-            <span className="text-[10px] font-mono text-gray-400 animate-pulse">Analyzing...</span>
+            <div className="w-4 h-4 border-2 border-white/10 border-t-white/50 rounded-full animate-spin" />
+            <span className="text-[10px] font-mono text-white/25 animate-pulse">Analyzing...</span>
           </div>
         </div>
       </div>
     );
   }
 
-  // Render the analysis data
   return (
     <SectionCard title={title} step={step}>
       <div className="space-y-3 pt-3">
@@ -249,13 +251,13 @@ function AnalysisSection({
 
 // ── Dynamic Section Renderer ──
 function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data: Record<string, unknown> | null }) {
-  if (!data) return <p className="text-xs text-gray-400 font-mono">No data available</p>;
+  if (!data) return <p className="text-xs text-white/20 font-mono">No data available</p>;
 
   if ((data as Record<string, unknown>).parseError) {
     return (
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-        <p className="text-xs text-amber-700 font-mono">AI returned non-standard format. Raw response:</p>
-        <pre className="text-xs text-gray-600 mt-2 whitespace-pre-wrap">{String((data as Record<string, unknown>).raw || "")}</pre>
+      <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+        <p className="text-xs text-amber-400 font-mono">AI returned non-standard format. Raw response:</p>
+        <pre className="text-xs text-white/40 mt-2 whitespace-pre-wrap">{String((data as Record<string, unknown>).raw || "")}</pre>
       </div>
     );
   }
@@ -269,11 +271,11 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
           {d.triggers && Array.isArray(d.triggers) && (
             <div className="flex flex-wrap gap-1">{(d.triggers as string[]).map((t, i) => <Tag key={i} label={t} color="blue" />)}</div>
           )}
-          {d.summary && <p className="text-sm text-gray-700 leading-relaxed">{String(d.summary)}</p>}
+          {d.summary && <p className="text-sm text-white/60 leading-relaxed">{String(d.summary)}</p>}
           {d.whyNow && (
-            <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-              <p className="text-xs text-gray-500 font-mono mb-1">WHY THIS NAME NOW</p>
-              <p className="text-sm text-gray-800 leading-relaxed">{String(d.whyNow)}</p>
+            <div className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <p className="text-[10px] text-white/25 font-mono mb-1">WHY THIS NAME NOW</p>
+              <p className="text-sm text-white/50 leading-relaxed">{String(d.whyNow)}</p>
             </div>
           )}
         </>
@@ -282,14 +284,14 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
     case "what-moved":
       return (
         <>
-          {d.summary && <p className="text-sm text-gray-700">{String(d.summary)}</p>}
+          {d.summary && <p className="text-sm text-white/60">{String(d.summary)}</p>}
           {d.catalysts && Array.isArray(d.catalysts) && (d.catalysts as Array<{title: string; description: string; impact: number}>).map((c, i) => (
-            <div key={i} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+            <div key={i} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-sm font-semibold text-gray-900">{c.title}</span>
+                <span className="text-sm font-semibold text-white/80">{c.title}</span>
                 <ConfidenceDots value={c.impact * 10} />
               </div>
-              <p className="text-xs text-gray-600 leading-relaxed">{c.description}</p>
+              <p className="text-xs text-white/40 leading-relaxed">{c.description}</p>
             </div>
           ))}
         </>
@@ -298,27 +300,27 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
     case "industry-chain":
       return (
         <>
-          {d.summary && <p className="text-sm text-gray-700">{String(d.summary)}</p>}
+          {d.summary && <p className="text-sm text-white/60">{String(d.summary)}</p>}
           {d.nodes && Array.isArray(d.nodes) && (d.nodes as Array<{name: string; role: string; tickers?: string[]}>).map((node, i) => (
-            <div key={i} className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-100">
-              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${node.role === "competitor" ? "bg-red-500" : node.role === "supplier" ? "bg-blue-500" : node.role === "customer" ? "bg-emerald-500" : "bg-purple-500"}`} />
+            <div key={i} className="flex items-center gap-3 bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${node.role === "competitor" ? "bg-red-400" : node.role === "supplier" ? "bg-blue-400" : node.role === "customer" ? "bg-emerald-400" : "bg-purple-400"}`} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-gray-900">{node.name}</span>
+                  <span className="text-sm font-semibold text-white/80">{node.name}</span>
                   <Tag label={node.role} color={node.role === "competitor" ? "red" : node.role === "supplier" ? "blue" : "green"} />
                 </div>
                 {node.tickers && (
                   <div className="flex gap-1 mt-1">
-                    {node.tickers.map((t) => <span key={t} className="text-[10px] font-mono text-gray-400 bg-white px-1.5 py-0.5 rounded border border-gray-200">{t}</span>)}
+                    {node.tickers.map((t) => <span key={t} className="text-[10px] font-mono text-white/25 bg-white/[0.04] px-1.5 py-0.5 rounded border border-white/[0.06]">{t}</span>)}
                   </div>
                 )}
               </div>
             </div>
           ))}
           {d.bottlenecks && Array.isArray(d.bottlenecks) && (d.bottlenecks as string[]).length > 0 && (
-            <div className="bg-red-50 rounded-lg p-3 border border-red-100">
-              <p className="text-xs text-red-600 font-mono mb-1">BOTTLENECKS</p>
-              <ul className="text-xs text-red-700 space-y-1">
+            <div className="bg-red-500/10 rounded-lg p-3 border border-red-500/20">
+              <p className="text-[10px] text-red-400 font-mono mb-1">BOTTLENECKS</p>
+              <ul className="text-xs text-red-300/70 space-y-1">
                 {(d.bottlenecks as string[]).map((b, i) => <li key={i}>• {b}</li>)}
               </ul>
             </div>
@@ -331,12 +333,12 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
         <>
           <div className="flex items-center gap-4">
             <div>
-              <span className="text-3xl font-bold font-mono text-gray-900">{String(d.score || "—")}</span>
-              <span className="text-sm text-gray-400 ml-1">/100</span>
+              <span className="text-3xl font-bold font-mono text-white">{String(d.score || "—")}</span>
+              <span className="text-sm text-white/20 ml-1">/100</span>
             </div>
-            {d.score && <ScoreBar label="Leverage" value={Number(d.score)} max={100} color={Number(d.score) >= 80 ? "#059669" : Number(d.score) >= 60 ? "#d97706" : "#dc2626"} />}
+            {d.score && <ScoreBar label="Leverage" value={Number(d.score)} max={100} color={Number(d.score) >= 80 ? "#34d399" : Number(d.score) >= 60 ? "#fbbf24" : "#f87171"} />}
           </div>
-          {d.summary && <p className="text-sm text-gray-700 leading-relaxed">{String(d.summary)}</p>}
+          {d.summary && <p className="text-sm text-white/60 leading-relaxed">{String(d.summary)}</p>}
           {d.tags && Array.isArray(d.tags) && (
             <div className="flex flex-wrap gap-1">{(d.tags as string[]).map((t, i) => <Tag key={i} label={t} color="purple" />)}</div>
           )}
@@ -347,17 +349,17 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
       return (
         <>
           {d.peers && Array.isArray(d.peers) && (d.peers as Array<{ticker: string; name: string; signal: string; quote: string; implication: string; date: string}>).map((pr, i) => (
-            <div key={i} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+            <div key={i} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono font-semibold text-gray-900">{pr.ticker}</span>
-                  <span className="text-xs text-gray-400">{pr.name}</span>
+                  <span className="text-xs font-mono font-semibold text-white/80">{pr.ticker}</span>
+                  <span className="text-xs text-white/30">{pr.name}</span>
                 </div>
                 <DirectionArrow direction={pr.signal as "bullish" | "bearish" | "mixed"} />
               </div>
-              <blockquote className="text-xs text-gray-600 italic border-l-2 border-gray-300 pl-3 mb-2">"{pr.quote}"</blockquote>
-              <p className="text-xs text-gray-700">{pr.implication}</p>
-              <span className="text-[10px] text-gray-400 font-mono mt-1 block">{pr.date}</span>
+              <blockquote className="text-xs text-white/40 italic border-l-2 border-white/10 pl-3 mb-2">"{pr.quote}"</blockquote>
+              <p className="text-xs text-white/50">{pr.implication}</p>
+              <span className="text-[10px] text-white/15 font-mono mt-1 block">{pr.date}</span>
             </div>
           ))}
         </>
@@ -368,22 +370,22 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
         <>
           <div className="flex items-center gap-4">
             <div>
-              <span className="text-3xl font-bold font-mono text-gray-900">{String(d.score || "—")}</span>
-              <span className="text-sm text-gray-400 ml-1">/100</span>
+              <span className="text-3xl font-bold font-mono text-white">{String(d.score || "—")}</span>
+              <span className="text-sm text-white/20 ml-1">/100</span>
             </div>
             {d.type && <Tag label={String(d.type)} color={d.type === "structural" ? "green" : "yellow"} />}
           </div>
-          {d.summary && <p className="text-sm text-gray-700 leading-relaxed">{String(d.summary)}</p>}
+          {d.summary && <p className="text-sm text-white/60 leading-relaxed">{String(d.summary)}</p>}
           {d.signals && Array.isArray(d.signals) && (d.signals as Array<{type: string; strength: string; description: string; amount?: string}>).map((s, i) => (
-            <div key={i} className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-100">
-              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${s.strength === "strong" ? "bg-emerald-500" : s.strength === "moderate" ? "bg-amber-500" : "bg-gray-400"}`} />
+            <div key={i} className="flex items-center gap-3 bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${s.strength === "strong" ? "bg-emerald-400" : s.strength === "moderate" ? "bg-amber-400" : "bg-white/20"}`} />
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-gray-900">{s.type}</span>
+                  <span className="text-xs font-semibold text-white/80">{s.type}</span>
                   <Tag label={s.strength} color={s.strength === "strong" ? "green" : s.strength === "moderate" ? "yellow" : "gray"} />
                 </div>
-                <p className="text-xs text-gray-600 mt-0.5">{s.description}</p>
-                {s.amount && <span className="text-xs font-mono text-emerald-600 font-semibold">{s.amount}</span>}
+                <p className="text-xs text-white/40 mt-0.5">{s.description}</p>
+                {s.amount && <span className="text-xs font-mono text-emerald-400 font-semibold">{s.amount}</span>}
               </div>
             </div>
           ))}
@@ -400,7 +402,7 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
               ))}
             </div>
           )}
-          {d.summary && <p className="text-sm text-gray-700 leading-relaxed">{String(d.summary)}</p>}
+          {d.summary && <p className="text-sm text-white/60 leading-relaxed">{String(d.summary)}</p>}
         </>
       );
 
@@ -408,15 +410,15 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
       return (
         <>
           {d.segments && Array.isArray(d.segments) && (d.segments as Array<{name: string; status: string; role: string; description: string; importance: number}>).map((seg, i) => (
-            <div key={i} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+            <div key={i} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-sm font-semibold text-gray-900">{seg.name}</span>
+                <span className="text-sm font-semibold text-white/80">{seg.name}</span>
                 <div className="flex items-center gap-2">
                   <Tag label={seg.status} color={seg.status === "accelerating" ? "green" : seg.status === "stable" ? "blue" : "yellow"} />
                   <Tag label={seg.role} color={seg.role === "core" ? "green" : seg.role === "supporting" ? "blue" : "gray"} />
                 </div>
               </div>
-              <p className="text-xs text-gray-600 leading-relaxed">{seg.description}</p>
+              <p className="text-xs text-white/40 leading-relaxed">{seg.description}</p>
               <div className="mt-2">
                 <ScoreBar label="Importance" value={seg.importance} max={100} />
               </div>
@@ -429,19 +431,19 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
       return (
         <>
           <div className="flex items-center gap-4">
-            <span className="text-3xl font-bold font-mono text-gray-900">{String(d.score || "—")}</span>
-            <span className="text-sm text-gray-400">/100</span>
+            <span className="text-3xl font-bold font-mono text-white">{String(d.score || "—")}</span>
+            <span className="text-sm text-white/20">/100</span>
           </div>
-          {d.summary && <p className="text-sm text-gray-700">{String(d.summary)}</p>}
+          {d.summary && <p className="text-sm text-white/60">{String(d.summary)}</p>}
           {d.contracts && Array.isArray(d.contracts) && (d.contracts as Array<{customer: string; status: string; description: string}>).map((c, i) => (
-            <div key={i} className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-100">
-              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${c.status === "signed" ? "bg-emerald-500" : c.status === "expanding" ? "bg-blue-500" : "bg-amber-500"}`} />
+            <div key={i} className="flex items-center gap-3 bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${c.status === "signed" ? "bg-emerald-400" : c.status === "expanding" ? "bg-blue-400" : "bg-amber-400"}`} />
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-gray-900">{c.customer}</span>
+                  <span className="text-xs font-semibold text-white/80">{c.customer}</span>
                   <Tag label={c.status} color={c.status === "signed" ? "green" : c.status === "expanding" ? "blue" : "yellow"} />
                 </div>
-                <p className="text-xs text-gray-600 mt-0.5">{c.description}</p>
+                <p className="text-xs text-white/40 mt-0.5">{c.description}</p>
               </div>
             </div>
           ))}
@@ -459,18 +461,18 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
             </div>
           )}
           {d.assessment && <Tag label={String(d.assessment)} color={d.assessment === "cheap" ? "green" : d.assessment === "fair" ? "blue" : "red"} />}
-          {d.summary && <p className="text-sm text-gray-700 leading-relaxed">{String(d.summary)}</p>}
+          {d.summary && <p className="text-sm text-white/60 leading-relaxed">{String(d.summary)}</p>}
           <div className="grid grid-cols-2 gap-2">
             {d.vsHistory && (
-              <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                <p className="text-[10px] text-gray-400 font-mono mb-1">VS HISTORY</p>
-                <p className="text-xs text-gray-700">{String(d.vsHistory)}</p>
+              <div className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+                <p className="text-[10px] text-white/20 font-mono mb-1">VS HISTORY</p>
+                <p className="text-xs text-white/50">{String(d.vsHistory)}</p>
               </div>
             )}
             {d.vsPeers && (
-              <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                <p className="text-[10px] text-gray-400 font-mono mb-1">VS PEERS</p>
-                <p className="text-xs text-gray-700">{String(d.vsPeers)}</p>
+              <div className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+                <p className="text-[10px] text-white/20 font-mono mb-1">VS PEERS</p>
+                <p className="text-xs text-white/50">{String(d.vsPeers)}</p>
               </div>
             )}
           </div>
@@ -488,41 +490,41 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
             {d.crowding && <Tag label={`Crowding: ${d.crowding}`} color={d.crowding === "elevated" ? "red" : d.crowding === "moderate" ? "yellow" : "green"} />}
             {d.sentiment && <Tag label={String(d.sentiment)} color={String(d.sentiment).includes("bullish") ? "green" : "gray"} />}
           </div>
-          {d.summary && <p className="text-sm text-gray-700 leading-relaxed">{String(d.summary)}</p>}
+          {d.summary && <p className="text-sm text-white/60 leading-relaxed">{String(d.summary)}</p>}
         </>
       );
 
     case "thesis":
       return (
         <>
-          {d.summary && <p className="text-sm text-gray-800 leading-relaxed font-medium">{String(d.summary)}</p>}
+          {d.summary && <p className="text-sm text-white/70 leading-relaxed font-medium">{String(d.summary)}</p>}
           <div className="grid grid-cols-1 gap-3">
             {d.bullCase && (
-              <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-100">
-                <p className="text-[10px] text-emerald-600 font-mono mb-1">BULL CASE</p>
-                <p className="text-xs text-emerald-800 leading-relaxed">{String(d.bullCase)}</p>
+              <div className="bg-emerald-500/10 rounded-lg p-3 border border-emerald-500/20">
+                <p className="text-[10px] text-emerald-400 font-mono mb-1">BULL CASE</p>
+                <p className="text-xs text-emerald-300/70 leading-relaxed">{String(d.bullCase)}</p>
               </div>
             )}
             {d.bearCase && (
-              <div className="bg-red-50 rounded-lg p-3 border border-red-100">
-                <p className="text-[10px] text-red-600 font-mono mb-1">BEAR CASE</p>
-                <p className="text-xs text-red-800 leading-relaxed">{String(d.bearCase)}</p>
+              <div className="bg-red-500/10 rounded-lg p-3 border border-red-500/20">
+                <p className="text-[10px] text-red-400 font-mono mb-1">BEAR CASE</p>
+                <p className="text-xs text-red-300/70 leading-relaxed">{String(d.bearCase)}</p>
               </div>
             )}
             {d.whatChangesIt && (
-              <div className="bg-amber-50 rounded-lg p-3 border border-amber-100">
-                <p className="text-[10px] text-amber-600 font-mono mb-1">WHAT CHANGES IT</p>
-                <p className="text-xs text-amber-800 leading-relaxed">{String(d.whatChangesIt)}</p>
+              <div className="bg-amber-500/10 rounded-lg p-3 border border-amber-500/20">
+                <p className="text-[10px] text-amber-400 font-mono mb-1">WHAT CHANGES IT</p>
+                <p className="text-xs text-amber-300/70 leading-relaxed">{String(d.whatChangesIt)}</p>
               </div>
             )}
           </div>
           {d.watchItems && Array.isArray(d.watchItems) && (
-            <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-              <p className="text-[10px] text-gray-400 font-mono mb-2">WATCH ITEMS</p>
+            <div className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <p className="text-[10px] text-white/20 font-mono mb-2">WATCH ITEMS</p>
               <ul className="space-y-1">
                 {(d.watchItems as string[]).map((item, i) => (
-                  <li key={i} className="text-xs text-gray-700 flex items-center gap-2">
-                    <span className="w-1 h-1 rounded-full bg-gray-400 flex-shrink-0" />
+                  <li key={i} className="text-xs text-white/50 flex items-center gap-2">
+                    <span className="w-1 h-1 rounded-full bg-white/20 flex-shrink-0" />
                     {item}
                   </li>
                 ))}
@@ -537,15 +539,15 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
         <>
           <div className="flex items-center gap-4">
             <div className="text-center">
-              <span className="text-4xl font-bold font-mono text-gray-900">{String(d.totalScore || "—")}</span>
-              <p className="text-xs text-gray-400 font-mono">/100</p>
+              <span className="text-4xl font-bold font-mono text-white">{String(d.totalScore || "—")}</span>
+              <p className="text-xs text-white/20 font-mono">/100</p>
             </div>
             {d.conviction && <Tag label={String(d.conviction)} color={d.conviction === "lead" || d.conviction === "high" ? "green" : d.conviction === "moderate" ? "yellow" : "gray"} />}
           </div>
           {d.breakdown && typeof d.breakdown === "object" && (
             <div className="space-y-2">
               {Object.entries(d.breakdown as Record<string, number>).map(([key, val]) => (
-                <ScoreBar key={key} label={key} value={val} max={15} color={val / 15 >= 0.7 ? "#059669" : val / 15 >= 0.4 ? "#d97706" : "#dc2626"} />
+                <ScoreBar key={key} label={key} value={val} max={15} color={val / 15 >= 0.7 ? "#34d399" : val / 15 >= 0.4 ? "#fbbf24" : "#f87171"} />
               ))}
             </div>
           )}
@@ -556,12 +558,12 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
       return (
         <>
           {d.sources && Array.isArray(d.sources) && (d.sources as Array<{type: string; title: string; source: string; date: string; summary: string}>).map((s, i) => (
-            <div key={i} className="flex items-start gap-3 bg-gray-50 rounded-lg p-3 border border-gray-100">
+            <div key={i} className="flex items-start gap-3 bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
               <Tag label={s.type.replace(/_/g, " ")} color="blue" />
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-gray-900 truncate">{s.title}</p>
-                <p className="text-[10px] text-gray-500 mt-0.5">{s.source} · {s.date}</p>
-                <p className="text-xs text-gray-600 mt-1 line-clamp-2">{s.summary}</p>
+                <p className="text-xs font-semibold text-white/80 truncate">{s.title}</p>
+                <p className="text-[10px] text-white/25 mt-0.5">{s.source} · {s.date}</p>
+                <p className="text-xs text-white/40 mt-1 line-clamp-2">{s.summary}</p>
               </div>
             </div>
           ))}
@@ -573,40 +575,34 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
   }
 }
 
-// ── Generic fallback renderer for unexpected data shapes ──
 function GenericDataRenderer({ data }: { data: Record<string, unknown> }) {
   return (
     <div className="space-y-2">
       {Object.entries(data).map(([key, value]) => (
-        <div key={key} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-          <p className="text-[10px] text-gray-400 font-mono mb-1">{key.toUpperCase()}</p>
-          <p className="text-xs text-gray-700">{typeof value === "object" ? JSON.stringify(value, null, 2) : String(value)}</p>
+        <div key={key} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+          <p className="text-[10px] text-white/20 font-mono mb-1">{key.toUpperCase()}</p>
+          <p className="text-xs text-white/50">{typeof value === "object" ? JSON.stringify(value, null, 2) : String(value)}</p>
         </div>
       ))}
     </div>
   );
 }
 
-// ── Mini Chart (SVG sparkline) ──
 function MiniChart({ data }: { data: Array<{ date: string; close: number }> }) {
   if (data.length < 2) return null;
-
   const prices = data.map(d => d.close);
   const min = Math.min(...prices);
   const max = Math.max(...prices);
   const range = max - min || 1;
   const w = 340;
   const h = 80;
-
   const points = prices.map((p, i) => {
     const x = (i / (prices.length - 1)) * w;
     const y = h - ((p - min) / range) * h;
     return `${x},${y}`;
   }).join(" ");
-
   const isUp = prices[prices.length - 1] >= prices[0];
-  const color = isUp ? "#059669" : "#dc2626";
-
+  const color = isUp ? "#34d399" : "#f87171";
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-20">
       <polyline fill="none" stroke={color} strokeWidth="2" points={points} />
