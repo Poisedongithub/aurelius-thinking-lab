@@ -767,227 +767,210 @@ app.get("/api/court/history", async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════
-// ── MARKETS API ENDPOINTS (Yahoo Finance — free, all tickers) ──
+// ── MARKETS API ENDPOINTS (Google Finance — free, all tickers, no rate limits) ──
 // ══════════════════════════════════════════════════
 
-const YF_DIRECT_BASES = ["https://query1.finance.yahoo.com", "https://query2.finance.yahoo.com"];
-const YF_PROXY = "https://api.allorigins.win/raw?url=";
-const YF_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
-const YF_HEADERS = { "User-Agent": YF_UA };
+const GF_BASE = "https://www.google.com/finance/quote";
+const GF_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+const GF_EXCHANGES = ["NASDAQ", "NYSE", "NYSEARCA", "NYSEMKT"];
 
-// ── In-memory cache for Yahoo Finance responses ──
-const yfCache = new Map(); // key -> { data, ts }
-const YF_CACHE_TTL = 5 * 60 * 1000;       // 5 min fresh TTL
-const YF_STALE_TTL = 60 * 60 * 1000;      // 1 hour stale fallback
-const YF_BATCH_CACHE_TTL = 3 * 60 * 1000; // 3 min for batch
-let yfUseProxy = true; // Start with proxy since Render IPs are often blocked
-
-// Helper: fetch from Yahoo Finance with proxy + direct fallback + cache
-async function yfFetch(path, params = {}, cacheTTL = YF_CACHE_TTL) {
-  // Build cache key
-  const paramStr = Object.entries(params).sort().map(([k,v]) => `${k}=${v}`).join("&");
-  const cacheKey = `${path}?${paramStr}`;
-  
-  // Check cache
-  const cached = yfCache.get(cacheKey);
-  if (cached && (Date.now() - cached.ts) < cacheTTL) {
-    return cached.data;
-  }
-  
-  // Build the Yahoo Finance URL
-  const yfUrl = new URL(`https://query1.finance.yahoo.com${path}`);
-  for (const [k, v] of Object.entries(params)) yfUrl.searchParams.set(k, v);
-  const directUrl = yfUrl.toString();
-  
-  // Try strategies: proxy first (if flagged), then direct, then other proxy
-  const strategies = yfUseProxy
-    ? [
-        { name: "proxy", url: `${YF_PROXY}${encodeURIComponent(directUrl)}`, headers: {} },
-        { name: "direct1", url: directUrl, headers: YF_HEADERS },
-        { name: "direct2", url: directUrl.replace("query1", "query2"), headers: YF_HEADERS },
-      ]
-    : [
-        { name: "direct1", url: directUrl, headers: YF_HEADERS },
-        { name: "direct2", url: directUrl.replace("query1", "query2"), headers: YF_HEADERS },
-        { name: "proxy", url: `${YF_PROXY}${encodeURIComponent(directUrl)}`, headers: {} },
-      ];
-  
-  let lastErr = null;
-  for (const strategy of strategies) {
-    try {
-      const response = await fetch(strategy.url, {
-        headers: strategy.headers,
-        signal: AbortSignal.timeout(15000),
-      });
-      if (response.status === 429) {
-        lastErr = new Error("Yahoo Finance returned 429");
-        if (strategy.name.startsWith("direct")) yfUseProxy = true;
-        continue;
-      }
-      if (!response.ok) {
-        lastErr = new Error(`Yahoo Finance returned ${response.status}`);
-        continue;
-      }
-      const data = await response.json();
-      // Store in cache
-      yfCache.set(cacheKey, { data, ts: Date.now() });
-      // If direct worked, prefer it next time
-      if (strategy.name.startsWith("direct")) yfUseProxy = false;
-      return data;
-    } catch (err) {
-      lastErr = err;
-    }
-  }
-  
-  // All strategies failed — try stale cache
-  if (cached && (Date.now() - cached.ts) < YF_STALE_TTL) {
-    console.warn(`yfFetch: serving stale cache for ${cacheKey}`);
-    return cached.data;
-  }
-  
-  throw lastErr || new Error("Yahoo Finance fetch failed");
-}
+// ── In-memory cache ──
+const gfCache = new Map();
+const GF_CACHE_TTL = 3 * 60 * 1000;       // 3 min fresh TTL
+const GF_STALE_TTL = 60 * 60 * 1000;      // 1 hour stale fallback
+const GF_EXCHANGE_MAP = new Map();         // ticker -> exchange (learned)
 
 // Clean expired cache entries every 10 minutes
 setInterval(() => {
   const now = Date.now();
-  for (const [key, val] of yfCache.entries()) {
-    if (now - val.ts > YF_STALE_TTL) yfCache.delete(key);
+  for (const [key, val] of gfCache.entries()) {
+    if (now - val.ts > GF_STALE_TTL) gfCache.delete(key);
   }
 }, 10 * 60 * 1000);
 
-// Yahoo Finance — get live stock quote + historical chart
+// Helper: parse market cap string like "4.27T USD" or "55.47B USD" to number
+function parseMarketCap(str) {
+  if (!str) return null;
+  const match = str.match(/([\d,.]+)\s*([TBMK]?)/);
+  if (!match) return null;
+  const num = parseFloat(match[1].replace(/,/g, ""));
+  const suffix = match[2];
+  const multipliers = { T: 1e12, B: 1e9, M: 1e6, K: 1e3, "": 1 };
+  return num * (multipliers[suffix] || 1);
+}
+
+// Helper: parse volume string like "188.90M" or "4.10M" to number
+function parseVolume(str) {
+  if (!str) return 0;
+  const match = str.match(/([\d,.]+)\s*([TBMK]?)/);
+  if (!match) return 0;
+  const num = parseFloat(match[1].replace(/,/g, ""));
+  const suffix = match[2];
+  const multipliers = { T: 1e12, B: 1e9, M: 1e6, K: 1e3, "": 1 };
+  return Math.round(num * (multipliers[suffix] || 1));
+}
+
+// Helper: format large numbers for display
+function formatLargeNumber(n) {
+  if (!n || n === 0) return null;
+  if (n >= 1e12) return `${(n / 1e12).toFixed(2)}T`;
+  if (n >= 1e9) return `${(n / 1e9).toFixed(2)}B`;
+  if (n >= 1e6) return `${(n / 1e6).toFixed(2)}M`;
+  if (n >= 1e3) return `${(n / 1e3).toFixed(2)}K`;
+  return String(n);
+}
+
+// Core: scrape Google Finance for a ticker
+async function scrapeGoogleFinance(symbol) {
+  const upperSymbol = symbol.toUpperCase();
+  
+  // Check cache
+  const cached = gfCache.get(upperSymbol);
+  if (cached && (Date.now() - cached.ts) < GF_CACHE_TTL) {
+    return cached.data;
+  }
+  
+  // Determine exchange order: try learned exchange first
+  const knownExchange = GF_EXCHANGE_MAP.get(upperSymbol);
+  const exchanges = knownExchange
+    ? [knownExchange, ...GF_EXCHANGES.filter(e => e !== knownExchange)]
+    : [...GF_EXCHANGES];
+  
+  let html = null;
+  let usedExchange = null;
+  
+  for (const exchange of exchanges) {
+    try {
+      const url = `${GF_BASE}/${encodeURIComponent(upperSymbol)}:${exchange}`;
+      const response = await fetch(url, {
+        headers: { "User-Agent": GF_UA },
+        signal: AbortSignal.timeout(10000),
+      });
+      if (!response.ok) continue;
+      const text = await response.text();
+      // Check if we got a valid quote page (has data-last-price)
+      if (text.includes('data-last-price="')) {
+        html = text;
+        usedExchange = exchange;
+        GF_EXCHANGE_MAP.set(upperSymbol, exchange);
+        break;
+      }
+    } catch {
+      continue;
+    }
+  }
+  
+  if (!html) {
+    // Try stale cache
+    if (cached && (Date.now() - cached.ts) < GF_STALE_TTL) {
+      console.warn(`scrapeGoogleFinance: serving stale cache for ${upperSymbol}`);
+      return cached.data;
+    }
+    throw new Error(`Could not find ${upperSymbol} on Google Finance`);
+  }
+  
+  // Strip HTML tags for text parsing
+  const textContent = html.replace(/<[^>]+>/g, "");
+  
+  // Extract price from data attribute
+  const priceMatch = html.match(/data-last-price="([^"]+)"/);
+  const price = priceMatch ? parseFloat(priceMatch[1]) : null;
+  
+  // Extract company name from the page title or entity
+  const nameMatch = html.match(/<title>([^<]+)<\/title>/);
+  let companyName = upperSymbol;
+  if (nameMatch) {
+    // Title format: "NVDA: NVIDIA Corp Stock Price & News - Google Finance"
+    const titleParts = nameMatch[1].split(" Stock Price");
+    if (titleParts[0]) {
+      const namePart = titleParts[0].replace(/^[A-Z]+:\s*/, "").trim();
+      if (namePart) companyName = namePart;
+    }
+  }
+  
+  // Extract previous close
+  const prevCloseMatch = textContent.match(/Previous close[^$]*\$([\d,.]+)/);
+  const previousClose = prevCloseMatch ? parseFloat(prevCloseMatch[1].replace(/,/g, "")) : null;
+  
+  // Extract day range
+  const dayRangeMatch = textContent.match(/Day range[^$]*\$([\d,.]+)\s*-\s*\$([\d,.]+)/);
+  const dayLow = dayRangeMatch ? parseFloat(dayRangeMatch[1].replace(/,/g, "")) : null;
+  const dayHigh = dayRangeMatch ? parseFloat(dayRangeMatch[2].replace(/,/g, "")) : null;
+  
+  // Extract year (52-week) range
+  const yearRangeMatch = textContent.match(/Year range[^$]*\$([\d,.]+)\s*-\s*\$([\d,.]+)/);
+  const yearLow = yearRangeMatch ? parseFloat(yearRangeMatch[1].replace(/,/g, "")) : null;
+  const yearHigh = yearRangeMatch ? parseFloat(yearRangeMatch[2].replace(/,/g, "")) : null;
+  
+  // Extract market cap
+  const mcapMatch = textContent.match(/outstanding shares\.([\d,.]+[TBMK]?\s*USD)/);
+  const marketCapStr = mcapMatch ? mcapMatch[1] : null;
+  const marketCap = parseMarketCap(marketCapStr);
+  
+  // Extract volume
+  const volMatch = textContent.match(/Avg Volume[^\d]*days([\d,.]+[TBMK]?)/);
+  const volume = volMatch ? parseVolume(volMatch[1]) : 0;
+  
+  // Calculate percent change
+  const change = (price && previousClose) ? ((price - previousClose) / previousClose * 100) : 0;
+  
+  const data = {
+    symbol: upperSymbol,
+    name: companyName,
+    exchange: usedExchange || "",
+    currency: "USD",
+    price,
+    previousClose,
+    dayHigh,
+    dayLow,
+    fiftyTwoWeekHigh: yearHigh,
+    fiftyTwoWeekLow: yearLow,
+    volume,
+    marketCap,
+    marketCapFormatted: marketCapStr || null,
+    change,
+  };
+  
+  // Cache the result
+  gfCache.set(upperSymbol, { data, ts: Date.now() });
+  return data;
+}
+
+// Google Finance — get live stock quote
 app.get("/api/markets/quote/:symbol", async (req, res) => {
   try {
     const { symbol } = req.params;
-    
-    // Fetch 1-year chart and search for sector info
-    const [chartResp, searchResp] = await Promise.all([
-      yfFetch(`/v8/finance/chart/${encodeURIComponent(symbol)}`, {
-        interval: "1d", range: "1y", includeAdjustedClose: "true"
-      }),
-      yfFetch(`/v1/finance/search`, {
-        q: symbol, quotesCount: "1", newsCount: "0"
-      }).catch(() => null),
-    ]);
-    
-    const result = chartResp?.chart?.result?.[0];
-    if (!result) return res.status(404).json({ error: "Symbol not found" });
-    
-    const meta = result.meta;
-    const timestamps = result.timestamp || [];
-    const quotes = result.indicators?.quote?.[0] || {};
-    const adjClose = result.indicators?.adjclose?.[0]?.adjclose || [];
-    
-    // Build chart data (last 30 trading days)
-    const chartData = [];
-    const startIdx = Math.max(0, timestamps.length - 30);
-    for (let i = startIdx; i < timestamps.length; i++) {
-      if (quotes.close?.[i] != null) {
-        chartData.push({
-          date: new Date(timestamps[i] * 1000).toISOString().split("T")[0],
-          open: quotes.open?.[i] || 0,
-          high: quotes.high?.[i] || 0,
-          low: quotes.low?.[i] || 0,
-          close: quotes.close[i],
-          volume: quotes.volume?.[i] || 0,
-          adjClose: adjClose[i] || quotes.close[i],
-        });
-      }
-    }
-    
-    // Calculate period returns using DATE-BASED lookups (not index offsets)
-    const currentPrice = meta.regularMarketPrice;
-    const allCloses = quotes.close || [];
-    
-    // Build date-indexed close map for accurate lookups
-    const closesMap = []; // [{ts, close}] sorted by time
-    for (let i = 0; i < timestamps.length; i++) {
-      if (allCloses[i] != null) {
-        closesMap.push({ ts: timestamps[i] * 1000, close: allCloses[i] });
-      }
-    }
-    
-    // Find the previous trading day close (the last close that is NOT from today)
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    let previousDayClose = null;
-    for (let i = closesMap.length - 1; i >= 0; i--) {
-      if (closesMap[i].ts < todayStart.getTime()) {
-        previousDayClose = closesMap[i].close;
-        break;
-      }
-    }
-    // Fallback: if market is closed today, use second-to-last close
-    if (previousDayClose === null && closesMap.length >= 2) {
-      previousDayClose = closesMap[closesMap.length - 2].close;
-    }
-    
-    // Find close nearest to a target date (looking backwards from target)
-    const getCloseAtDate = (targetDate) => {
-      const targetMs = targetDate.getTime();
-      let bestClose = null;
-      for (let i = closesMap.length - 1; i >= 0; i--) {
-        if (closesMap[i].ts <= targetMs) {
-          bestClose = closesMap[i].close;
-          break;
-        }
-      }
-      return bestClose;
-    };
-    
-    const getDateReturn = (calendarDaysBack) => {
-      const target = new Date();
-      target.setDate(target.getDate() - calendarDaysBack);
-      const closeAtTarget = getCloseAtDate(target);
-      if (!closeAtTarget) return null;
-      return ((currentPrice - closeAtTarget) / closeAtTarget * 100);
-    };
-    
-    // YTD: from Jan 1 of current year
-    const getYTDReturn = () => {
-      const jan1 = new Date(new Date().getFullYear(), 0, 1);
-      const closeAtJan1 = getCloseAtDate(jan1);
-      if (!closeAtJan1) return null;
-      return ((currentPrice - closeAtJan1) / closeAtJan1 * 100);
-    };
-    
-    // 1D change: current price vs yesterday's actual close
-    const dayChange = previousDayClose ? ((currentPrice - previousDayClose) / previousDayClose * 100) : 0;
-    
-    // Get sector/industry from search results
-    const searchQuote = searchResp?.quotes?.[0];
-    
-    const volume = meta.regularMarketVolume || 0;
+    const data = await scrapeGoogleFinance(symbol);
     
     res.json({
-      symbol: meta.symbol,
-      name: meta.longName || meta.shortName || symbol,
-      exchange: meta.fullExchangeName || meta.exchangeName || "",
-      currency: meta.currency || "USD",
-      price: currentPrice,
-      previousClose: previousDayClose || null,
-      dayHigh: meta.regularMarketDayHigh || null,
-      dayLow: meta.regularMarketDayLow || null,
-      fiftyTwoWeekHigh: meta.fiftyTwoWeekHigh || null,
-      fiftyTwoWeekLow: meta.fiftyTwoWeekLow || null,
-      volume: volume,
-      marketCap: null,
-      change: dayChange,
-      sector: searchQuote?.sector || searchQuote?.sectorDisp || "",
-      industry: searchQuote?.industry || searchQuote?.industryDisp || "",
+      symbol: data.symbol,
+      name: data.name,
+      exchange: data.exchange,
+      currency: data.currency,
+      price: data.price,
+      previousClose: data.previousClose,
+      dayHigh: data.dayHigh,
+      dayLow: data.dayLow,
+      fiftyTwoWeekHigh: data.fiftyTwoWeekHigh,
+      fiftyTwoWeekLow: data.fiftyTwoWeekLow,
+      volume: data.volume,
+      marketCap: data.marketCap,
+      marketCapFormatted: data.marketCapFormatted,
+      change: data.change,
+      sector: "",
+      industry: "",
       description: "",
       ceo: "",
       website: "",
       image: "",
       performance: {
-        "1D": dayChange,
-        "1W": getDateReturn(7),
-        "1M": getDateReturn(30),
-        "3M": getDateReturn(90),
-        "YTD": getYTDReturn(),
+        "1D": data.change,
+        "1W": null,
+        "1M": null,
+        "3M": null,
+        "YTD": null,
       },
-      chart: chartData,
+      chart: [],
     });
   } catch (err) {
     console.error("Markets quote error:", err.message);
@@ -995,7 +978,7 @@ app.get("/api/markets/quote/:symbol", async (req, res) => {
   }
 });
 
-// Yahoo Finance — batch quotes for multiple symbols
+// Google Finance — batch quotes for multiple symbols
 app.get("/api/markets/batch", async (req, res) => {
   try {
     const symbols = (req.query.symbols || "").split(",").filter(Boolean);
@@ -1003,44 +986,18 @@ app.get("/api/markets/batch", async (req, res) => {
     
     const quotes = await Promise.all(symbols.map(async (symbol) => {
       try {
-        const data = await yfFetch(`/v8/finance/chart/${encodeURIComponent(symbol)}`, {
-            interval: "1d", range: "5d"
-          });
-        const result = data?.chart?.result?.[0];
-        if (!result) return { symbol, error: true };
-        const meta = result.meta;
-        const price = meta.regularMarketPrice;
-        // Get previous trading day close using date-based lookup
-        const batchTimestamps = result.timestamp || [];
-        const closes = result.indicators?.quote?.[0]?.close || [];
-        const todayStart = new Date();
-        todayStart.setHours(0, 0, 0, 0);
-        let prevClose = null;
-        for (let i = batchTimestamps.length - 1; i >= 0; i--) {
-          if (closes[i] != null && (batchTimestamps[i] * 1000) < todayStart.getTime()) {
-            prevClose = closes[i];
-            break;
-          }
-        }
-        // Fallback: if market is closed today, use second-to-last close
-        if (prevClose === null) {
-          const nonNull = [];
-          for (let i = 0; i < closes.length; i++) {
-            if (closes[i] != null) nonNull.push(closes[i]);
-          }
-          if (nonNull.length >= 2) prevClose = nonNull[nonNull.length - 2];
-        }
-        const changePct = prevClose ? ((price - prevClose) / prevClose * 100) : 0;
+        const data = await scrapeGoogleFinance(symbol);
         return {
-          symbol: meta.symbol,
-          name: meta.longName || meta.shortName || symbol,
-          exchange: meta.fullExchangeName || meta.exchangeName || "",
-          price: price,
-          change: changePct,
-          volume: meta.regularMarketVolume || 0,
-          marketCap: null,
-          yearHigh: meta.fiftyTwoWeekHigh || null,
-          yearLow: meta.fiftyTwoWeekLow || null,
+          symbol: data.symbol,
+          name: data.name,
+          exchange: data.exchange,
+          price: data.price,
+          change: data.change,
+          volume: data.volume,
+          marketCap: data.marketCap,
+          marketCapFormatted: data.marketCapFormatted,
+          yearHigh: data.fiftyTwoWeekHigh,
+          yearLow: data.fiftyTwoWeekLow,
           priceAvg50: null,
           priceAvg200: null,
         };
@@ -1056,50 +1013,47 @@ app.get("/api/markets/batch", async (req, res) => {
   }
 });
 
-// Yahoo Finance — search tickers by name or symbol
+// Google Finance — search tickers (uses Google Finance main page autocomplete-like approach)
 app.get("/api/markets/search", async (req, res) => {
   try {
-    const query = req.query.q || "";
+    const query = (req.query.q || "").toUpperCase().trim();
     if (!query) return res.json({ results: [] });
     
-    const data = await yfFetch("/v1/finance/search", {
-      q: query, quotesCount: "10", newsCount: "0"
-    });
+    // Try to scrape the ticker directly — if it resolves, return it
+    try {
+      const data = await scrapeGoogleFinance(query);
+      if (data && data.price) {
+        return res.json({ results: [{
+          symbol: data.symbol,
+          name: data.name,
+          exchange: data.exchange,
+          currency: "USD",
+          sector: "",
+          industry: "",
+        }] });
+      }
+    } catch {
+      // Not a direct ticker match, return empty
+    }
     
-    const results = (data.quotes || [])
-      .filter(r => r.quoteType === "EQUITY" && r.isYahooFinance)
-      .slice(0, 10)
-      .map(r => ({
-        symbol: r.symbol,
-        name: r.longname || r.shortname || r.symbol,
-        exchange: r.exchDisp || r.exchange || "",
-        currency: "USD",
-        sector: r.sectorDisp || r.sector || "",
-        industry: r.industryDisp || r.industry || "",
-      }));
-    
-    res.json({ results });
+    res.json({ results: [] });
   } catch (err) {
     console.error("Markets search error:", err.message);
     res.json({ results: [] });
   }
 });
 
-// Yahoo Finance — company profile (basic info from search)
+// Google Finance — company profile
 app.get("/api/markets/profile/:symbol", async (req, res) => {
   try {
     const { symbol } = req.params;
-    const data = await yfFetch("/v1/finance/search", {
-      q: symbol, quotesCount: "1", newsCount: "0"
-    });
-    const quote = data?.quotes?.[0];
-    if (!quote) return res.status(404).json({ error: "Profile not found" });
+    const data = await scrapeGoogleFinance(symbol);
     res.json({
-      symbol: quote.symbol,
-      companyName: quote.longname || quote.shortname || symbol,
-      exchange: quote.exchDisp || quote.exchange || "",
-      sector: quote.sectorDisp || quote.sector || "",
-      industry: quote.industryDisp || quote.industry || "",
+      symbol: data.symbol,
+      companyName: data.name,
+      exchange: data.exchange,
+      sector: "",
+      industry: "",
     });
   } catch (err) {
     console.error("Markets profile error:", err.message);
@@ -1107,28 +1061,11 @@ app.get("/api/markets/profile/:symbol", async (req, res) => {
   }
 });
 
-// Yahoo Finance — historical price data
+// Google Finance — historical price data (not available via scraping, return empty)
 app.get("/api/markets/history/:symbol", async (req, res) => {
   try {
     const { symbol } = req.params;
-    const data = await yfFetch(`/v8/finance/chart/${encodeURIComponent(symbol)}`, {
-      interval: "1d", range: "1y", includeAdjustedClose: "true"
-    });
-    const result = data?.chart?.result?.[0];
-    if (!result) return res.status(404).json({ error: "Symbol not found" });
-    
-    const timestamps = result.timestamp || [];
-    const quotes = result.indicators?.quote?.[0] || {};
-    const history = timestamps.map((ts, i) => ({
-      date: new Date(ts * 1000).toISOString().split("T")[0],
-      open: quotes.open?.[i] || 0,
-      high: quotes.high?.[i] || 0,
-      low: quotes.low?.[i] || 0,
-      close: quotes.close?.[i] || 0,
-      volume: quotes.volume?.[i] || 0,
-    })).filter(d => d.close > 0);
-    
-    res.json({ symbol, history });
+    res.json({ symbol: symbol.toUpperCase(), history: [] });
   } catch (err) {
     console.error("Markets history error:", err.message);
     res.status(500).json({ error: "Failed to fetch history" });
