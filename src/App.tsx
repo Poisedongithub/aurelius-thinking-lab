@@ -25,6 +25,7 @@ import NotFound from "./pages/NotFound";
 import MarketsDashboard from "./markets/pages/MarketsDashboard";
 import TickerAnalysis from "./markets/pages/TickerAnalysis";
 import ThemeAnalysis from "./markets/pages/ThemeAnalysis";
+import { WatchlistProvider } from "./markets/data/WatchlistContext";
 
 const queryClient = new QueryClient();
 
@@ -54,9 +55,9 @@ const App = () => (
             <Route path="/court" element={<MoralCourt />} />
             <Route path="/court/history" element={<CourtHistory />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/markets" element={<MarketsDashboard />} />
-            <Route path="/markets/ticker/:symbol" element={<TickerAnalysis />} />
-            <Route path="/markets/theme/:themeId" element={<ThemeAnalysis />} />
+            <Route path="/markets" element={<WatchlistProvider><MarketsDashboard /></WatchlistProvider>} />
+            <Route path="/markets/ticker/:symbol" element={<WatchlistProvider><TickerAnalysis /></WatchlistProvider>} />
+            <Route path="/markets/theme/:themeId" element={<WatchlistProvider><ThemeAnalysis /></WatchlistProvider>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
