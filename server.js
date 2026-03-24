@@ -774,6 +774,53 @@ const GF_BASE = "https://www.google.com/finance/quote";
 const GF_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 const GF_EXCHANGES = ["NASDAQ", "NYSE", "NYSEARCA", "NYSEMKT"];
 
+// ── Polygon (Massive) API for sector data ──
+const POLYGON_API_KEY = "jCRBXHnFwWhMydtQKV2dfEW_3ablMV3l";
+const sectorCache = new Map(); // ticker -> { sector, industry, ts }
+const SECTOR_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+
+// Map SIC descriptions to our dashboard categories
+function mapSicToCategory(sicDescription) {
+  if (!sicDescription) return "";
+  const sic = sicDescription.toUpperCase();
+  // Technology
+  if (sic.includes("SEMICONDUCTOR") || sic.includes("COMPUTER") || sic.includes("SOFTWARE") || sic.includes("ELECTRONIC") || sic.includes("CIRCUIT") || sic.includes("DATA PROCESSING") || sic.includes("PROGRAMMING")) return "Technology";
+  // Communication
+  if (sic.includes("COMMUNICAT") || sic.includes("BROADCAST") || sic.includes("TELECOMM") || sic.includes("CABLE") || sic.includes("RADIO") || sic.includes("TELEVISION") || sic.includes("MEDIA") || sic.includes("PUBLISHING") || sic.includes("ADVERTISING")) return "Communication";
+  // Industrials
+  if (sic.includes("INDUSTRIAL") || sic.includes("CONSTRUCT") || sic.includes("MACHINERY") || sic.includes("AEROSPACE") || sic.includes("DEFENSE") || sic.includes("TRANSPORT") || sic.includes("RAILROAD") || sic.includes("TRUCKING") || sic.includes("AIRCRAFT") || sic.includes("FARM MACHINERY") || sic.includes("CATERPILLAR")) return "Industrials";
+  // Consumer
+  if (sic.includes("RETAIL") || sic.includes("FOOD") || sic.includes("BEVERAGE") || sic.includes("APPAREL") || sic.includes("AUTO") || sic.includes("MOTOR VEHICLE") || sic.includes("RESTAURANT") || sic.includes("HOTEL") || sic.includes("ENTERTAIN") || sic.includes("RECREATION") || sic.includes("CONSUMER")) return "Consumer";
+  // Healthcare
+  if (sic.includes("PHARMA") || sic.includes("DRUG") || sic.includes("MEDICAL") || sic.includes("HEALTH") || sic.includes("SURGICAL") || sic.includes("DENTAL") || sic.includes("BIOLOGICAL") || sic.includes("DIAGNOSTIC")) return "Healthcare";
+  // Financial
+  if (sic.includes("BANK") || sic.includes("INSURANCE") || sic.includes("INVEST") || sic.includes("FINANC") || sic.includes("SECURITY") || sic.includes("BROKER") || sic.includes("REAL ESTATE") || sic.includes("MORTGAGE") || sic.includes("LOAN") || sic.includes("CREDIT")) return "Financial";
+  return "";
+}
+
+// Fetch sector data from Polygon API
+async function fetchSectorData(symbol) {
+  const upperSymbol = symbol.toUpperCase();
+  const cached = sectorCache.get(upperSymbol);
+  if (cached && (Date.now() - cached.ts) < SECTOR_CACHE_TTL) {
+    return { sector: cached.sector, industry: cached.industry };
+  }
+  try {
+    const url = `https://api.polygon.io/v3/reference/tickers/${encodeURIComponent(upperSymbol)}?apiKey=${POLYGON_API_KEY}`;
+    const response = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    if (!response.ok) return { sector: "", industry: "" };
+    const json = await response.json();
+    const results = json.results || {};
+    const sicDesc = results.sic_description || "";
+    const sector = mapSicToCategory(sicDesc);
+    const industry = sicDesc;
+    sectorCache.set(upperSymbol, { sector, industry, ts: Date.now() });
+    return { sector, industry };
+  } catch {
+    return { sector: "", industry: "" };
+  }
+}
+
 // ── In-memory cache ──
 const gfCache = new Map();
 const GF_CACHE_TTL = 3 * 60 * 1000;       // 3 min fresh TTL
@@ -907,8 +954,9 @@ async function scrapeGoogleFinance(symbol) {
   const marketCapStr = mcapMatch ? mcapMatch[1] : null;
   const marketCap = parseMarketCap(marketCapStr);
   
-  // Extract volume
-  const volMatch = textContent.match(/Avg Volume[^\d]*days([\d,.]+[TBMK]?)/);
+  // Extract volume — text after stripping tags looks like:
+  // "Avg VolumeThe average number of shares traded each day over the past 30 days190.06M"
+  const volMatch = textContent.match(/Avg Volume.*?past \d+ days([\d,.]+[TBMK]?)/) || textContent.match(/Avg Volume.*?days([\d,.]+[TBMK]?)/);
   const volume = volMatch ? parseVolume(volMatch[1]) : 0;
   
   // Calculate percent change
@@ -942,6 +990,9 @@ app.get("/api/markets/quote/:symbol", async (req, res) => {
     const { symbol } = req.params;
     const data = await scrapeGoogleFinance(symbol);
     
+    // Fetch sector data from Polygon API
+    const sectorData = await fetchSectorData(symbol);
+    
     res.json({
       symbol: data.symbol,
       name: data.name,
@@ -957,8 +1008,8 @@ app.get("/api/markets/quote/:symbol", async (req, res) => {
       marketCap: data.marketCap,
       marketCapFormatted: data.marketCapFormatted,
       change: data.change,
-      sector: "",
-      industry: "",
+      sector: sectorData.sector,
+      industry: sectorData.industry,
       description: "",
       ceo: "",
       website: "",
@@ -986,7 +1037,10 @@ app.get("/api/markets/batch", async (req, res) => {
     
     const quotes = await Promise.all(symbols.map(async (symbol) => {
       try {
-        const data = await scrapeGoogleFinance(symbol);
+        const [data, sectorData] = await Promise.all([
+          scrapeGoogleFinance(symbol),
+          fetchSectorData(symbol),
+        ]);
         return {
           symbol: data.symbol,
           name: data.name,
@@ -998,6 +1052,8 @@ app.get("/api/markets/batch", async (req, res) => {
           marketCapFormatted: data.marketCapFormatted,
           yearHigh: data.fiftyTwoWeekHigh,
           yearLow: data.fiftyTwoWeekLow,
+          sector: sectorData.sector,
+          industry: sectorData.industry,
           priceAvg50: null,
           priceAvg200: null,
         };
@@ -1023,13 +1079,14 @@ app.get("/api/markets/search", async (req, res) => {
     try {
       const data = await scrapeGoogleFinance(query);
       if (data && data.price) {
+        const sectorData = await fetchSectorData(query);
         return res.json({ results: [{
           symbol: data.symbol,
           name: data.name,
           exchange: data.exchange,
           currency: "USD",
-          sector: "",
-          industry: "",
+          sector: sectorData.sector,
+          industry: sectorData.industry,
         }] });
       }
     } catch {
@@ -1048,12 +1105,13 @@ app.get("/api/markets/profile/:symbol", async (req, res) => {
   try {
     const { symbol } = req.params;
     const data = await scrapeGoogleFinance(symbol);
+    const sectorData = await fetchSectorData(symbol);
     res.json({
       symbol: data.symbol,
       companyName: data.name,
       exchange: data.exchange,
-      sector: "",
-      industry: "",
+      sector: sectorData.sector,
+      industry: sectorData.industry,
     });
   } catch (err) {
     console.error("Markets profile error:", err.message);
