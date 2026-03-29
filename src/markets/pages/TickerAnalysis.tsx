@@ -216,7 +216,7 @@ export default function TickerAnalysis() {
             {/* TradingView Advanced Chart */}
             <TradingViewAdvancedChart
               symbol={tvSymbol}
-              height={520}
+              height={700}
               showToolbar={true}
               showSideToolbar={true}
               allowSymbolChange={true}
