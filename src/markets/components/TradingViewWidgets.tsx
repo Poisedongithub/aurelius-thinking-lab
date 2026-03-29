@@ -28,7 +28,7 @@ export const TradingViewAdvancedChart = memo(function TradingViewAdvancedChart({
 
     const widgetDiv = document.createElement("div");
     widgetDiv.className = "tradingview-widget-container__widget";
-    widgetDiv.style.height = `calc(100% - 32px)`;
+    widgetDiv.style.height = `${height - 32}px`;
     widgetDiv.style.width = "100%";
     container.current.appendChild(widgetDiv);
 
@@ -44,7 +44,9 @@ export const TradingViewAdvancedChart = memo(function TradingViewAdvancedChart({
     script.type = "text/javascript";
     script.async = true;
     script.innerHTML = JSON.stringify({
-      autosize: true,
+      autosize: false,
+      width: "100%",
+      height: height - 32,
       symbol: symbol,
       interval: interval,
       timezone: "America/New_York",
