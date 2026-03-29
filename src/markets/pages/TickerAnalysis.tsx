@@ -6,9 +6,13 @@ import {
   StatBox, EmptyState, ScoreBar,
 } from "../components/MarketComponents";
 import JacobChat from "../components/JacobChat";
-import PriceChart from "../components/PriceChart";
-import NewsFeed from "../components/NewsFeed";
-import EarningsView from "../components/EarningsView";
+import {
+  TradingViewAdvancedChart,
+  TradingViewTechnicalAnalysis,
+  TradingViewFundamentalData,
+  TradingViewCompanyProfile,
+  TradingViewTopStories,
+} from "../components/TradingViewWidgets";
 import OptionsFlow from "../components/OptionsFlow";
 import ShareCard from "../components/ShareCard";
 import { useWatchlist } from "../data/WatchlistContext";
@@ -35,6 +39,9 @@ const SECTIONS: { key: SectionKey; title: string; step: number }[] = [
   { key: "evidence", title: "Evidence & Sources", step: 14 },
 ];
 
+// Tab system for the ticker page
+type TabKey = "chart" | "fundamentals" | "news" | "options" | "analysis";
+
 export default function TickerAnalysis() {
   const { symbol } = useParams<{ symbol: string }>();
   const navigate = useNavigate();
@@ -42,6 +49,7 @@ export default function TickerAnalysis() {
   const [quote, setQuote] = useState<LiveQuote | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState<TabKey>("chart");
   const [sectionData, setSectionData] = useState<Record<string, Record<string, unknown> | null>>({});
   const [loadingSections, setLoadingSections] = useState<Set<string>>(new Set());
   const [loadedSections, setLoadedSections] = useState<Set<string>>(new Set());
@@ -93,7 +101,7 @@ export default function TickerAnalysis() {
   if (error || !quote) {
     return (
       <div className="min-h-screen bg-[#060606]">
-        <div className="max-w-3xl mx-auto px-5 py-8">
+        <div className="max-w-5xl mx-auto px-5 py-8">
           <button onClick={() => navigate("/markets")} className="text-[11px] text-white/30 hover:text-white/60 font-mono mb-6 transition-colors">← DASHBOARD</button>
           <EmptyState message={error || `Ticker ${symbol} not found`} />
         </div>
@@ -104,12 +112,23 @@ export default function TickerAnalysis() {
   const pct = quote.change || 0;
   const isUp = pct >= 0;
 
+  // Determine TradingView symbol format
+  const tvSymbol = quote.exchange?.includes("NASDAQ") ? `NASDAQ:${quote.symbol}` : quote.exchange?.includes("NYSE") ? `NYSE:${quote.symbol}` : quote.symbol;
+
+  const TABS: { key: TabKey; label: string; icon: string }[] = [
+    { key: "chart", label: "CHART", icon: "📈" },
+    { key: "fundamentals", label: "FUNDAMENTALS", icon: "📊" },
+    { key: "news", label: "NEWS", icon: "📰" },
+    { key: "options", label: "OPTIONS", icon: "⚡" },
+    { key: "analysis", label: "AI ANALYSIS", icon: "🤖" },
+  ];
+
   return (
     <div className="min-h-screen bg-[#060606] text-white">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-10 bg-[#060606]/80 backdrop-blur-xl border-b border-white/[0.06]">
-        <div className="max-w-3xl mx-auto px-5 py-4">
-          <div className="flex items-center justify-between mb-3">
+      <div className="sticky top-0 z-20 bg-[#060606]/90 backdrop-blur-xl border-b border-white/[0.06]">
+        <div className="max-w-5xl mx-auto px-5 py-3">
+          <div className="flex items-center justify-between mb-2">
             <button onClick={() => navigate("/markets")} className="text-[11px] text-white/30 hover:text-white/60 font-mono tracking-wide transition-colors">← DASHBOARD</button>
             <div className="flex items-center gap-3">
               {quote && (
@@ -150,10 +169,27 @@ export default function TickerAnalysis() {
               </span>
             </div>
           </div>
+
+          {/* Tab Navigation */}
+          <div className="flex gap-1 mt-3 -mb-[1px] overflow-x-auto scrollbar-hide">
+            {TABS.map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => setActiveTab(key)}
+                className={`px-3 py-2 text-[10px] font-mono tracking-wider rounded-t-lg transition-all whitespace-nowrap ${
+                  activeTab === key
+                    ? "bg-white/[0.06] text-white border border-white/[0.1] border-b-transparent"
+                    : "text-white/25 hover:text-white/50 hover:bg-white/[0.02]"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-5 py-6 space-y-4">
+      <div className="max-w-5xl mx-auto px-5 py-6 space-y-4">
         {/* Stats Grid */}
         <div className="grid grid-cols-4 gap-2">
           <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-3 text-center">
@@ -174,65 +210,95 @@ export default function TickerAnalysis() {
           </div>
         </div>
 
-        {/* Price Chart */}
-        <PriceChart symbol={quote.symbol} currentPrice={quote.price} change={quote.change} />
+        {/* ═══ CHART TAB ═══ */}
+        {activeTab === "chart" && (
+          <div className="space-y-4">
+            {/* TradingView Advanced Chart */}
+            <TradingViewAdvancedChart
+              symbol={tvSymbol}
+              height={520}
+              showToolbar={true}
+              showSideToolbar={true}
+              allowSymbolChange={true}
+              studies={["STD;RSI"]}
+            />
 
-        {/* Company Description */}
-        {quote.description && (
-          <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-            <h3 className="text-xs font-semibold text-white/60 font-mono tracking-wider mb-2">ABOUT</h3>
-            <p className="text-[13px] text-white/40 leading-relaxed line-clamp-4">{quote.description}</p>
-            {quote.ceo && <p className="text-[10px] text-white/15 font-mono mt-3">CEO: {quote.ceo}</p>}
+            {/* Technical Analysis Gauge */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <TradingViewTechnicalAnalysis symbol={tvSymbol} height={425} />
+              <div className="space-y-4">
+                {/* Company Description */}
+                {quote.description && (
+                  <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
+                    <h3 className="text-xs font-semibold text-white/60 font-mono tracking-wider mb-2">ABOUT</h3>
+                    <p className="text-[13px] text-white/40 leading-relaxed line-clamp-6">{quote.description}</p>
+                    {quote.ceo && <p className="text-[10px] text-white/15 font-mono mt-3">CEO: {quote.ceo}</p>}
+                  </div>
+                )}
+                {/* Share */}
+                <div className="bg-[#0a0a0a] border border-white/[0.06] rounded-xl p-4">
+                  <div className="text-[10px] text-white/20 font-mono uppercase tracking-widest mb-3">SHARE</div>
+                  <ShareCard type="ticker" data={{ symbol: quote.symbol, name: quote.name, price: quote.price, change: quote.change }} />
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* News Feed */}
-        <NewsFeed symbol={quote.symbol} limit={5} />
-
-        {/* Earnings & Financials */}
-        <EarningsView symbol={quote.symbol} />
-
-        {/* Options Flow */}
-        <OptionsFlow symbol={quote.symbol} />
-
-        {/* Share */}
-        <div className="bg-[#0a0a0a] border border-white/[0.06] rounded-xl p-4">
-          <div className="text-[10px] text-white/20 font-mono uppercase tracking-widest mb-3">SHARE</div>
-          <ShareCard type="ticker" data={{ symbol: quote.symbol, name: quote.name, price: quote.price, change: quote.change }} />
-        </div>
-
-        {/* AI Pipeline Header */}
-        <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-gradient-to-r from-white/[0.04] to-white/[0.01] p-5">
-          <div className="relative z-10">
-            <div className="flex items-center gap-2.5 mb-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[11px] font-mono text-white/70 tracking-widest">AI RESEARCH PIPELINE</span>
-            </div>
-            <p className="text-[12px] text-white/25 max-w-lg">
-              Click any section below to generate institutional-grade AI analysis for {quote.symbol}. Each section is generated on demand.
-            </p>
+        {/* ═══ FUNDAMENTALS TAB ═══ */}
+        {activeTab === "fundamentals" && (
+          <div className="space-y-4">
+            <TradingViewFundamentalData symbol={tvSymbol} height={775} />
+            <TradingViewCompanyProfile symbol={tvSymbol} height={550} />
           </div>
-          {/* Subtle gradient orb */}
-          <div className="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/[0.03] rounded-full blur-3xl" />
-        </div>
+        )}
 
-        {/* Analysis Sections */}
-        {SECTIONS.map(({ key, title, step }) => (
-          <AnalysisSection
-            key={key}
-            sectionKey={key}
-            title={title}
-            step={step}
-            data={sectionData[key] || null}
-            isLoading={loadingSections.has(key)}
-            isLoaded={loadedSections.has(key)}
-            onLoad={() => loadSection(key)}
-          />
-        ))}
+        {/* ═══ NEWS TAB ═══ */}
+        {activeTab === "news" && (
+          <TradingViewTopStories symbol={tvSymbol} feedMode="symbol" height={600} />
+        )}
+
+        {/* ═══ OPTIONS TAB ═══ */}
+        {activeTab === "options" && (
+          <OptionsFlow symbol={quote.symbol} />
+        )}
+
+        {/* ═══ AI ANALYSIS TAB ═══ */}
+        {activeTab === "analysis" && (
+          <div className="space-y-4">
+            {/* AI Pipeline Header */}
+            <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-gradient-to-r from-white/[0.04] to-white/[0.01] p-5">
+              <div className="relative z-10">
+                <div className="flex items-center gap-2.5 mb-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-[11px] font-mono text-white/70 tracking-widest">AI RESEARCH PIPELINE</span>
+                </div>
+                <p className="text-[12px] text-white/25 max-w-lg">
+                  Click any section below to generate institutional-grade AI analysis for {quote.symbol}. Each section is generated on demand.
+                </p>
+              </div>
+              <div className="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/[0.03] rounded-full blur-3xl" />
+            </div>
+
+            {/* Analysis Sections */}
+            {SECTIONS.map(({ key, title, step }) => (
+              <AnalysisSection
+                key={key}
+                sectionKey={key}
+                title={title}
+                step={step}
+                data={sectionData[key] || null}
+                isLoading={loadingSections.has(key)}
+                isLoaded={loadedSections.has(key)}
+                onLoad={() => loadSection(key)}
+              />
+            ))}
+          </div>
+        )}
 
         <div className="text-center mt-12 pb-6">
           <p className="text-[10px] text-white/10 font-mono tracking-wider">
-            Live data via Massive API · Analysis powered by DeepSeek AI
+            Charts by TradingView · Live data via Massive API · Analysis powered by DeepSeek AI
           </p>
         </div>
       </div>
@@ -363,7 +429,7 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
             <div className="bg-red-500/10 rounded-lg p-3 border border-red-500/20">
               <p className="text-[10px] text-red-400 font-mono mb-1">BOTTLENECKS</p>
               <ul className="text-xs text-red-300/70 space-y-1">
-                {(d.bottlenecks as string[]).map((b, i) => <li key={i}>• {b}</li>)}
+                {(d.bottlenecks as string[]).map((b, i) => <li key={i}>- {b}</li>)}
               </ul>
             </div>
           )}
@@ -627,33 +693,6 @@ function GenericDataRenderer({ data }: { data: Record<string, unknown> }) {
         </div>
       ))}
     </div>
-  );
-}
-
-function MiniChart({ data }: { data: Array<{ date: string; close: number }> }) {
-  if (data.length < 2) return null;
-  const prices = data.map(d => d.close);
-  const min = Math.min(...prices);
-  const max = Math.max(...prices);
-  const range = max - min || 1;
-  const w = 340;
-  const h = 80;
-  const points = prices.map((p, i) => {
-    const x = (i / (prices.length - 1)) * w;
-    const y = h - ((p - min) / range) * h;
-    return `${x},${y}`;
-  }).join(" ");
-  const isUp = prices[prices.length - 1] >= prices[0];
-  const color = isUp ? "#34d399" : "#f87171";
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-20">
-      <polyline fill="none" stroke={color} strokeWidth="2" points={points} />
-      <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor={color} stopOpacity="0.15" />
-        <stop offset="100%" stopColor={color} stopOpacity="0" />
-      </linearGradient>
-      <polygon fill="url(#chartGrad)" points={`0,${h} ${points} ${w},${h}`} />
-    </svg>
   );
 }
 

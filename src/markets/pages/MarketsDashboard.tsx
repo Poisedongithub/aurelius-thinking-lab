@@ -5,6 +5,11 @@ import {
   formatMarketCap, type DashboardTicker, type SearchResult,
 } from "../data/api";
 import { useWatchlist } from "../data/WatchlistContext";
+import {
+  TradingViewTickerTape,
+  TradingViewStockHeatmap,
+  TradingViewTopStories,
+} from "../components/TradingViewWidgets";
 
 const categories = ["All", "Technology", "Communication", "Industrials", "Consumer", "Healthcare", "Financial"];
 
@@ -21,8 +26,9 @@ export default function MarketsDashboard() {
   const [addSearch, setAddSearch] = useState("");
   const [addResults, setAddResults] = useState<SearchResult[]>([]);
   const [addSearching, setAddSearching] = useState(false);
+  const [showHeatmap, setShowHeatmap] = useState(false);
+  const [showNews, setShowNews] = useState(false);
 
-  // Fetch live data for watchlist tickers
   useEffect(() => {
     if (watchlist.length === 0) {
       setTickers([]);
@@ -44,7 +50,6 @@ export default function MarketsDashboard() {
     return () => { cancelled = true; };
   }, [watchlist]);
 
-  // Main search (navigate to ticker)
   useEffect(() => {
     if (!search) { setSearchResults([]); return; }
     const timer = setTimeout(async () => {
@@ -54,7 +59,6 @@ export default function MarketsDashboard() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  // Add-ticker search
   useEffect(() => {
     if (!addSearch) { setAddResults([]); return; }
     setAddSearching(true);
@@ -75,6 +79,11 @@ export default function MarketsDashboard() {
 
   return (
     <div className="min-h-screen bg-[#060606] text-white">
+      {/* TradingView Ticker Tape */}
+      <div className="border-b border-white/[0.04]">
+        <TradingViewTickerTape />
+      </div>
+
       {/* Header */}
       <div className="border-b border-white/[0.06]">
         <div className="max-w-5xl mx-auto px-5 pt-8 pb-6">
@@ -234,9 +243,41 @@ export default function MarketsDashboard() {
           <div className="text-center py-20 text-white/20 font-mono text-sm">No tickers in this category</div>
         )}
 
+        {/* Market Heatmap Toggle */}
+        <div className="mt-8">
+          <button
+            onClick={() => setShowHeatmap(!showHeatmap)}
+            className="flex items-center gap-2 text-[11px] font-mono text-white/40 hover:text-white/70 transition-colors mb-3"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={`transition-transform ${showHeatmap ? "rotate-90" : ""}`}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+            S&P 500 HEATMAP
+          </button>
+          {showHeatmap && (
+            <TradingViewStockHeatmap height={500} />
+          )}
+        </div>
+
+        {/* Market News Toggle */}
+        <div className="mt-6">
+          <button
+            onClick={() => setShowNews(!showNews)}
+            className="flex items-center gap-2 text-[11px] font-mono text-white/40 hover:text-white/70 transition-colors mb-3"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={`transition-transform ${showNews ? "rotate-90" : ""}`}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+            MARKET NEWS
+          </button>
+          {showNews && (
+            <TradingViewTopStories height={500} />
+          )}
+        </div>
+
         <div className="text-center mt-12 pb-6">
           <p className="text-[10px] text-white/15 font-mono tracking-wider">
-            Live data via Massive API · Analysis powered by DeepSeek AI
+            Charts by TradingView · Live data via Massive API · Analysis powered by DeepSeek AI
           </p>
         </div>
       </div>
@@ -245,15 +286,12 @@ export default function MarketsDashboard() {
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => { setShowAddModal(false); setAddSearch(""); setAddResults([]); }}>
           <div className="bg-[#111] border border-white/[0.1] rounded-2xl w-full max-w-md mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            {/* Modal Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
               <h3 className="text-sm font-semibold text-white font-mono">Add to Watchlist</h3>
               <button onClick={() => { setShowAddModal(false); setAddSearch(""); setAddResults([]); }} className="text-white/20 hover:text-white/60 transition-colors">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
               </button>
             </div>
-
-            {/* Search Input */}
             <div className="px-5 py-4">
               <div className="relative">
                 <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
@@ -267,8 +305,6 @@ export default function MarketsDashboard() {
                 />
               </div>
             </div>
-
-            {/* Results */}
             <div className="max-h-72 overflow-y-auto px-2 pb-4">
               {addSearching && (
                 <div className="flex items-center justify-center py-8">
@@ -291,11 +327,7 @@ export default function MarketsDashboard() {
                     </div>
                     <button
                       onClick={() => {
-                        if (alreadyAdded) {
-                          removeTicker(r.symbol);
-                        } else {
-                          addTicker(r.symbol);
-                        }
+                        if (alreadyAdded) { removeTicker(r.symbol); } else { addTicker(r.symbol); }
                       }}
                       className={`flex-shrink-0 text-[10px] font-mono px-3 py-1.5 rounded-lg transition-all ${
                         alreadyAdded
@@ -345,21 +377,16 @@ function TickerRow({ ticker, onClick, onRemove }: { ticker: DashboardTicker; onC
         </div>
 
         <div className="flex items-center gap-4">
-          {/* Meta info */}
           <div className="hidden md:flex items-center gap-4 text-[10px] font-mono text-white/15">
             {ticker.marketCap ? <span>MCap {formatMarketCap(ticker.marketCap)}</span> : null}
             <span>Vol {formatVol(ticker.volume)}</span>
           </div>
-
-          {/* Price + Change */}
           <div className="text-right min-w-[100px]">
             <div className="text-[15px] font-semibold text-white font-mono tabular-nums">${ticker.price.toFixed(2)}</div>
             <div className={`text-xs font-mono tabular-nums ${isUp ? "text-emerald-400" : "text-red-400"}`}>
               {isUp ? "+" : ""}{pct.toFixed(2)}%
             </div>
           </div>
-
-          {/* Arrow */}
           <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
             isUp ? "bg-emerald-500/10" : "bg-red-500/10"
           }`}>
@@ -367,8 +394,6 @@ function TickerRow({ ticker, onClick, onRemove }: { ticker: DashboardTicker; onC
               <path d="M6 2L10 7H2L6 2Z" fill="currentColor" />
             </svg>
           </div>
-
-          {/* Remove button */}
           <button
             onClick={onRemove}
             className="opacity-0 group-hover:opacity-100 w-7 h-7 rounded-lg flex items-center justify-center text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all"
