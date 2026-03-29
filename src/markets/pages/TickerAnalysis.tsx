@@ -6,6 +6,11 @@ import {
   StatBox, EmptyState, ScoreBar,
 } from "../components/MarketComponents";
 import JacobChat from "../components/JacobChat";
+import PriceChart from "../components/PriceChart";
+import NewsFeed from "../components/NewsFeed";
+import EarningsView from "../components/EarningsView";
+import OptionsFlow from "../components/OptionsFlow";
+import ShareCard from "../components/ShareCard";
 import { useWatchlist } from "../data/WatchlistContext";
 
 type SectionKey =
@@ -169,6 +174,9 @@ export default function TickerAnalysis() {
           </div>
         </div>
 
+        {/* Price Chart */}
+        <PriceChart symbol={quote.symbol} currentPrice={quote.price} change={quote.change} />
+
         {/* Company Description */}
         {quote.description && (
           <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
@@ -177,6 +185,21 @@ export default function TickerAnalysis() {
             {quote.ceo && <p className="text-[10px] text-white/15 font-mono mt-3">CEO: {quote.ceo}</p>}
           </div>
         )}
+
+        {/* News Feed */}
+        <NewsFeed symbol={quote.symbol} limit={5} />
+
+        {/* Earnings & Financials */}
+        <EarningsView symbol={quote.symbol} />
+
+        {/* Options Flow */}
+        <OptionsFlow symbol={quote.symbol} />
+
+        {/* Share */}
+        <div className="bg-[#0a0a0a] border border-white/[0.06] rounded-xl p-4">
+          <div className="text-[10px] text-white/20 font-mono uppercase tracking-widest mb-3">SHARE</div>
+          <ShareCard type="ticker" data={{ symbol: quote.symbol, name: quote.name, price: quote.price, change: quote.change }} />
+        </div>
 
         {/* AI Pipeline Header */}
         <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-gradient-to-r from-white/[0.04] to-white/[0.01] p-5">

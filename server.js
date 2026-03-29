@@ -1396,6 +1396,260 @@ app.post("/api/markets/jacob", async (req, res) => {
   }
 });
 
+// ══════════════════════════════════════════════════
+// ── FEATURE 1: HISTORICAL PRICE CHARTS (Polygon API) ──
+// ══════════════════════════════════════════════════
+
+app.get("/api/markets/chart/:symbol", async (req, res) => {
+  try {
+    const { symbol } = req.params;
+    const { range = "1M" } = req.query;
+    const upper = symbol.toUpperCase();
+    const now = new Date();
+    const to = now.toISOString().split("T")[0];
+    let from, multiplier = 1, timespan = "day";
+    switch (range) {
+      case "1D": from = to; multiplier = 5; timespan = "minute"; break;
+      case "1W": from = new Date(now - 7 * 86400000).toISOString().split("T")[0]; multiplier = 30; timespan = "minute"; break;
+      case "1M": from = new Date(now - 30 * 86400000).toISOString().split("T")[0]; timespan = "day"; break;
+      case "3M": from = new Date(now - 90 * 86400000).toISOString().split("T")[0]; timespan = "day"; break;
+      case "6M": from = new Date(now - 180 * 86400000).toISOString().split("T")[0]; timespan = "day"; break;
+      case "1Y": from = new Date(now - 365 * 86400000).toISOString().split("T")[0]; timespan = "day"; break;
+      case "5Y": from = new Date(now - 5 * 365 * 86400000).toISOString().split("T")[0]; timespan = "week"; break;
+      default: from = new Date(now - 30 * 86400000).toISOString().split("T")[0];
+    }
+    const url = `https://api.polygon.io/v2/aggs/ticker/${upper}/range/${multiplier}/${timespan}/${from}/${to}?adjusted=true&sort=asc&limit=5000&apiKey=${POLYGON_API_KEY}`;
+    const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
+    if (!response.ok) return res.json({ symbol: upper, chart: [] });
+    const json = await response.json();
+    const chart = (json.results || []).map(bar => ({ t: bar.t, o: bar.o, h: bar.h, l: bar.l, c: bar.c, v: bar.v }));
+    res.json({ symbol: upper, range, chart });
+  } catch (err) {
+    console.error("Chart error:", err.message);
+    res.json({ symbol: req.params.symbol?.toUpperCase(), chart: [] });
+  }
+});
+
+// ══════════════════════════════════════════════════
+// ── FEATURE 2: NEWS FEED (Polygon API) ──
+// ══════════════════════════════════════════════════
+
+// Ticker-specific news
+app.get("/api/markets/news/ticker/:symbol", async (req, res) => {
+  try {
+    const { symbol } = req.params;
+    const upper = symbol.toUpperCase();
+    const url = `https://api.polygon.io/v2/reference/news?ticker=${upper}&limit=20&apiKey=${POLYGON_API_KEY}`;
+    const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
+    if (!response.ok) return res.json({ news: [] });
+    const json = await response.json();
+    const news = (json.results || []).map(a => ({ id: a.id, title: a.title, author: a.author || "", published: a.published_utc, url: a.article_url, source: a.publisher?.name || "", image: a.image_url || "", description: a.description || "", tickers: a.tickers || [] }));
+    res.json({ symbol: upper, news });
+  } catch (err) {
+    console.error("News error:", err.message);
+    res.json({ news: [] });
+  }
+});
+
+// General market news
+app.get("/api/markets/news", async (req, res) => {
+  try {
+    const url = `https://api.polygon.io/v2/reference/news?limit=30&apiKey=${POLYGON_API_KEY}`;
+    const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
+    if (!response.ok) return res.json({ news: [] });
+    const json = await response.json();
+    const news = (json.results || []).map(a => ({ id: a.id, title: a.title, author: a.author || "", published: a.published_utc, url: a.article_url, source: a.publisher?.name || "", image: a.image_url || "", description: a.description || "", tickers: a.tickers || [] }));
+    res.json({ news });
+  } catch (err) {
+    console.error("Market news error:", err.message);
+    res.json({ news: [] });
+  }
+});
+
+// ══════════════════════════════════════════════════
+// ── FEATURE 3: EARNINGS / FINANCIALS (Polygon API) ──
+// ══════════════════════════════════════════════════
+
+app.get("/api/markets/earnings/:symbol", async (req, res) => {
+  try {
+    const { symbol } = req.params;
+    const upper = symbol.toUpperCase();
+    const url = `https://api.polygon.io/vX/reference/financials?ticker=${upper}&limit=8&sort=period_of_report_date&order=desc&apiKey=${POLYGON_API_KEY}`;
+    const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
+    let financials = [];
+    if (response.ok) {
+      const json = await response.json();
+      financials = (json.results || []).map(f => ({ period: f.fiscal_period, year: f.fiscal_year, reportDate: f.period_of_report_date, filingDate: f.filing_date, revenue: f.financials?.income_statement?.revenues?.value || null, netIncome: f.financials?.income_statement?.net_income_loss?.value || null, eps: f.financials?.income_statement?.basic_earnings_per_share?.value || null, grossProfit: f.financials?.income_statement?.gross_profit?.value || null }));
+    }
+    res.json({ symbol: upper, financials });
+  } catch (err) {
+    console.error("Earnings error:", err.message);
+    res.json({ symbol: req.params.symbol?.toUpperCase(), financials: [] });
+  }
+});
+
+// ══════════════════════════════════════════════════
+// ── FEATURE 4: STOCK SCREENER (Polygon API) ──
+// ══════════════════════════════════════════════════
+
+app.get("/api/markets/screener", async (req, res) => {
+  try {
+    const { sector, marketCapMin, marketCapMax, sort = "market_cap", order = "desc", limit = "50" } = req.query;
+    let url = `https://api.polygon.io/v3/reference/tickers?market=stocks&active=true&limit=${Math.min(parseInt(limit), 100)}&order=${order}&apiKey=${POLYGON_API_KEY}`;
+    if (sort === "market_cap") url += "&sort=market_cap";
+    else url += "&sort=ticker";
+    const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
+    if (!response.ok) return res.json({ results: [] });
+    const json = await response.json();
+    const symbols = (json.results || []).map(t => t.ticker).slice(0, 30);
+    const quotes = await Promise.all(symbols.map(async (sym) => {
+      try {
+        const data = await scrapeGoogleFinance(sym);
+        const sd = await fetchSectorData(sym);
+        return { symbol: sym, name: data.name, price: data.price, change: data.change, volume: data.volume, marketCap: data.marketCap, sector: sd.sector, industry: sd.industry };
+      } catch { return null; }
+    }));
+    let filtered = quotes.filter(Boolean);
+    if (sector) filtered = filtered.filter(q => q.sector && q.sector.toLowerCase() === sector.toLowerCase());
+    if (marketCapMin) filtered = filtered.filter(q => q.marketCap && q.marketCap >= parseFloat(marketCapMin));
+    if (marketCapMax) filtered = filtered.filter(q => q.marketCap && q.marketCap <= parseFloat(marketCapMax));
+    res.json({ results: filtered });
+  } catch (err) {
+    console.error("Screener error:", err.message);
+    res.json({ results: [] });
+  }
+});
+
+// ══════════════════════════════════════════════════
+// ── FEATURE 5: GAINERS/LOSERS MOVERS ──
+// ══════════════════════════════════════════════════
+
+app.get("/api/markets/movers/:direction", async (req, res) => {
+  try {
+    const { direction } = req.params;
+    const url = `https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/${direction}?apiKey=${POLYGON_API_KEY}`;
+    const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
+    if (!response.ok) return res.json({ tickers: [] });
+    const json = await response.json();
+    const tickers = (json.tickers || []).slice(0, 20).map(t => ({ symbol: t.ticker, price: t.day?.c || t.lastTrade?.p || 0, change: t.todaysChangePerc || 0, volume: t.day?.v || 0, prevClose: t.prevDay?.c || 0 }));
+    res.json({ tickers });
+  } catch (err) {
+    console.error("Movers error:", err.message);
+    res.json({ tickers: [] });
+  }
+});
+
+// ══════════════════════════════════════════════════
+// ── FEATURE 6: OPTIONS FLOW (Polygon API) ──
+// ══════════════════════════════════════════════════
+
+app.get("/api/markets/options/:symbol", async (req, res) => {
+  try {
+    const { symbol } = req.params;
+    const upper = symbol.toUpperCase();
+    const url = `https://api.polygon.io/v3/reference/options/contracts?underlying_ticker=${upper}&limit=50&order=desc&sort=expiration_date&apiKey=${POLYGON_API_KEY}`;
+    const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
+    if (!response.ok) return res.json({ contracts: [], summary: {} });
+    const json = await response.json();
+    const contracts = (json.results || []).map(c => ({ ticker: c.ticker, type: c.contract_type, strike: c.strike_price, expiration: c.expiration_date, style: c.exercise_style, shares: c.shares_per_contract }));
+    const calls = contracts.filter(c => c.type === "call");
+    const puts = contracts.filter(c => c.type === "put");
+    res.json({ symbol: upper, summary: { totalContracts: contracts.length, calls: calls.length, puts: puts.length, putCallRatio: calls.length > 0 ? (puts.length / calls.length).toFixed(2) : "N/A" }, contracts: contracts.slice(0, 30) });
+  } catch (err) {
+    console.error("Options error:", err.message);
+    res.json({ contracts: [], summary: {} });
+  }
+});
+
+// ══════════════════════════════════════════════════
+// ── FEATURE 7: PEER COMPARISON ──
+// ══════════════════════════════════════════════════
+
+app.post("/api/markets/compare", async (req, res) => {
+  try {
+    const { symbols } = req.body;
+    if (!symbols || !Array.isArray(symbols) || symbols.length < 2) return res.status(400).json({ error: "Need at least 2 symbols" });
+    const comparisons = await Promise.all(symbols.slice(0, 4).map(async (sym) => {
+      try {
+        const [quote, sector] = await Promise.all([scrapeGoogleFinance(sym), fetchSectorData(sym)]);
+        return { symbol: quote.symbol, name: quote.name, price: quote.price, change: quote.change, volume: quote.volume, marketCap: quote.marketCap, marketCapFormatted: quote.marketCapFormatted, yearHigh: quote.fiftyTwoWeekHigh, yearLow: quote.fiftyTwoWeekLow, sector: sector.sector, industry: sector.industry };
+      } catch { return { symbol: sym.toUpperCase(), error: true }; }
+    }));
+    res.json({ comparisons: comparisons.filter(c => !c.error) });
+  } catch (err) {
+    console.error("Compare error:", err.message);
+    res.status(500).json({ error: "Comparison failed" });
+  }
+});
+
+// ══════════════════════════════════════════════════
+// ── FEATURE 8: JACOB FULL RESEARCH ──
+// ══════════════════════════════════════════════════
+
+app.post("/api/markets/jacob-research", async (req, res) => {
+  try {
+    const { symbol, name, price, change, question } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    let liveData = {};
+    try {
+      const [quote, sector] = await Promise.all([scrapeGoogleFinance(symbol), fetchSectorData(symbol)]);
+      liveData = { ...quote, sector: sector.sector, industry: sector.industry };
+    } catch {}
+    const researchPrompt = `${JACOB_SYSTEM_PROMPT}\n\nLIVE DATA FOR ${symbol}:\n- Price: $${liveData.price || price}\n- Change today: ${liveData.change?.toFixed(2) || change}%\n- Market Cap: ${liveData.marketCapFormatted || "N/A"}\n- 52W High: $${liveData.fiftyTwoWeekHigh || "N/A"}\n- 52W Low: $${liveData.fiftyTwoWeekLow || "N/A"}\n- Volume: ${liveData.volume || "N/A"}\n- Sector: ${liveData.sector || "N/A"}\n- Industry: ${liveData.industry || "N/A"}\n\nThe user wants a DEEP research breakdown. Go long. Cover everything: what the business actually does, what's happening right now, what's priced in, what could go wrong, what the setup looks like, and what you'd actually do. Use the live data above.`;
+    const messages = [{ role: "system", content: researchPrompt }, { role: "user", content: question || `give me the full breakdown on ${symbol}` }];
+    const data = await callDeepSeek(messages);
+    const content = data.choices?.[0]?.message?.content || "";
+    res.json({ response: content, liveData });
+  } catch (err) {
+    console.error("Jacob research error:", err);
+    res.status(500).json({ error: "Research failed" });
+  }
+});
+
+// ══════════════════════════════════════════════════
+// ── FEATURE 9: SOCIAL SHARING ──
+// ══════════════════════════════════════════════════
+
+app.post("/api/markets/share-card", async (req, res) => {
+  try {
+    const { type, data } = req.body;
+    const shareId = `share_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    res.json({ shareId, type, data, generatedAt: new Date().toISOString() });
+  } catch (err) {
+    console.error("Share card error:", err);
+    res.status(500).json({ error: "Failed to generate share card" });
+  }
+});
+
+// ══════════════════════════════════════════════════
+// ── FEATURE 10: MACRO DASHBOARD ──
+// ══════════════════════════════════════════════════
+
+app.get("/api/markets/macro", async (req, res) => {
+  try {
+    const macroSymbols = [
+      { symbol: "SPY", name: "S&P 500", category: "index" },
+      { symbol: "QQQ", name: "Nasdaq 100", category: "index" },
+      { symbol: "DIA", name: "Dow Jones", category: "index" },
+      { symbol: "IWM", name: "Russell 2000", category: "index" },
+      { symbol: "GLD", name: "Gold", category: "commodity" },
+      { symbol: "USO", name: "Oil (WTI)", category: "commodity" },
+      { symbol: "UUP", name: "US Dollar", category: "currency" },
+      { symbol: "TLT", name: "20Y Treasury", category: "bond" },
+    ];
+    const results = await Promise.all(macroSymbols.map(async (item) => {
+      try {
+        const data = await scrapeGoogleFinance(item.symbol);
+        return { symbol: item.symbol, name: item.name, category: item.category, price: data.price, change: data.change, dayHigh: data.dayHigh, dayLow: data.dayLow };
+      } catch { return { symbol: item.symbol, name: item.name, category: item.category, price: null, change: null }; }
+    }));
+    res.json({ macro: results });
+  } catch (err) {
+    console.error("Macro error:", err.message);
+    res.json({ macro: [] });
+  }
+});
+
 // ── Serve static files from dist/ ──
 app.use(express.static(path.join(__dirname, "dist")));
 

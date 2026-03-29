@@ -93,14 +93,13 @@ export default function MarketsDashboard() {
               </div>
               <p className="text-[11px] text-white/30 font-mono tracking-widest">RESEARCH TERMINAL</p>
             </div>
-            <div className="flex items-center gap-3">
-              <button onClick={() => navigate("/markets/portfolio")} className="text-[11px] text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] font-mono tracking-wide rounded-lg px-3 py-2 transition-all flex items-center gap-1.5">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12V7H5a2 2 0 010-4h14v4" /><path d="M3 5v14a2 2 0 002 2h16v-5" /><path d="M18 12a2 2 0 000 4h4v-4h-4z" /></svg>
-                PORTFOLIO
-              </button>
-              <button onClick={() => navigate("/home")} className="text-[11px] text-white/30 hover:text-white/60 font-mono tracking-wide transition-colors">
-                ← BACK
-              </button>
+            <div className="flex items-center gap-2 flex-wrap">
+              <button onClick={() => navigate("/markets/portfolio")} className="text-[10px] text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] font-mono tracking-wide rounded-lg px-2.5 py-1.5 transition-all">PORTFOLIO</button>
+              <button onClick={() => navigate("/markets/screener")} className="text-[10px] text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] font-mono tracking-wide rounded-lg px-2.5 py-1.5 transition-all">SCREENER</button>
+              <button onClick={() => navigate("/markets/compare")} className="text-[10px] text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] font-mono tracking-wide rounded-lg px-2.5 py-1.5 transition-all">COMPARE</button>
+              <button onClick={() => navigate("/markets/jacob")} className="text-[10px] text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] font-mono tracking-wide rounded-lg px-2.5 py-1.5 transition-all">JACOB</button>
+              <button onClick={() => navigate("/markets/macro")} className="text-[10px] text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] font-mono tracking-wide rounded-lg px-2.5 py-1.5 transition-all">MACRO</button>
+              <button onClick={() => navigate("/home")} className="text-[10px] text-white/30 hover:text-white/60 font-mono tracking-wide transition-colors">← BACK</button>
             </div>
           </div>
 

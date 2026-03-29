@@ -1,4 +1,4 @@
-// Markets API service — 100% live data from Yahoo Finance + DeepSeek AI
+// Markets API service — 100% live data from Google Finance + Polygon + DeepSeek AI
 // Every ticker gets live prices and AI-generated analysis
 
 const API_BASE = "/api/markets";
@@ -69,6 +69,115 @@ export interface AIAnalysis {
   evidence?: { sources?: Array<{ type: string; title: string; source: string; date: string; summary: string }> };
   parseError?: boolean;
   raw?: string;
+}
+
+// ── Chart Types ──
+
+export interface ChartBar {
+  t: number; // timestamp ms
+  o: number; // open
+  h: number; // high
+  l: number; // low
+  c: number; // close
+  v: number; // volume
+}
+
+export type ChartRange = "1D" | "1W" | "1M" | "3M" | "6M" | "1Y" | "5Y";
+
+// ── News Types ──
+
+export interface NewsArticle {
+  id: string;
+  title: string;
+  author: string;
+  published: string;
+  url: string;
+  source: string;
+  image: string;
+  description: string;
+  tickers: string[];
+}
+
+// ── Earnings Types ──
+
+export interface EarningsData {
+  period: string;
+  year: number;
+  reportDate: string;
+  filingDate: string;
+  revenue: number | null;
+  netIncome: number | null;
+  eps: number | null;
+  grossProfit: number | null;
+}
+
+// ── Options Types ──
+
+export interface OptionsContract {
+  ticker: string;
+  type: string;
+  strike: number;
+  expiration: string;
+  style: string;
+  shares: number;
+}
+
+export interface OptionsSummary {
+  totalContracts: number;
+  calls: number;
+  puts: number;
+  putCallRatio: string;
+}
+
+// ── Screener Types ──
+
+export interface ScreenerResult {
+  symbol: string;
+  name: string;
+  price: number;
+  change: number;
+  volume: number;
+  marketCap: number | null;
+  sector: string;
+  industry: string;
+}
+
+// ── Macro Types ──
+
+export interface MacroItem {
+  symbol: string;
+  name: string;
+  category: string;
+  price: number | null;
+  change: number | null;
+  dayHigh: number | null;
+  dayLow: number | null;
+}
+
+// ── Comparison Types ──
+
+export interface ComparisonTicker {
+  symbol: string;
+  name: string;
+  price: number;
+  change: number;
+  volume: number;
+  marketCap: number | null;
+  marketCapFormatted?: string;
+  yearHigh: number | null;
+  yearLow: number | null;
+  sector: string;
+  industry: string;
+}
+
+// ── Mover Types ──
+
+export interface MoverTicker {
+  symbol: string;
+  price: number;
+  change: number;
+  volume: number;
+  prevClose: number;
 }
 
 // ── API Calls ──
@@ -151,8 +260,174 @@ export async function fetchFullAnalysis(
   }
 }
 
+// ── Feature 1: Chart Data ──
+
+export async function fetchChartData(symbol: string, range: ChartRange = "1M"): Promise<ChartBar[]> {
+  try {
+    const res = await fetch(`${API_BASE}/chart/${encodeURIComponent(symbol)}?range=${range}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.chart || [];
+  } catch {
+    return [];
+  }
+}
+
+// ── Feature 2: News ──
+
+export async function fetchTickerNews(symbol: string): Promise<NewsArticle[]> {
+  try {
+    const res = await fetch(`${API_BASE}/news/ticker/${encodeURIComponent(symbol)}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.news || [];
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchMarketNews(): Promise<NewsArticle[]> {
+  try {
+    const res = await fetch(`${API_BASE}/news`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.news || [];
+  } catch {
+    return [];
+  }
+}
+
+// ── Feature 3: Earnings ──
+
+export async function fetchEarnings(symbol: string): Promise<EarningsData[]> {
+  try {
+    const res = await fetch(`${API_BASE}/earnings/${encodeURIComponent(symbol)}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.financials || [];
+  } catch {
+    return [];
+  }
+}
+
+// ── Feature 4: Screener ──
+
+export async function fetchScreener(params: {
+  sector?: string;
+  marketCapMin?: number;
+  marketCapMax?: number;
+  sort?: string;
+  order?: string;
+  limit?: number;
+}): Promise<ScreenerResult[]> {
+  try {
+    const query = new URLSearchParams();
+    if (params.sector) query.set("sector", params.sector);
+    if (params.marketCapMin) query.set("marketCapMin", String(params.marketCapMin));
+    if (params.marketCapMax) query.set("marketCapMax", String(params.marketCapMax));
+    if (params.sort) query.set("sort", params.sort);
+    if (params.order) query.set("order", params.order);
+    if (params.limit) query.set("limit", String(params.limit));
+    const res = await fetch(`${API_BASE}/screener?${query.toString()}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.results || [];
+  } catch {
+    return [];
+  }
+}
+
+// ── Feature 5: Movers ──
+
+export async function fetchMovers(direction: "gainers" | "losers"): Promise<MoverTicker[]> {
+  try {
+    const res = await fetch(`${API_BASE}/movers/${direction}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.tickers || [];
+  } catch {
+    return [];
+  }
+}
+
+// ── Feature 6: Options ──
+
+export async function fetchOptions(symbol: string): Promise<{ summary: OptionsSummary; contracts: OptionsContract[] }> {
+  try {
+    const res = await fetch(`${API_BASE}/options/${encodeURIComponent(symbol)}`);
+    if (!res.ok) return { summary: { totalContracts: 0, calls: 0, puts: 0, putCallRatio: "N/A" }, contracts: [] };
+    const data = await res.json();
+    return { summary: data.summary || {}, contracts: data.contracts || [] };
+  } catch {
+    return { summary: { totalContracts: 0, calls: 0, puts: 0, putCallRatio: "N/A" }, contracts: [] };
+  }
+}
+
+// ── Feature 7: Peer Comparison ──
+
+export async function fetchComparison(symbols: string[]): Promise<ComparisonTicker[]> {
+  try {
+    const res = await fetch(`${API_BASE}/compare`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ symbols }),
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.comparisons || [];
+  } catch {
+    return [];
+  }
+}
+
+// ── Feature 8: Jacob Research ──
+
+export async function fetchJacobResearch(
+  symbol: string, name?: string, price?: number, change?: number, question?: string
+): Promise<{ response: string; liveData: Record<string, unknown> }> {
+  try {
+    const res = await fetch(`${API_BASE}/jacob-research`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ symbol, name, price, change, question }),
+    });
+    if (!res.ok) throw new Error("Failed");
+    return await res.json();
+  } catch {
+    return { response: "something went wrong. try again.", liveData: {} };
+  }
+}
+
+// ── Feature 9: Share Card ──
+
+export async function generateShareCard(type: string, data: Record<string, unknown>): Promise<{ shareId: string }> {
+  try {
+    const res = await fetch(`${API_BASE}/share-card`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, data }),
+    });
+    if (!res.ok) throw new Error("Failed");
+    return await res.json();
+  } catch {
+    return { shareId: "" };
+  }
+}
+
+// ── Feature 10: Macro Dashboard ──
+
+export async function fetchMacroData(): Promise<MacroItem[]> {
+  try {
+    const res = await fetch(`${API_BASE}/macro`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.macro || [];
+  } catch {
+    return [];
+  }
+}
+
 // ── Default Watchlist ──
-// These are the default tickers shown on the dashboard
 export const DEFAULT_WATCHLIST = [
   "NVDA", "AVGO", "CIEN", "META", "MELI", "CAT",
 ];
@@ -171,6 +446,25 @@ export function formatVolume(vol: number): string {
   if (vol >= 1e6) return `${(vol / 1e6).toFixed(1)}M`;
   if (vol >= 1e3) return `${(vol / 1e3).toFixed(0)}K`;
   return `${vol}`;
+}
+
+export function formatLargeNumber(n: number): string {
+  if (n >= 1e12) return `$${(n / 1e12).toFixed(2)}T`;
+  if (n >= 1e9) return `$${(n / 1e9).toFixed(2)}B`;
+  if (n >= 1e6) return `$${(n / 1e6).toFixed(2)}M`;
+  if (n >= 1e3) return `$${(n / 1e3).toFixed(0)}K`;
+  return `$${n.toFixed(0)}`;
+}
+
+export function timeAgo(dateStr: string): string {
+  const now = new Date();
+  const date = new Date(dateStr);
+  const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+  if (diff < 60) return "just now";
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+  return date.toLocaleDateString();
 }
 
 // ── Jacob AI Chat ──

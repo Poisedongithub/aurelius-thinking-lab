@@ -26,10 +26,22 @@ import MarketsDashboard from "./markets/pages/MarketsDashboard";
 import TickerAnalysis from "./markets/pages/TickerAnalysis";
 import ThemeAnalysis from "./markets/pages/ThemeAnalysis";
 import Portfolio from "./markets/pages/Portfolio";
+import Screener from "./markets/pages/Screener";
+import PeerComparison from "./markets/pages/PeerComparison";
+import JacobResearch from "./markets/pages/JacobResearch";
+import MacroDashboard from "./markets/pages/MacroDashboard";
 import { WatchlistProvider } from "./markets/data/WatchlistContext";
 import { PortfolioProvider } from "./markets/data/PortfolioContext";
 
 const queryClient = new QueryClient();
+
+const MarketsWrapper = ({ children }: { children: React.ReactNode }) => (
+  <WatchlistProvider>
+    <PortfolioProvider>
+      {children}
+    </PortfolioProvider>
+  </WatchlistProvider>
+);
 
 const App = () => (
   <ThemeProvider>
@@ -57,10 +69,15 @@ const App = () => (
             <Route path="/court" element={<MoralCourt />} />
             <Route path="/court/history" element={<CourtHistory />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/markets" element={<WatchlistProvider><PortfolioProvider><MarketsDashboard /></PortfolioProvider></WatchlistProvider>} />
-            <Route path="/markets/ticker/:symbol" element={<WatchlistProvider><PortfolioProvider><TickerAnalysis /></PortfolioProvider></WatchlistProvider>} />
-            <Route path="/markets/theme/:themeId" element={<WatchlistProvider><ThemeAnalysis /></WatchlistProvider>} />
-            <Route path="/markets/portfolio" element={<WatchlistProvider><PortfolioProvider><Portfolio /></PortfolioProvider></WatchlistProvider>} />
+            {/* Markets routes */}
+            <Route path="/markets" element={<MarketsWrapper><MarketsDashboard /></MarketsWrapper>} />
+            <Route path="/markets/ticker/:symbol" element={<MarketsWrapper><TickerAnalysis /></MarketsWrapper>} />
+            <Route path="/markets/theme/:themeId" element={<MarketsWrapper><ThemeAnalysis /></MarketsWrapper>} />
+            <Route path="/markets/portfolio" element={<MarketsWrapper><Portfolio /></MarketsWrapper>} />
+            <Route path="/markets/screener" element={<MarketsWrapper><Screener /></MarketsWrapper>} />
+            <Route path="/markets/compare" element={<MarketsWrapper><PeerComparison /></MarketsWrapper>} />
+            <Route path="/markets/jacob" element={<MarketsWrapper><JacobResearch /></MarketsWrapper>} />
+            <Route path="/markets/macro" element={<MarketsWrapper><MacroDashboard /></MarketsWrapper>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
