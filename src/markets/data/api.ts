@@ -494,3 +494,213 @@ export async function sendJacobMessage(
     return "something went wrong. try again.";
   }
 }
+
+// ══════════════════════════════════════════════════════════════
+// NEW ANALYSIS API FUNCTIONS
+// ══════════════════════════════════════════════════════════════
+
+// ── Dividends ──
+export interface Dividend {
+  cashAmount: number;
+  currency: string;
+  declarationDate: string;
+  exDividendDate: string;
+  payDate: string;
+  recordDate: string;
+  frequency: number;
+  type: string;
+}
+
+export interface DividendData {
+  dividends: Dividend[];
+  annualDividend: number;
+  count: number;
+}
+
+export async function fetchDividends(symbol: string): Promise<DividendData> {
+  try {
+    const res = await fetch(`${API_BASE}/dividends/${symbol}`);
+    if (!res.ok) throw new Error("Failed");
+    return await res.json();
+  } catch {
+    return { dividends: [], annualDividend: 0, count: 0 };
+  }
+}
+
+// ── Stock Splits ──
+export interface StockSplit {
+  executionDate: string;
+  splitFrom: number;
+  splitTo: number;
+  ratio: string;
+}
+
+export async function fetchSplits(symbol: string): Promise<{ splits: StockSplit[] }> {
+  try {
+    const res = await fetch(`${API_BASE}/splits/${symbol}`);
+    if (!res.ok) throw new Error("Failed");
+    return await res.json();
+  } catch {
+    return { splits: [] };
+  }
+}
+
+// ── Related Companies ──
+export interface RelatedCompany {
+  symbol: string;
+  name: string;
+  price: number | null;
+  change: number | null;
+}
+
+export async function fetchRelated(symbol: string): Promise<{ related: RelatedCompany[] }> {
+  try {
+    const res = await fetch(`${API_BASE}/related/${symbol}`);
+    if (!res.ok) throw new Error("Failed");
+    return await res.json();
+  } catch {
+    return { related: [] };
+  }
+}
+
+// ── Enhanced Company Details ──
+export interface CompanyDetails {
+  symbol: string;
+  name: string;
+  description: string;
+  marketCap: number | null;
+  exchange: string;
+  sector: string;
+  industry: string;
+  address: { address1?: string; city?: string; state?: string; postal_code?: string };
+  phone: string;
+  homepageUrl: string;
+  totalEmployees: number | null;
+  listDate: string;
+  sicCode: string;
+  sicDescription: string;
+  weightedSharesOutstanding: number | null;
+  shareClassSharesOutstanding: number | null;
+  price: number | null;
+  change: number | null;
+  volume: string | null;
+  yearHigh: string | null;
+  yearLow: string | null;
+  dayHigh: string | null;
+  dayLow: string | null;
+  previousClose: string | null;
+}
+
+export async function fetchDetails(symbol: string): Promise<CompanyDetails | null> {
+  try {
+    const res = await fetch(`${API_BASE}/details/${symbol}`);
+    if (!res.ok) throw new Error("Failed");
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+// ── AI Insider Analysis ──
+export interface InsiderTransaction {
+  name: string;
+  title: string;
+  type: string;
+  shares: number;
+  pricePerShare: number;
+  totalValue: string;
+  date: string;
+}
+
+export interface InsiderAnalysis {
+  summary: string;
+  sentiment: string;
+  recentTransactions: InsiderTransaction[];
+  institutionalOwnership: string;
+  insiderOwnership: string;
+  keyInsights: string[];
+  shortInterest: { sharesShort: string; shortRatio: string; percentOfFloat: string };
+}
+
+export async function fetchInsiderAnalysis(symbol: string, name: string, price: number, change: number): Promise<InsiderAnalysis | null> {
+  try {
+    const res = await fetch(`${API_BASE}/ai-insiders`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ symbol, name, price, change }),
+    });
+    if (!res.ok) throw new Error("Failed");
+    const data = await res.json();
+    return data.analysis;
+  } catch {
+    return null;
+  }
+}
+
+// ── AI Analyst Ratings ──
+export interface AnalystRating {
+  analyst: string;
+  rating: string;
+  priceTarget: number;
+  date: string;
+  action: string;
+}
+
+export interface AnalystAnalysis {
+  consensus: string;
+  averagePriceTarget: number;
+  highPriceTarget: number;
+  lowPriceTarget: number;
+  numberOfAnalysts: number;
+  ratingBreakdown: { strongBuy: number; buy: number; hold: number; sell: number; strongSell: number };
+  recentRatings: AnalystRating[];
+  summary: string;
+  upside: string;
+}
+
+export async function fetchAnalystRatings(symbol: string, name: string, price: number, change: number): Promise<AnalystAnalysis | null> {
+  try {
+    const res = await fetch(`${API_BASE}/ai-analyst`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ symbol, name, price, change }),
+    });
+    if (!res.ok) throw new Error("Failed");
+    const data = await res.json();
+    return data.analysis;
+  } catch {
+    return null;
+  }
+}
+
+// ── AI Risk Analysis ──
+export interface RiskFactor {
+  category: string;
+  severity: string;
+  description: string;
+}
+
+export interface RiskAnalysis {
+  overallRisk: string;
+  riskScore: number;
+  volatility: { beta: number; standardDeviation: string; maxDrawdown: string; sharpeRatio: number };
+  risks: RiskFactor[];
+  supportLevels: number[];
+  resistanceLevels: number[];
+  summary: string;
+}
+
+export async function fetchRiskAnalysis(symbol: string, name: string, price: number, change: number): Promise<RiskAnalysis | null> {
+  try {
+    const res = await fetch(`${API_BASE}/ai-risk`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ symbol, name, price, change }),
+    });
+    if (!res.ok) throw new Error("Failed");
+    const data = await res.json();
+    return data.analysis;
+  } catch {
+    return null;
+  }
+}

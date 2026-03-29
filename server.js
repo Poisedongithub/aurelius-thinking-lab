@@ -1710,6 +1710,192 @@ app.get("/api/markets/macro", async (req, res) => {
   }
 });
 
+// ══════════════════════════════════════════════════════════════
+// NEW ANALYSIS ENDPOINTS
+// ══════════════════════════════════════════════════════════════
+
+// ── Dividends ──
+app.get("/api/markets/dividends/:symbol", async (req, res) => {
+  try {
+    const symbol = req.params.symbol.toUpperCase();
+    const url = `https://api.polygon.io/v3/reference/dividends?ticker=${symbol}&limit=20&order=desc&sort=ex_dividend_date&apiKey=${POLYGON_API_KEY}`;
+    const resp = await fetch(url);
+    const data = await resp.json();
+    const dividends = (data.results || []).map(d => ({
+      cashAmount: d.cash_amount,
+      currency: d.currency,
+      declarationDate: d.declaration_date,
+      exDividendDate: d.ex_dividend_date,
+      payDate: d.pay_date,
+      recordDate: d.record_date,
+      frequency: d.frequency,
+      type: d.dividend_type,
+    }));
+    const latest = dividends[0];
+    const annualDividend = latest ? latest.cashAmount * (latest.frequency || 4) : 0;
+    res.json({ dividends, annualDividend, count: dividends.length });
+  } catch (err) {
+    console.error("Dividends error:", err.message);
+    res.json({ dividends: [], annualDividend: 0, count: 0 });
+  }
+});
+
+// ── Stock Splits ──
+app.get("/api/markets/splits/:symbol", async (req, res) => {
+  try {
+    const symbol = req.params.symbol.toUpperCase();
+    const url = `https://api.polygon.io/v3/reference/splits?ticker=${symbol}&limit=10&order=desc&sort=execution_date&apiKey=${POLYGON_API_KEY}`;
+    const resp = await fetch(url);
+    const data = await resp.json();
+    const splits = (data.results || []).map(s => ({
+      executionDate: s.execution_date,
+      splitFrom: s.split_from,
+      splitTo: s.split_to,
+      ratio: `${s.split_to}:${s.split_from}`,
+    }));
+    res.json({ splits });
+  } catch (err) {
+    console.error("Splits error:", err.message);
+    res.json({ splits: [] });
+  }
+});
+
+// ── Related Companies / Peers ──
+app.get("/api/markets/related/:symbol", async (req, res) => {
+  try {
+    const symbol = req.params.symbol.toUpperCase();
+    const url = `https://api.polygon.io/v1/related-companies/${symbol}?apiKey=${POLYGON_API_KEY}`;
+    const resp = await fetch(url);
+    const data = await resp.json();
+    const relatedTickers = (data.results || []).map(r => r.ticker).slice(0, 10);
+    const quotes = await Promise.all(relatedTickers.map(async (ticker) => {
+      try {
+        const gfData = await scrapeGoogleFinance(ticker);
+        return { symbol: ticker, name: gfData.name || ticker, price: gfData.price, change: gfData.change };
+      } catch {
+        return { symbol: ticker, name: ticker, price: null, change: null };
+      }
+    }));
+    res.json({ related: quotes });
+  } catch (err) {
+    console.error("Related error:", err.message);
+    res.json({ related: [] });
+  }
+});
+
+// ── Enhanced Company Details ──
+app.get("/api/markets/details/:symbol", async (req, res) => {
+  try {
+    const symbol = req.params.symbol.toUpperCase();
+    const [polygonResp, gfData, sectorData] = await Promise.all([
+      fetch(`https://api.polygon.io/v3/reference/tickers/${symbol}?apiKey=${POLYGON_API_KEY}`).then(r => r.json()).catch(() => ({})),
+      scrapeGoogleFinance(symbol).catch(() => ({})),
+      fetchSectorData(symbol).catch(() => ({ sector: "", industry: "" })),
+    ]);
+    const details = polygonResp.results || {};
+    res.json({
+      symbol, name: details.name || gfData.name || symbol,
+      description: details.description || "",
+      marketCap: details.market_cap || gfData.marketCap || null,
+      exchange: details.primary_exchange || gfData.exchange || "",
+      sector: sectorData.sector || "", industry: sectorData.industry || "",
+      address: details.address || {}, phone: details.phone_number || "",
+      homepageUrl: details.homepage_url || "",
+      totalEmployees: details.total_employees || null,
+      listDate: details.list_date || "",
+      sicCode: details.sic_code || "", sicDescription: details.sic_description || "",
+      weightedSharesOutstanding: details.weighted_shares_outstanding || null,
+      shareClassSharesOutstanding: details.share_class_shares_outstanding || null,
+      price: gfData.price || null, change: gfData.change || null,
+      volume: gfData.volume || null,
+      yearHigh: gfData.yearHigh || null, yearLow: gfData.yearLow || null,
+      dayHigh: gfData.dayHigh || null, dayLow: gfData.dayLow || null,
+      previousClose: gfData.previousClose || null,
+    });
+  } catch (err) {
+    console.error("Details error:", err.message);
+    res.status(500).json({ error: "Failed to fetch details" });
+  }
+});
+
+// ── AI Insider Analysis ──
+app.post("/api/markets/ai-insiders", async (req, res) => {
+  try {
+    const { symbol, name, price, change } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const systemPrompt = `You are a stock market analyst specializing in insider trading patterns. Given a stock ticker, provide a comprehensive insider trading analysis in JSON format. Be specific with names, dates, and amounts. Use your knowledge of recent insider transactions.\n\nReturn ONLY valid JSON with this structure:\n{\n  "summary": "Brief overview of recent insider activity",\n  "sentiment": "bullish" | "bearish" | "neutral",\n  "recentTransactions": [\n    { "name": "Executive Name", "title": "CEO/CFO/etc", "type": "Buy/Sell", "shares": 50000, "pricePerShare": 150.00, "totalValue": "$7.5M", "date": "2025-01-15" }\n  ],\n  "institutionalOwnership": "75%",\n  "insiderOwnership": "5%",\n  "keyInsights": ["insight1", "insight2", "insight3"],\n  "shortInterest": { "sharesShort": "25M", "shortRatio": "2.5", "percentOfFloat": "3.2%" }\n}`;
+    const response = await fetch(RAPIDAPI_CHAT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-rapidapi-key": RAPIDAPI_KEY, "x-rapidapi-host": RAPIDAPI_HOST },
+      body: JSON.stringify({ model: "deepseek-chat", messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `Analyze insider trading activity for ${symbol} (${name || symbol}). Current price: $${price}, change: ${change}%. Provide detailed insider transaction data.` },
+      ], temperature: 0.3, max_tokens: 2000 }),
+    });
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || "{}";
+    let analysis;
+    try { const cleaned = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim(); analysis = JSON.parse(cleaned); }
+    catch { analysis = { summary: content, sentiment: "neutral", recentTransactions: [], keyInsights: [] }; }
+    res.json({ analysis });
+  } catch (err) {
+    console.error("AI Insiders error:", err.message);
+    res.json({ analysis: { summary: "Unable to fetch insider data", sentiment: "neutral", recentTransactions: [], keyInsights: [] } });
+  }
+});
+
+// ── AI Analyst Ratings ──
+app.post("/api/markets/ai-analyst", async (req, res) => {
+  try {
+    const { symbol, name, price, change } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const systemPrompt = `You are a Wall Street equity research analyst. Given a stock ticker, provide comprehensive analyst ratings and price target data in JSON format. Use your knowledge of real analyst ratings.\n\nReturn ONLY valid JSON with this structure:\n{\n  "consensus": "Strong Buy" | "Buy" | "Hold" | "Sell" | "Strong Sell",\n  "averagePriceTarget": 200.00,\n  "highPriceTarget": 250.00,\n  "lowPriceTarget": 150.00,\n  "numberOfAnalysts": 35,\n  "ratingBreakdown": { "strongBuy": 15, "buy": 10, "hold": 7, "sell": 2, "strongSell": 1 },\n  "recentRatings": [\n    { "analyst": "Morgan Stanley", "rating": "Overweight", "priceTarget": 220.00, "date": "2025-03-15", "action": "Maintained" }\n  ],\n  "summary": "Brief summary of analyst sentiment",\n  "upside": "+18.5%"\n}`;
+    const response = await fetch(RAPIDAPI_CHAT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-rapidapi-key": RAPIDAPI_KEY, "x-rapidapi-host": RAPIDAPI_HOST },
+      body: JSON.stringify({ model: "deepseek-chat", messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `Provide analyst ratings and price targets for ${symbol} (${name || symbol}). Current price: $${price}, change: ${change}%. Give me the full Wall Street consensus.` },
+      ], temperature: 0.3, max_tokens: 2000 }),
+    });
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || "{}";
+    let analysis;
+    try { const cleaned = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim(); analysis = JSON.parse(cleaned); }
+    catch { analysis = { consensus: "N/A", summary: content, recentRatings: [] }; }
+    res.json({ analysis });
+  } catch (err) {
+    console.error("AI Analyst error:", err.message);
+    res.json({ analysis: { consensus: "N/A", summary: "Unable to fetch analyst data", recentRatings: [] } });
+  }
+});
+
+// ── AI Risk Analysis ──
+app.post("/api/markets/ai-risk", async (req, res) => {
+  try {
+    const { symbol, name, price, change } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const systemPrompt = `You are a risk management specialist. Analyze the risk profile of the given stock. Return ONLY valid JSON:\n{\n  "overallRisk": "Low" | "Medium" | "High" | "Very High",\n  "riskScore": 65,\n  "volatility": { "beta": 1.5, "standardDeviation": "3.2%", "maxDrawdown": "-25%", "sharpeRatio": 1.8 },\n  "risks": [\n    { "category": "Market Risk", "severity": "High", "description": "..." },\n    { "category": "Regulatory Risk", "severity": "Medium", "description": "..." }\n  ],\n  "supportLevels": [150.00, 140.00, 130.00],\n  "resistanceLevels": [175.00, 185.00, 200.00],\n  "summary": "Brief risk assessment"\n}`;
+    const response = await fetch(RAPIDAPI_CHAT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-rapidapi-key": RAPIDAPI_KEY, "x-rapidapi-host": RAPIDAPI_HOST },
+      body: JSON.stringify({ model: "deepseek-chat", messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `Analyze risk profile for ${symbol} (${name || symbol}). Current price: $${price}, change: ${change}%. Include support/resistance levels, volatility metrics, and key risk factors.` },
+      ], temperature: 0.3, max_tokens: 2000 }),
+    });
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || "{}";
+    let analysis;
+    try { const cleaned = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim(); analysis = JSON.parse(cleaned); }
+    catch { analysis = { overallRisk: "N/A", summary: content, risks: [] }; }
+    res.json({ analysis });
+  } catch (err) {
+    console.error("AI Risk error:", err.message);
+    res.json({ analysis: { overallRisk: "N/A", summary: "Unable to assess risk", risks: [] } });
+  }
+});
+
 // ── Serve static files from dist/ ──
 app.use(express.static(path.join(__dirname, "dist")));
 

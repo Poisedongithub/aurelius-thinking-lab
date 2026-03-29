@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { fetchLiveQuote, fetchSectionAnalysis, formatMarketCap, type LiveQuote, type AIAnalysis } from "../data/api";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { fetchLiveQuote, fetchSectionAnalysis, formatMarketCap, type LiveQuote, type AIAnalysis,
+  fetchDividends, fetchSplits, fetchRelated, fetchDetails, fetchInsiderAnalysis, fetchAnalystRatings, fetchRiskAnalysis,
+  type DividendData, type StockSplit, type RelatedCompany, type CompanyDetails, type InsiderAnalysis, type AnalystAnalysis, type RiskAnalysis,
+} from "../data/api";
 import {
   SectionCard, Tag, DirectionArrow, ConfidenceDots,
   StatBox, EmptyState, ScoreBar,
@@ -39,8 +42,7 @@ const SECTIONS: { key: SectionKey; title: string; step: number }[] = [
   { key: "evidence", title: "Evidence & Sources", step: 14 },
 ];
 
-// Tab system for the ticker page
-type TabKey = "chart" | "fundamentals" | "news" | "options" | "analysis";
+type TabKey = "chart" | "fundamentals" | "news" | "options" | "analysis" | "insiders" | "analyst" | "risk" | "dividends" | "peers";
 
 export default function TickerAnalysis() {
   const { symbol } = useParams<{ symbol: string }>();
@@ -53,6 +55,20 @@ export default function TickerAnalysis() {
   const [sectionData, setSectionData] = useState<Record<string, Record<string, unknown> | null>>({});
   const [loadingSections, setLoadingSections] = useState<Set<string>>(new Set());
   const [loadedSections, setLoadedSections] = useState<Set<string>>(new Set());
+
+  // New analysis state
+  const [dividendData, setDividendData] = useState<DividendData | null>(null);
+  const [splitsData, setSplitsData] = useState<StockSplit[]>([]);
+  const [relatedData, setRelatedData] = useState<RelatedCompany[]>([]);
+  const [detailsData, setDetailsData] = useState<CompanyDetails | null>(null);
+  const [insiderData, setInsiderData] = useState<InsiderAnalysis | null>(null);
+  const [analystData, setAnalystData] = useState<AnalystAnalysis | null>(null);
+  const [riskData, setRiskData] = useState<RiskAnalysis | null>(null);
+  const [loadingInsiders, setLoadingInsiders] = useState(false);
+  const [loadingAnalyst, setLoadingAnalyst] = useState(false);
+  const [loadingRisk, setLoadingRisk] = useState(false);
+  const [loadingDividends, setLoadingDividends] = useState(false);
+  const [loadingPeers, setLoadingPeers] = useState(false);
 
   useEffect(() => {
     if (!symbol) return;
@@ -72,6 +88,41 @@ export default function TickerAnalysis() {
     })();
     return () => { cancelled = true; };
   }, [symbol]);
+
+  // Load tab data on tab change
+  useEffect(() => {
+    if (!quote) return;
+    if (activeTab === "dividends" && !dividendData && !loadingDividends) {
+      setLoadingDividends(true);
+      Promise.all([fetchDividends(quote.symbol), fetchSplits(quote.symbol)])
+        .then(([div, spl]) => { setDividendData(div); setSplitsData(spl.splits); })
+        .finally(() => setLoadingDividends(false));
+    }
+    if (activeTab === "peers" && relatedData.length === 0 && !loadingPeers) {
+      setLoadingPeers(true);
+      Promise.all([fetchRelated(quote.symbol), fetchDetails(quote.symbol)])
+        .then(([rel, det]) => { setRelatedData(rel.related); setDetailsData(det); })
+        .finally(() => setLoadingPeers(false));
+    }
+    if (activeTab === "insiders" && !insiderData && !loadingInsiders) {
+      setLoadingInsiders(true);
+      fetchInsiderAnalysis(quote.symbol, quote.name, quote.price, quote.change || 0)
+        .then(d => setInsiderData(d))
+        .finally(() => setLoadingInsiders(false));
+    }
+    if (activeTab === "analyst" && !analystData && !loadingAnalyst) {
+      setLoadingAnalyst(true);
+      fetchAnalystRatings(quote.symbol, quote.name, quote.price, quote.change || 0)
+        .then(d => setAnalystData(d))
+        .finally(() => setLoadingAnalyst(false));
+    }
+    if (activeTab === "risk" && !riskData && !loadingRisk) {
+      setLoadingRisk(true);
+      fetchRiskAnalysis(quote.symbol, quote.name, quote.price, quote.change || 0)
+        .then(d => setRiskData(d))
+        .finally(() => setLoadingRisk(false));
+    }
+  }, [activeTab, quote]);
 
   const loadSection = async (sectionKey: SectionKey) => {
     if (!quote || loadedSections.has(sectionKey) || loadingSections.has(sectionKey)) return;
@@ -101,7 +152,7 @@ export default function TickerAnalysis() {
   if (error || !quote) {
     return (
       <div className="min-h-screen bg-[#060606]">
-        <div className="max-w-5xl mx-auto px-5 py-8">
+        <div className="max-w-6xl mx-auto px-5 py-8">
           <button onClick={() => navigate("/markets")} className="text-[11px] text-white/30 hover:text-white/60 font-mono mb-6 transition-colors">← DASHBOARD</button>
           <EmptyState message={error || `Ticker ${symbol} not found`} />
         </div>
@@ -111,23 +162,26 @@ export default function TickerAnalysis() {
 
   const pct = quote.change || 0;
   const isUp = pct >= 0;
-
-  // Determine TradingView symbol format
   const tvSymbol = quote.exchange?.includes("NASDAQ") ? `NASDAQ:${quote.symbol}` : quote.exchange?.includes("NYSE") ? `NYSE:${quote.symbol}` : quote.symbol;
 
-  const TABS: { key: TabKey; label: string; icon: string }[] = [
-    { key: "chart", label: "CHART", icon: "📈" },
-    { key: "fundamentals", label: "FUNDAMENTALS", icon: "📊" },
-    { key: "news", label: "NEWS", icon: "📰" },
-    { key: "options", label: "OPTIONS", icon: "⚡" },
-    { key: "analysis", label: "AI ANALYSIS", icon: "🤖" },
+  const TABS: { key: TabKey; label: string }[] = [
+    { key: "chart", label: "CHART" },
+    { key: "fundamentals", label: "FUNDAMENTALS" },
+    { key: "analyst", label: "ANALYST" },
+    { key: "insiders", label: "INSIDERS" },
+    { key: "risk", label: "RISK" },
+    { key: "dividends", label: "DIVIDENDS" },
+    { key: "peers", label: "PEERS" },
+    { key: "news", label: "NEWS" },
+    { key: "options", label: "OPTIONS" },
+    { key: "analysis", label: "AI PIPELINE" },
   ];
 
   return (
     <div className="min-h-screen bg-[#060606] text-white">
       {/* Sticky Header */}
       <div className="sticky top-0 z-20 bg-[#060606]/90 backdrop-blur-xl border-b border-white/[0.06]">
-        <div className="max-w-5xl mx-auto px-5 py-3">
+        <div className="max-w-6xl mx-auto px-5 py-3">
           <div className="flex items-center justify-between mb-2">
             <button onClick={() => navigate("/markets")} className="text-[11px] text-white/30 hover:text-white/60 font-mono tracking-wide transition-colors">← DASHBOARD</button>
             <div className="flex items-center gap-3">
@@ -189,45 +243,24 @@ export default function TickerAnalysis() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-5 py-6 space-y-4">
+      <div className="max-w-6xl mx-auto px-5 py-6 space-y-4">
         {/* Stats Grid */}
-        <div className="grid grid-cols-4 gap-2">
-          <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-3 text-center">
-            <div className="text-[9px] text-white/20 font-mono tracking-widest mb-1">MARKET CAP</div>
-            <div className="text-sm font-semibold text-white tabular-nums">{quote.marketCap ? formatMarketCap(quote.marketCap) : "—"}</div>
-          </div>
-          <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-3 text-center">
-            <div className="text-[9px] text-white/20 font-mono tracking-widest mb-1">VOLUME</div>
-            <div className="text-sm font-semibold text-white tabular-nums">{formatVol(quote.volume)}</div>
-          </div>
-          <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-3 text-center">
-            <div className="text-[9px] text-white/20 font-mono tracking-widest mb-1">52W HIGH</div>
-            <div className="text-sm font-semibold text-white tabular-nums">{quote.fiftyTwoWeekHigh ? `$${quote.fiftyTwoWeekHigh.toFixed(2)}` : "—"}</div>
-          </div>
-          <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-3 text-center">
-            <div className="text-[9px] text-white/20 font-mono tracking-widest mb-1">52W LOW</div>
-            <div className="text-sm font-semibold text-white tabular-nums">{quote.fiftyTwoWeekLow ? `$${quote.fiftyTwoWeekLow.toFixed(2)}` : "—"}</div>
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2">
+          <MiniStat label="MARKET CAP" value={quote.marketCap ? formatMarketCap(quote.marketCap) : "—"} />
+          <MiniStat label="VOLUME" value={formatVol(quote.volume)} />
+          <MiniStat label="52W HIGH" value={quote.fiftyTwoWeekHigh ? `$${quote.fiftyTwoWeekHigh.toFixed(2)}` : "—"} />
+          <MiniStat label="52W LOW" value={quote.fiftyTwoWeekLow ? `$${quote.fiftyTwoWeekLow.toFixed(2)}` : "—"} />
+          <MiniStat label="DAY HIGH" value={quote.dayHigh ? `$${Number(quote.dayHigh).toFixed(2)}` : "—"} />
+          <MiniStat label="DAY LOW" value={quote.dayLow ? `$${Number(quote.dayLow).toFixed(2)}` : "—"} />
         </div>
 
         {/* ═══ CHART TAB ═══ */}
         {activeTab === "chart" && (
           <div className="space-y-4">
-            {/* TradingView Advanced Chart */}
-            <TradingViewAdvancedChart
-              symbol={tvSymbol}
-              height={700}
-              showToolbar={true}
-              showSideToolbar={true}
-              allowSymbolChange={true}
-              studies={["STD;RSI"]}
-            />
-
-            {/* Technical Analysis Gauge */}
+            <TradingViewAdvancedChart symbol={tvSymbol} height={700} showToolbar={true} showSideToolbar={true} allowSymbolChange={true} studies={["STD;RSI"]} />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <TradingViewTechnicalAnalysis symbol={tvSymbol} height={425} />
               <div className="space-y-4">
-                {/* Company Description */}
                 {quote.description && (
                   <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
                     <h3 className="text-xs font-semibold text-white/60 font-mono tracking-wider mb-2">ABOUT</h3>
@@ -235,7 +268,6 @@ export default function TickerAnalysis() {
                     {quote.ceo && <p className="text-[10px] text-white/15 font-mono mt-3">CEO: {quote.ceo}</p>}
                   </div>
                 )}
-                {/* Share */}
                 <div className="bg-[#0a0a0a] border border-white/[0.06] rounded-xl p-4">
                   <div className="text-[10px] text-white/20 font-mono uppercase tracking-widest mb-3">SHARE</div>
                   <ShareCard type="ticker" data={{ symbol: quote.symbol, name: quote.name, price: quote.price, change: quote.change }} />
@@ -253,6 +285,478 @@ export default function TickerAnalysis() {
           </div>
         )}
 
+        {/* ═══ ANALYST TAB ═══ */}
+        {activeTab === "analyst" && (
+          <div className="space-y-4">
+            {loadingAnalyst ? (
+              <LoadingCard label="Loading analyst ratings..." />
+            ) : analystData ? (
+              <>
+                {/* Consensus Header */}
+                <div className="bg-gradient-to-r from-white/[0.04] to-white/[0.01] border border-white/[0.08] rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <div className="text-[10px] text-white/25 font-mono tracking-widest mb-1">WALL STREET CONSENSUS</div>
+                      <div className={`text-3xl font-bold font-mono ${
+                        analystData.consensus?.includes("Buy") ? "text-emerald-400" :
+                        analystData.consensus?.includes("Sell") ? "text-red-400" : "text-amber-400"
+                      }`}>{analystData.consensus}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[10px] text-white/25 font-mono tracking-widest mb-1">ANALYSTS</div>
+                      <div className="text-2xl font-bold font-mono text-white">{analystData.numberOfAnalysts || "—"}</div>
+                    </div>
+                  </div>
+
+                  {/* Rating Breakdown Bar */}
+                  {analystData.ratingBreakdown && (
+                    <div className="space-y-2">
+                      <div className="flex h-3 rounded-full overflow-hidden">
+                        {[
+                          { key: "strongBuy", color: "bg-emerald-500", label: "Strong Buy" },
+                          { key: "buy", color: "bg-emerald-400", label: "Buy" },
+                          { key: "hold", color: "bg-amber-400", label: "Hold" },
+                          { key: "sell", color: "bg-red-400", label: "Sell" },
+                          { key: "strongSell", color: "bg-red-600", label: "Strong Sell" },
+                        ].map(({ key, color }) => {
+                          const val = (analystData.ratingBreakdown as Record<string, number>)[key] || 0;
+                          const total = Object.values(analystData.ratingBreakdown).reduce((a: number, b: number) => a + b, 0);
+                          const pct = total > 0 ? (val / total) * 100 : 0;
+                          return pct > 0 ? <div key={key} className={`${color}`} style={{ width: `${pct}%` }} /> : null;
+                        })}
+                      </div>
+                      <div className="flex justify-between text-[9px] font-mono text-white/30">
+                        <span>Strong Buy: {analystData.ratingBreakdown.strongBuy}</span>
+                        <span>Buy: {analystData.ratingBreakdown.buy}</span>
+                        <span>Hold: {analystData.ratingBreakdown.hold}</span>
+                        <span>Sell: {analystData.ratingBreakdown.sell}</span>
+                        <span>Strong Sell: {analystData.ratingBreakdown.strongSell}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Price Target */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 text-center">
+                    <div className="text-[9px] text-white/20 font-mono tracking-widest mb-1">LOW TARGET</div>
+                    <div className="text-lg font-bold font-mono text-red-400">${analystData.lowPriceTarget?.toFixed(2) || "—"}</div>
+                  </div>
+                  <div className="bg-white/[0.03] border border-emerald-500/20 rounded-xl p-4 text-center">
+                    <div className="text-[9px] text-emerald-400/60 font-mono tracking-widest mb-1">AVG TARGET</div>
+                    <div className="text-lg font-bold font-mono text-emerald-400">${analystData.averagePriceTarget?.toFixed(2) || "—"}</div>
+                    {analystData.upside && <div className="text-[10px] font-mono text-emerald-400/60 mt-0.5">{analystData.upside} upside</div>}
+                  </div>
+                  <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 text-center">
+                    <div className="text-[9px] text-white/20 font-mono tracking-widest mb-1">HIGH TARGET</div>
+                    <div className="text-lg font-bold font-mono text-blue-400">${analystData.highPriceTarget?.toFixed(2) || "—"}</div>
+                  </div>
+                </div>
+
+                {/* Summary */}
+                {analystData.summary && (
+                  <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
+                    <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
+                    <p className="text-sm text-white/50 leading-relaxed">{analystData.summary}</p>
+                  </div>
+                )}
+
+                {/* Recent Ratings */}
+                {analystData.recentRatings && analystData.recentRatings.length > 0 && (
+                  <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
+                    <div className="px-5 py-3 border-b border-white/[0.06]">
+                      <div className="text-[10px] text-white/25 font-mono tracking-widest">RECENT ANALYST ACTIONS</div>
+                    </div>
+                    <div className="divide-y divide-white/[0.04]">
+                      {analystData.recentRatings.map((r, i) => (
+                        <div key={i} className="px-5 py-3 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-white/[0.06] flex items-center justify-center text-[10px] font-mono text-white/40">{r.analyst?.slice(0, 2)}</div>
+                            <div>
+                              <div className="text-xs font-semibold text-white/70">{r.analyst}</div>
+                              <div className="text-[10px] text-white/25">{r.date} · {r.action}</div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className={`text-xs font-mono font-semibold ${
+                              r.rating?.toLowerCase().includes("buy") || r.rating?.toLowerCase().includes("overweight") ? "text-emerald-400" :
+                              r.rating?.toLowerCase().includes("sell") || r.rating?.toLowerCase().includes("underweight") ? "text-red-400" : "text-amber-400"
+                            }`}>{r.rating}</div>
+                            <div className="text-[10px] text-white/30 font-mono">PT: ${r.priceTarget?.toFixed(2)}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <EmptyState message="No analyst data available" />
+            )}
+          </div>
+        )}
+
+        {/* ═══ INSIDERS TAB ═══ */}
+        {activeTab === "insiders" && (
+          <div className="space-y-4">
+            {loadingInsiders ? (
+              <LoadingCard label="Analyzing insider activity..." />
+            ) : insiderData ? (
+              <>
+                {/* Sentiment Header */}
+                <div className={`border rounded-xl p-6 ${
+                  insiderData.sentiment === "bullish" ? "bg-emerald-500/5 border-emerald-500/20" :
+                  insiderData.sentiment === "bearish" ? "bg-red-500/5 border-red-500/20" :
+                  "bg-white/[0.03] border-white/[0.08]"
+                }`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <div className="text-[10px] text-white/25 font-mono tracking-widest mb-1">INSIDER SENTIMENT</div>
+                      <div className={`text-2xl font-bold font-mono uppercase ${
+                        insiderData.sentiment === "bullish" ? "text-emerald-400" :
+                        insiderData.sentiment === "bearish" ? "text-red-400" : "text-amber-400"
+                      }`}>{insiderData.sentiment}</div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 text-right">
+                      <div>
+                        <div className="text-[9px] text-white/20 font-mono">INSTITUTIONAL</div>
+                        <div className="text-sm font-bold text-white/70 font-mono">{insiderData.institutionalOwnership || "—"}</div>
+                      </div>
+                      <div>
+                        <div className="text-[9px] text-white/20 font-mono">INSIDER</div>
+                        <div className="text-sm font-bold text-white/70 font-mono">{insiderData.insiderOwnership || "—"}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-sm text-white/40 leading-relaxed">{insiderData.summary}</p>
+                </div>
+
+                {/* Short Interest */}
+                {insiderData.shortInterest && (
+                  <div className="grid grid-cols-3 gap-3">
+                    <MiniStat label="SHARES SHORT" value={insiderData.shortInterest.sharesShort || "—"} />
+                    <MiniStat label="SHORT RATIO" value={insiderData.shortInterest.shortRatio || "—"} />
+                    <MiniStat label="% OF FLOAT" value={insiderData.shortInterest.percentOfFloat || "—"} />
+                  </div>
+                )}
+
+                {/* Recent Transactions */}
+                {insiderData.recentTransactions && insiderData.recentTransactions.length > 0 && (
+                  <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
+                    <div className="px-5 py-3 border-b border-white/[0.06]">
+                      <div className="text-[10px] text-white/25 font-mono tracking-widest">RECENT INSIDER TRANSACTIONS</div>
+                    </div>
+                    <div className="divide-y divide-white/[0.04]">
+                      {insiderData.recentTransactions.map((t, i) => (
+                        <div key={i} className="px-5 py-3 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold ${
+                              t.type === "Buy" ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"
+                            }`}>{t.type === "Buy" ? "B" : "S"}</div>
+                            <div>
+                              <div className="text-xs font-semibold text-white/70">{t.name}</div>
+                              <div className="text-[10px] text-white/25">{t.title} · {t.date}</div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className={`text-xs font-mono font-semibold ${t.type === "Buy" ? "text-emerald-400" : "text-red-400"}`}>
+                              {t.totalValue}
+                            </div>
+                            <div className="text-[10px] text-white/25 font-mono">{t.shares?.toLocaleString()} shares @ ${t.pricePerShare?.toFixed(2)}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Key Insights */}
+                {insiderData.keyInsights && insiderData.keyInsights.length > 0 && (
+                  <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
+                    <div className="text-[10px] text-white/20 font-mono tracking-widest mb-3">KEY INSIGHTS</div>
+                    <ul className="space-y-2">
+                      {insiderData.keyInsights.map((insight, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-white/50">
+                          <span className="w-1.5 h-1.5 rounded-full bg-white/20 mt-1.5 flex-shrink-0" />
+                          {insight}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </>
+            ) : (
+              <EmptyState message="No insider data available" />
+            )}
+          </div>
+        )}
+
+        {/* ═══ RISK TAB ═══ */}
+        {activeTab === "risk" && (
+          <div className="space-y-4">
+            {loadingRisk ? (
+              <LoadingCard label="Analyzing risk profile..." />
+            ) : riskData ? (
+              <>
+                {/* Risk Header */}
+                <div className={`border rounded-xl p-6 ${
+                  riskData.overallRisk === "Low" ? "bg-emerald-500/5 border-emerald-500/20" :
+                  riskData.overallRisk === "Medium" ? "bg-amber-500/5 border-amber-500/20" :
+                  "bg-red-500/5 border-red-500/20"
+                }`}>
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <div className="text-[10px] text-white/25 font-mono tracking-widest mb-1">OVERALL RISK</div>
+                      <div className={`text-3xl font-bold font-mono ${
+                        riskData.overallRisk === "Low" ? "text-emerald-400" :
+                        riskData.overallRisk === "Medium" ? "text-amber-400" : "text-red-400"
+                      }`}>{riskData.overallRisk}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[10px] text-white/25 font-mono tracking-widest mb-1">RISK SCORE</div>
+                      <div className="text-3xl font-bold font-mono text-white">{riskData.riskScore || "—"}<span className="text-sm text-white/20">/100</span></div>
+                    </div>
+                  </div>
+                  {/* Risk Score Bar */}
+                  <div className="w-full h-2 bg-white/[0.06] rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${
+                        (riskData.riskScore || 0) <= 33 ? "bg-emerald-400" :
+                        (riskData.riskScore || 0) <= 66 ? "bg-amber-400" : "bg-red-400"
+                      }`}
+                      style={{ width: `${riskData.riskScore || 0}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-[9px] font-mono text-white/20 mt-1">
+                    <span>Low Risk</span><span>High Risk</span>
+                  </div>
+                </div>
+
+                {/* Volatility Metrics */}
+                {riskData.volatility && (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <MiniStat label="BETA" value={riskData.volatility.beta?.toString() || "—"} />
+                    <MiniStat label="STD DEVIATION" value={riskData.volatility.standardDeviation || "—"} />
+                    <MiniStat label="MAX DRAWDOWN" value={riskData.volatility.maxDrawdown || "—"} />
+                    <MiniStat label="SHARPE RATIO" value={riskData.volatility.sharpeRatio?.toString() || "—"} />
+                  </div>
+                )}
+
+                {/* Support & Resistance */}
+                <div className="grid grid-cols-2 gap-3">
+                  {riskData.supportLevels && riskData.supportLevels.length > 0 && (
+                    <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-4">
+                      <div className="text-[10px] text-emerald-400/60 font-mono tracking-widest mb-3">SUPPORT LEVELS</div>
+                      <div className="space-y-2">
+                        {riskData.supportLevels.map((level, i) => (
+                          <div key={i} className="flex items-center justify-between">
+                            <span className="text-[10px] text-white/25 font-mono">S{i + 1}</span>
+                            <span className="text-sm font-mono font-semibold text-emerald-400">${level.toFixed(2)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {riskData.resistanceLevels && riskData.resistanceLevels.length > 0 && (
+                    <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-4">
+                      <div className="text-[10px] text-red-400/60 font-mono tracking-widest mb-3">RESISTANCE LEVELS</div>
+                      <div className="space-y-2">
+                        {riskData.resistanceLevels.map((level, i) => (
+                          <div key={i} className="flex items-center justify-between">
+                            <span className="text-[10px] text-white/25 font-mono">R{i + 1}</span>
+                            <span className="text-sm font-mono font-semibold text-red-400">${level.toFixed(2)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Risk Factors */}
+                {riskData.risks && riskData.risks.length > 0 && (
+                  <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
+                    <div className="px-5 py-3 border-b border-white/[0.06]">
+                      <div className="text-[10px] text-white/25 font-mono tracking-widest">RISK FACTORS</div>
+                    </div>
+                    <div className="divide-y divide-white/[0.04]">
+                      {riskData.risks.map((risk, i) => (
+                        <div key={i} className="px-5 py-3">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className={`w-2 h-2 rounded-full ${
+                              risk.severity === "High" || risk.severity === "Very High" ? "bg-red-400" :
+                              risk.severity === "Medium" ? "bg-amber-400" : "bg-emerald-400"
+                            }`} />
+                            <span className="text-xs font-semibold text-white/70">{risk.category}</span>
+                            <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded ${
+                              risk.severity === "High" || risk.severity === "Very High" ? "text-red-400 bg-red-500/10" :
+                              risk.severity === "Medium" ? "text-amber-400 bg-amber-500/10" : "text-emerald-400 bg-emerald-500/10"
+                            }`}>{risk.severity}</span>
+                          </div>
+                          <p className="text-xs text-white/40 leading-relaxed pl-4">{risk.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Summary */}
+                {riskData.summary && (
+                  <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
+                    <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">RISK ASSESSMENT</div>
+                    <p className="text-sm text-white/50 leading-relaxed">{riskData.summary}</p>
+                  </div>
+                )}
+              </>
+            ) : (
+              <EmptyState message="No risk data available" />
+            )}
+          </div>
+        )}
+
+        {/* ═══ DIVIDENDS TAB ═══ */}
+        {activeTab === "dividends" && (
+          <div className="space-y-4">
+            {loadingDividends ? (
+              <LoadingCard label="Loading dividend history..." />
+            ) : (
+              <>
+                {/* Dividend Summary */}
+                {dividendData && dividendData.dividends.length > 0 ? (
+                  <>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <MiniStat label="ANNUAL DIVIDEND" value={`$${dividendData.annualDividend.toFixed(2)}`} />
+                      <MiniStat label="DIVIDEND YIELD" value={quote.price > 0 ? `${((dividendData.annualDividend / quote.price) * 100).toFixed(2)}%` : "—"} />
+                      <MiniStat label="FREQUENCY" value={dividendData.dividends[0]?.frequency === 4 ? "Quarterly" : dividendData.dividends[0]?.frequency === 12 ? "Monthly" : dividendData.dividends[0]?.frequency === 2 ? "Semi-Annual" : "Annual"} />
+                      <MiniStat label="PAYMENTS" value={`${dividendData.count} records`} />
+                    </div>
+
+                    {/* Dividend History Table */}
+                    <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
+                      <div className="px-5 py-3 border-b border-white/[0.06]">
+                        <div className="text-[10px] text-white/25 font-mono tracking-widest">DIVIDEND HISTORY</div>
+                      </div>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr className="border-b border-white/[0.06]">
+                              <th className="text-left px-5 py-2 text-[9px] text-white/20 font-mono">EX-DATE</th>
+                              <th className="text-left px-3 py-2 text-[9px] text-white/20 font-mono">PAY DATE</th>
+                              <th className="text-right px-3 py-2 text-[9px] text-white/20 font-mono">AMOUNT</th>
+                              <th className="text-right px-5 py-2 text-[9px] text-white/20 font-mono">TYPE</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/[0.04]">
+                            {dividendData.dividends.map((d, i) => (
+                              <tr key={i} className="hover:bg-white/[0.02]">
+                                <td className="px-5 py-2 text-white/50 font-mono">{d.exDividendDate}</td>
+                                <td className="px-3 py-2 text-white/40 font-mono">{d.payDate || "—"}</td>
+                                <td className="px-3 py-2 text-right text-emerald-400 font-mono font-semibold">${d.cashAmount.toFixed(4)}</td>
+                                <td className="px-5 py-2 text-right text-white/30 font-mono">{d.type || "CD"}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-8 text-center">
+                    <div className="text-white/15 text-4xl mb-3">—</div>
+                    <p className="text-sm text-white/30 font-mono">{quote.symbol} does not currently pay a dividend</p>
+                  </div>
+                )}
+
+                {/* Stock Splits */}
+                {splitsData.length > 0 && (
+                  <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
+                    <div className="px-5 py-3 border-b border-white/[0.06]">
+                      <div className="text-[10px] text-white/25 font-mono tracking-widest">STOCK SPLIT HISTORY</div>
+                    </div>
+                    <div className="divide-y divide-white/[0.04]">
+                      {splitsData.map((s, i) => (
+                        <div key={i} className="px-5 py-3 flex items-center justify-between">
+                          <div className="text-xs text-white/50 font-mono">{s.executionDate}</div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-mono font-semibold text-blue-400">{s.ratio}</span>
+                            <span className="text-[9px] text-white/20 font-mono">split</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ═══ PEERS TAB ═══ */}
+        {activeTab === "peers" && (
+          <div className="space-y-4">
+            {loadingPeers ? (
+              <LoadingCard label="Finding related companies..." />
+            ) : (
+              <>
+                {/* Company Details Card */}
+                {detailsData && (
+                  <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
+                    <div className="text-[10px] text-white/20 font-mono tracking-widest mb-3">COMPANY DETAILS</div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                      <div><div className="text-[9px] text-white/15 font-mono mb-0.5">INDUSTRY</div><div className="text-xs text-white/60">{detailsData.industry || detailsData.sicDescription || "—"}</div></div>
+                      <div><div className="text-[9px] text-white/15 font-mono mb-0.5">EMPLOYEES</div><div className="text-xs text-white/60">{detailsData.totalEmployees?.toLocaleString() || "—"}</div></div>
+                      <div><div className="text-[9px] text-white/15 font-mono mb-0.5">IPO DATE</div><div className="text-xs text-white/60">{detailsData.listDate || "—"}</div></div>
+                      <div><div className="text-[9px] text-white/15 font-mono mb-0.5">EXCHANGE</div><div className="text-xs text-white/60">{detailsData.exchange || "—"}</div></div>
+                      <div><div className="text-[9px] text-white/15 font-mono mb-0.5">WEBSITE</div><div className="text-xs text-blue-400/60 truncate">{detailsData.homepageUrl ? <a href={detailsData.homepageUrl} target="_blank" rel="noopener noreferrer">{detailsData.homepageUrl.replace(/https?:\/\//, "")}</a> : "—"}</div></div>
+                      <div><div className="text-[9px] text-white/15 font-mono mb-0.5">SHARES OUT</div><div className="text-xs text-white/60">{detailsData.weightedSharesOutstanding ? formatVol(detailsData.weightedSharesOutstanding) : "—"}</div></div>
+                    </div>
+                    {detailsData.description && (
+                      <div className="mt-4 pt-4 border-t border-white/[0.06]">
+                        <p className="text-xs text-white/35 leading-relaxed line-clamp-4">{detailsData.description}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Related Companies */}
+                {relatedData.length > 0 ? (
+                  <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
+                    <div className="px-5 py-3 border-b border-white/[0.06]">
+                      <div className="text-[10px] text-white/25 font-mono tracking-widest">RELATED COMPANIES</div>
+                    </div>
+                    <div className="divide-y divide-white/[0.04]">
+                      {relatedData.map((r, i) => (
+                        <Link
+                          key={i}
+                          to={`/markets/ticker/${r.symbol}`}
+                          className="px-5 py-3 flex items-center justify-between hover:bg-white/[0.03] transition-colors block"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-white/[0.06] flex items-center justify-center text-[10px] font-mono text-white/40 font-bold">{r.symbol.slice(0, 2)}</div>
+                            <div>
+                              <div className="text-xs font-semibold text-white/70 font-mono">{r.symbol}</div>
+                              <div className="text-[10px] text-white/25">{r.name}</div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-xs font-mono text-white/60">{r.price ? `$${r.price.toFixed(2)}` : "—"}</div>
+                            {r.change !== null && (
+                              <div className={`text-[10px] font-mono ${r.change >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                                {r.change >= 0 ? "+" : ""}{r.change.toFixed(2)}%
+                              </div>
+                            )}
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <EmptyState message="No related companies found" />
+                )}
+              </>
+            )}
+          </div>
+        )}
+
         {/* ═══ NEWS TAB ═══ */}
         {activeTab === "news" && (
           <TradingViewTopStories symbol={tvSymbol} feedMode="symbol" height={600} />
@@ -266,7 +770,6 @@ export default function TickerAnalysis() {
         {/* ═══ AI ANALYSIS TAB ═══ */}
         {activeTab === "analysis" && (
           <div className="space-y-4">
-            {/* AI Pipeline Header */}
             <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-gradient-to-r from-white/[0.04] to-white/[0.01] p-5">
               <div className="relative z-10">
                 <div className="flex items-center gap-2.5 mb-2">
@@ -280,7 +783,6 @@ export default function TickerAnalysis() {
               <div className="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/[0.03] rounded-full blur-3xl" />
             </div>
 
-            {/* Analysis Sections */}
             {SECTIONS.map(({ key, title, step }) => (
               <AnalysisSection
                 key={key}
@@ -304,6 +806,26 @@ export default function TickerAnalysis() {
       </div>
 
       <JacobChat symbol={quote.symbol} name={quote.name} price={quote.price} change={quote.change || 0} />
+    </div>
+  );
+}
+
+// ── Mini Stat Card ──
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-3 text-center">
+      <div className="text-[9px] text-white/20 font-mono tracking-widest mb-1">{label}</div>
+      <div className="text-sm font-semibold text-white tabular-nums font-mono">{value}</div>
+    </div>
+  );
+}
+
+// ── Loading Card ──
+function LoadingCard({ label }: { label: string }) {
+  return (
+    <div className="bg-white/[0.02] border border-white/[0.08] rounded-xl p-12 text-center">
+      <div className="w-8 h-8 border-2 border-white/10 border-t-white/50 rounded-full animate-spin mx-auto mb-4" />
+      <p className="text-sm font-mono text-white/30 animate-pulse">{label}</p>
     </div>
   );
 }
@@ -467,7 +989,7 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
               </div>
               <blockquote className="text-xs text-white/40 italic border-l-2 border-white/10 pl-3 mb-2">"{pr.quote}"</blockquote>
               <p className="text-xs text-white/50">{pr.implication}</p>
-              <span className="text-[10px] text-white/15 font-mono mt-1 block">{pr.date}</span>
+              <p className="text-[10px] text-white/15 font-mono mt-1">{pr.date}</p>
             </div>
           ))}
         </>
@@ -476,25 +998,15 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
     case "follow-money":
       return (
         <>
-          <div className="flex items-center gap-4">
-            <div>
-              <span className="text-3xl font-bold font-mono text-white">{String(d.score || "—")}</span>
-              <span className="text-sm text-white/20 ml-1">/100</span>
-            </div>
-            {d.type && <Tag label={String(d.type)} color={d.type === "structural" ? "green" : "yellow"} />}
-          </div>
-          {d.summary && <p className="text-sm text-white/60 leading-relaxed">{String(d.summary)}</p>}
-          {d.signals && Array.isArray(d.signals) && (d.signals as Array<{type: string; strength: string; description: string; amount?: string}>).map((s, i) => (
-            <div key={i} className="flex items-center gap-3 bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
-              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${s.strength === "strong" ? "bg-emerald-400" : s.strength === "moderate" ? "bg-amber-400" : "bg-white/20"}`} />
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-white/80">{s.type}</span>
-                  <Tag label={s.strength} color={s.strength === "strong" ? "green" : s.strength === "moderate" ? "yellow" : "gray"} />
-                </div>
-                <p className="text-xs text-white/40 mt-0.5">{s.description}</p>
-                {s.amount && <span className="text-xs font-mono text-emerald-400 font-semibold">{s.amount}</span>}
+          {d.summary && <p className="text-sm text-white/60">{String(d.summary)}</p>}
+          {d.flows && Array.isArray(d.flows) && (d.flows as Array<{entity: string; action: string; amount: string; date: string; significance: string}>).map((f, i) => (
+            <div key={i} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm font-semibold text-white/80">{f.entity}</span>
+                <Tag label={f.action} color={f.action.toLowerCase().includes("buy") ? "green" : f.action.toLowerCase().includes("sell") ? "red" : "blue"} />
               </div>
+              <p className="text-xs text-white/40">{f.amount} · {f.date}</p>
+              <p className="text-xs text-white/50 mt-1">{f.significance}</p>
             </div>
           ))}
         </>
@@ -527,9 +1039,7 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
                 </div>
               </div>
               <p className="text-xs text-white/40 leading-relaxed">{seg.description}</p>
-              <div className="mt-2">
-                <ScoreBar label="Importance" value={seg.importance} max={100} />
-              </div>
+              <div className="mt-2"><ScoreBar label="Importance" value={seg.importance} max={100} /></div>
             </div>
           ))}
         </>
