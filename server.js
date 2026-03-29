@@ -1119,11 +1119,59 @@ app.get("/api/markets/profile/:symbol", async (req, res) => {
   }
 });
 
-// Google Finance — historical price data (not available via scraping, return empty)
+// Historical price data via Polygon (Massive) API
 app.get("/api/markets/history/:symbol", async (req, res) => {
   try {
     const { symbol } = req.params;
-    res.json({ symbol: symbol.toUpperCase(), history: [] });
+    const range = req.query.range || "1Y";
+    const POLYGON_KEY = "jCRBXHnFwWhMydtQKV2dfEW_3ablMV3l";
+    
+    const now = new Date();
+    let from, multiplier = 1, timespan = "day";
+    switch (range) {
+      case "1D":
+        from = new Date(now); from.setDate(from.getDate() - 1);
+        multiplier = 5; timespan = "minute";
+        break;
+      case "1W":
+        from = new Date(now); from.setDate(from.getDate() - 7);
+        multiplier = 30; timespan = "minute";
+        break;
+      case "1M":
+        from = new Date(now); from.setMonth(from.getMonth() - 1);
+        break;
+      case "3M":
+        from = new Date(now); from.setMonth(from.getMonth() - 3);
+        break;
+      case "1Y":
+        from = new Date(now); from.setFullYear(from.getFullYear() - 1);
+        break;
+      case "ALL":
+        from = new Date(now); from.setFullYear(from.getFullYear() - 5);
+        multiplier = 1; timespan = "week";
+        break;
+      default:
+        from = new Date(now); from.setFullYear(from.getFullYear() - 1);
+    }
+    
+    const fromStr = from.toISOString().split("T")[0];
+    const toStr = now.toISOString().split("T")[0];
+    const url = `https://api.polygon.io/v2/aggs/ticker/${symbol.toUpperCase()}/range/${multiplier}/${timespan}/${fromStr}/${toStr}?adjusted=true&sort=asc&limit=5000&apiKey=${POLYGON_KEY}`;
+    
+    const resp = await fetch(url);
+    const data = await resp.json();
+    
+    const history = (data.results || []).map(bar => ({
+      date: new Date(bar.t).toISOString().split("T")[0],
+      timestamp: bar.t,
+      open: bar.o,
+      high: bar.h,
+      low: bar.l,
+      close: bar.c,
+      volume: bar.v,
+    }));
+    
+    res.json({ symbol: symbol.toUpperCase(), range, history });
   } catch (err) {
     console.error("Markets history error:", err.message);
     res.status(500).json({ error: "Failed to fetch history" });
