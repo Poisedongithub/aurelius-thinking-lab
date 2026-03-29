@@ -25,7 +25,9 @@ import NotFound from "./pages/NotFound";
 import MarketsDashboard from "./markets/pages/MarketsDashboard";
 import TickerAnalysis from "./markets/pages/TickerAnalysis";
 import ThemeAnalysis from "./markets/pages/ThemeAnalysis";
+import Portfolio from "./markets/pages/Portfolio";
 import { WatchlistProvider } from "./markets/data/WatchlistContext";
+import { PortfolioProvider } from "./markets/data/PortfolioContext";
 
 const queryClient = new QueryClient();
 
@@ -55,9 +57,10 @@ const App = () => (
             <Route path="/court" element={<MoralCourt />} />
             <Route path="/court/history" element={<CourtHistory />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/markets" element={<WatchlistProvider><MarketsDashboard /></WatchlistProvider>} />
-            <Route path="/markets/ticker/:symbol" element={<WatchlistProvider><TickerAnalysis /></WatchlistProvider>} />
+            <Route path="/markets" element={<WatchlistProvider><PortfolioProvider><MarketsDashboard /></PortfolioProvider></WatchlistProvider>} />
+            <Route path="/markets/ticker/:symbol" element={<WatchlistProvider><PortfolioProvider><TickerAnalysis /></PortfolioProvider></WatchlistProvider>} />
             <Route path="/markets/theme/:themeId" element={<WatchlistProvider><ThemeAnalysis /></WatchlistProvider>} />
+            <Route path="/markets/portfolio" element={<WatchlistProvider><PortfolioProvider><Portfolio /></PortfolioProvider></WatchlistProvider>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
