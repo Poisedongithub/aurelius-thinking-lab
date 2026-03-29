@@ -1494,25 +1494,37 @@ app.get("/api/markets/earnings/:symbol", async (req, res) => {
 
 app.get("/api/markets/screener", async (req, res) => {
   try {
-    const { sector, marketCapMin, marketCapMax, sort = "market_cap", order = "desc", limit = "50" } = req.query;
-    let url = `https://api.polygon.io/v3/reference/tickers?market=stocks&active=true&limit=${Math.min(parseInt(limit), 100)}&order=${order}&apiKey=${POLYGON_API_KEY}`;
-    if (sort === "market_cap") url += "&sort=market_cap";
-    else url += "&sort=ticker";
-    const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
-    if (!response.ok) return res.json({ results: [] });
-    const json = await response.json();
-    const symbols = (json.results || []).map(t => t.ticker).slice(0, 30);
-    const quotes = await Promise.all(symbols.map(async (sym) => {
-      try {
-        const data = await scrapeGoogleFinance(sym);
-        const sd = await fetchSectorData(sym);
-        return { symbol: sym, name: data.name, price: data.price, change: data.change, volume: data.volume, marketCap: data.marketCap, sector: sd.sector, industry: sd.industry };
-      } catch { return null; }
-    }));
-    let filtered = quotes.filter(Boolean);
-    if (sector) filtered = filtered.filter(q => q.sector && q.sector.toLowerCase() === sector.toLowerCase());
+    const { sector, marketCapMin, marketCapMax } = req.query;
+    // Curated list of popular stocks across sectors for reliable screener results
+    const SCREENER_UNIVERSE = [
+      "AAPL","MSFT","NVDA","GOOGL","AMZN","META","TSLA","AVGO","BRK.B","LLY",
+      "JPM","V","UNH","XOM","MA","JNJ","PG","COST","HD","ABBV",
+      "CRM","BAC","NFLX","AMD","KO","MRK","PEP","TMO","ADBE","WMT",
+      "CSCO","ACN","MCD","ABT","DHR","TXN","INTC","QCOM","INTU","CMCSA",
+      "PFE","DIS","VZ","NKE","PM","UNP","RTX","NEE","LOW","BA"
+    ];
+    // Fetch data for all tickers in parallel (batches of 10 to avoid rate limits)
+    const batchSize = 10;
+    let allQuotes = [];
+    for (let i = 0; i < SCREENER_UNIVERSE.length; i += batchSize) {
+      const batch = SCREENER_UNIVERSE.slice(i, i + batchSize);
+      const batchResults = await Promise.all(batch.map(async (sym) => {
+        try {
+          const data = await scrapeGoogleFinance(sym);
+          const sd = await fetchSectorData(sym);
+          return { symbol: sym, name: data.name, price: data.price, change: data.change, volume: data.volume, marketCap: data.marketCap, sector: sd.sector, industry: sd.industry };
+        } catch { return null; }
+      }));
+      allQuotes.push(...batchResults);
+    }
+    let filtered = allQuotes.filter(Boolean);
+    if (sector && sector.toLowerCase() !== "all") {
+      filtered = filtered.filter(q => q.sector && q.sector.toLowerCase().includes(sector.toLowerCase()));
+    }
     if (marketCapMin) filtered = filtered.filter(q => q.marketCap && q.marketCap >= parseFloat(marketCapMin));
     if (marketCapMax) filtered = filtered.filter(q => q.marketCap && q.marketCap <= parseFloat(marketCapMax));
+    // Sort by market cap descending
+    filtered.sort((a, b) => (b.marketCap || 0) - (a.marketCap || 0));
     res.json({ results: filtered });
   } catch (err) {
     console.error("Screener error:", err.message);
