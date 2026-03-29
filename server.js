@@ -1896,6 +1896,414 @@ app.post("/api/markets/ai-risk", async (req, res) => {
   }
 });
 
+// ══════════════════════════════════════════════════════════════
+// 30 NEW RESEARCH & ANALYSIS ENDPOINTS
+// ══════════════════════════════════════════════════════════════
+
+// Helper: AI call wrapper
+async function callAI(systemPrompt, userPrompt, maxTokens = 3000) {
+  const response = await fetch(RAPIDAPI_CHAT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-rapidapi-key": RAPIDAPI_KEY, "x-rapidapi-host": RAPIDAPI_HOST },
+    body: JSON.stringify({ model: "deepseek-chat", messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ], temperature: 0.3, max_tokens: maxTokens }),
+  });
+  const data = await response.json();
+  const content = data.choices?.[0]?.message?.content || "{}";
+  try {
+    const cleaned = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    return JSON.parse(cleaned);
+  } catch {
+    return { raw: content };
+  }
+}
+
+// ── 1. Thesis Builder ──
+app.post("/api/markets/ai-thesis", async (req, res) => {
+  try {
+    const { symbol, name, price, change, existingThesis } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are an equity research analyst. Help build an investment thesis. Return ONLY valid JSON:{"bullCase":"3-4 sentence bull case","bearCase":"3-4 sentence bear case","catalysts":["catalyst1","catalyst2","catalyst3"],"risks":["risk1","risk2","risk3"],"keyMetrics":["metric1","metric2"],"conviction":"High|Medium|Low","timeHorizon":"6-12 months|1-3 years|3-5 years","priceTarget":200,"summary":"2-3 sentence thesis","whatChangesThesis":"What changes your mind"}`,
+      `Build thesis for ${symbol} (${name}). Price: $${price}, Change: ${change}%.${existingThesis ? ` Existing: "${existingThesis}". Refine it.` : ""}`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Thesis err:", err.message); res.json({ analysis: { summary: "Unable to generate thesis" } }); }
+});
+
+// ── 2. Valuation Models ──
+app.post("/api/markets/ai-valuation", async (req, res) => {
+  try {
+    const { symbol, name, price, marketCap } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a valuation expert. Return ONLY valid JSON:{"dcf":{"fairValue":200,"upside":"+15%","assumptions":{"revenueGrowth":"25%","terminalGrowth":"3%","wacc":"10%","fcfMargin":"30%"},"sensitivity":[{"wacc":"9%","value":220},{"wacc":"10%","value":200},{"wacc":"11%","value":185}]},"comparables":{"peRatio":{"current":35,"sectorAvg":28,"verdict":"Premium"},"evEbitda":{"current":30,"sectorAvg":22,"verdict":"Expensive"},"psRatio":{"current":20,"sectorAvg":8,"verdict":"Premium"},"pegRatio":{"current":1.2,"verdict":"Reasonable"}},"historicalValuation":{"fiveYrAvgPE":40,"currentVsAvg":"-12%","percentileRank":"65th"},"verdict":"Fairly Valued|Undervalued|Overvalued","summary":"2-3 sentence valuation"}`,
+      `Valuation analysis for ${symbol} (${name}). Price: $${price}, MCap: ${marketCap || "N/A"}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Valuation err:", err.message); res.json({ analysis: { verdict: "N/A" } }); }
+});
+
+// ── 3. Moat Analysis ──
+app.post("/api/markets/ai-moat", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a Morningstar-style moat analyst. Return ONLY valid JSON:{"moatRating":"Wide|Narrow|None","moatScore":85,"sources":[{"type":"Network Effects","strength":"Strong|Moderate|Weak|None","evidence":"...","score":9},{"type":"Switching Costs","strength":"Strong","evidence":"...","score":8},{"type":"Cost Advantages","strength":"Moderate","evidence":"...","score":6},{"type":"Intangible Assets","strength":"Strong","evidence":"...","score":9},{"type":"Efficient Scale","strength":"Moderate","evidence":"...","score":7}],"moatTrend":"Stable|Widening|Narrowing","durability":"10+ years|5-10 years|2-5 years","threats":["threat1","threat2"],"summary":"2-3 sentence moat assessment"}`,
+      `Analyze competitive moat of ${symbol} (${name}). Price: $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Moat err:", err.message); res.json({ analysis: { moatRating: "N/A" } }); }
+});
+
+// ── 4. Management Scorecard ──
+app.post("/api/markets/ai-management", async (req, res) => {
+  try {
+    const { symbol, name } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a corporate governance analyst. Return ONLY valid JSON:{"overallGrade":"A|B|C|D|F","ceo":{"name":"...","tenure":"5 years","background":"Brief","rating":"A"},"capitalAllocation":{"grade":"B+","buybacks":"Aggressive","dividends":"Growing","rd":"High","ma":"Selective","debtManagement":"Conservative"},"execution":{"grade":"A","guidanceAccuracy":"Consistently beats","strategicVision":"Clear","operationalEfficiency":"Improving"},"compensation":{"grade":"B","ceoCompTotal":"$25M","payForPerformance":"Aligned","stockOwnership":"Significant"},"redFlags":[],"greenFlags":["flag1","flag2"],"summary":"2-3 sentence management assessment"}`,
+      `Evaluate management team of ${symbol} (${name}).`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Management err:", err.message); res.json({ analysis: { overallGrade: "N/A" } }); }
+});
+
+// ── 5. Bull vs Bear Debate ──
+app.post("/api/markets/ai-bull-bear", async (req, res) => {
+  try {
+    const { symbol, name, price, change } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are two analysts debating. Return ONLY valid JSON:{"bullCase":{"headline":"Why to Buy","arguments":[{"point":"...","evidence":"...","strength":9},{"point":"...","evidence":"...","strength":8},{"point":"...","evidence":"...","strength":7}],"priceTarget":220,"timeframe":"12 months","confidence":75},"bearCase":{"headline":"Why It Could Fall","arguments":[{"point":"...","evidence":"...","strength":8},{"point":"...","evidence":"...","strength":7},{"point":"...","evidence":"...","strength":6}],"priceTarget":120,"timeframe":"12 months","confidence":40},"verdict":"Lean Bullish|Lean Bearish|Balanced","keyQuestion":"The key question"}`,
+      `Bull vs bear debate for ${symbol} (${name}). Price: $${price}, Change: ${change}%.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Bull/Bear err:", err.message); res.json({ analysis: { verdict: "N/A" } }); }
+});
+
+// ── 6. Revenue Breakdown ──
+app.post("/api/markets/ai-revenue", async (req, res) => {
+  try {
+    const { symbol, name } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a financial analyst. Return ONLY valid JSON:{"totalRevenue":"$30B","revenueGrowth":"+122%","segments":[{"name":"Data Center","revenue":"$22.6B","percentage":75,"growth":"+279%","trend":"Accelerating"},{"name":"Gaming","revenue":"$2.9B","percentage":10,"growth":"+15%","trend":"Stable"}],"geographicBreakdown":[{"region":"US","percentage":45},{"region":"Asia","percentage":35},{"region":"Europe","percentage":15},{"region":"Other","percentage":5}],"topCustomers":["Customer1","Customer2"],"concentrationRisk":"High|Medium|Low","summary":"2-3 sentence revenue analysis"}`,
+      `Break down revenue segments for ${symbol} (${name}).`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Revenue err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// ── 7. Competitive Landscape ──
+app.post("/api/markets/ai-competitive", async (req, res) => {
+  try {
+    const { symbol, name } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are an industry analyst. Return ONLY valid JSON:{"marketPosition":"Leader|Challenger|Follower|Niche","marketShare":"80%","totalAddressableMarket":"$500B by 2028","competitors":[{"name":"AMD","ticker":"AMD","marketShare":"12%","threat":"High","advantage":"Price","weakness":"Ecosystem"},{"name":"Intel","ticker":"INTC","marketShare":"5%","threat":"Medium","advantage":"Vertical integration","weakness":"Execution"}],"competitiveAdvantages":["adv1","adv2"],"vulnerabilities":["vuln1"],"industryTrends":["trend1","trend2"],"summary":"2-3 sentence assessment"}`,
+      `Map competitive landscape for ${symbol} (${name}).`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Competitive err:", err.message); res.json({ analysis: { marketPosition: "N/A" } }); }
+});
+
+// ── 8. Financial Health Score ──
+app.post("/api/markets/ai-financial-health", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a credit analyst. Return ONLY valid JSON:{"overallScore":92,"grade":"A+|A|B+|B|C|D|F","altmanZScore":{"score":8.5,"interpretation":"Safe Zone"},"piotroskiFScore":{"score":8,"interpretation":"Strong"},"metrics":{"currentRatio":{"value":4.2,"status":"Excellent","benchmark":">2.0"},"debtToEquity":{"value":0.41,"status":"Good","benchmark":"<1.0"},"interestCoverage":{"value":58,"status":"Excellent","benchmark":">5.0"},"freeCashFlowYield":{"value":"3.2%","status":"Good","benchmark":">2%"},"returnOnEquity":{"value":"115%","status":"Excellent","benchmark":">15%"},"grossMargin":{"value":"73%","status":"Excellent","benchmark":">40%"},"operatingMargin":{"value":"62%","status":"Excellent","benchmark":">15%"},"netMargin":{"value":"55%","status":"Excellent","benchmark":">10%"}},"cashPosition":"$26B","totalDebt":"$11B","netCash":"$15B","summary":"2-3 sentence health assessment"}`,
+      `Evaluate financial health of ${symbol} (${name}). Price: $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Health err:", err.message); res.json({ analysis: { grade: "N/A" } }); }
+});
+
+// ── 9. Capital Allocation ──
+app.post("/api/markets/ai-capital-allocation", async (req, res) => {
+  try {
+    const { symbol, name } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a capital allocation analyst. Return ONLY valid JSON:{"grade":"A|B|C|D","totalCapitalDeployed":"$50B TTM","allocation":[{"category":"R&D","amount":"$8.7B","percentage":28,"trend":"Increasing","effectiveness":"High"},{"category":"Buybacks","amount":"$15B","percentage":30,"trend":"Aggressive","effectiveness":"Good"},{"category":"Dividends","amount":"$1B","percentage":2,"trend":"Growing","effectiveness":"Token"},{"category":"CapEx","amount":"$3B","percentage":6,"trend":"Increasing","effectiveness":"Necessary"},{"category":"M&A","amount":"$0","percentage":0,"trend":"None","effectiveness":"N/A"},{"category":"Debt Paydown","amount":"$2B","percentage":4,"trend":"Moderate","effectiveness":"Prudent"}],"roic":"85%","roicVsWacc":"75% spread","valueCreation":"Massive value creator","summary":"2-3 sentence assessment"}`,
+      `Analyze capital allocation for ${symbol} (${name}).`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("CapAlloc err:", err.message); res.json({ analysis: { grade: "N/A" } }); }
+});
+
+// ── 10. Guidance Tracker ──
+app.post("/api/markets/ai-guidance", async (req, res) => {
+  try {
+    const { symbol, name } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are an earnings analyst. Return ONLY valid JSON:{"currentGuidance":{"revenue":"$37.5B","eps":"$0.82","margin":"75%","period":"Q1 FY2026"},"guidanceHistory":[{"quarter":"Q4 FY2025","metricType":"Revenue","guided":"$37.5B","actual":"$39.3B","result":"Beat","surprise":"+4.8%"},{"quarter":"Q3 FY2025","metricType":"Revenue","guided":"$32.5B","actual":"$35.1B","result":"Beat","surprise":"+8.0%"}],"beatRate":"100%","avgSurprise":"+6.5%","managementCredibility":"Very High|High|Medium|Low","guidanceTrend":"Consistently raising|Stable|Lowering","nextEarningsDate":"May 28, 2025","summary":"2-3 sentence guidance assessment"}`,
+      `Track management guidance for ${symbol} (${name}).`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Guidance err:", err.message); res.json({ analysis: { managementCredibility: "N/A" } }); }
+});
+
+// ── 11. Industry Research ──
+app.post("/api/markets/ai-industry", async (req, res) => {
+  try {
+    const { symbol, name, industry } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are an industry research analyst. Return ONLY valid JSON:{"industryName":"AI Semiconductors","marketSize":"$150B","projectedSize":"$500B by 2030","cagr":"27%","stage":"Growth|Mature|Emerging|Declining","keyPlayers":[{"name":"NVIDIA","ticker":"NVDA","role":"Leader","share":"80%"}],"secularTrends":[{"trend":"AI adoption","impact":"High","timeline":"5-10 years"}],"risks":[{"risk":"Regulation","severity":"Medium","description":"..."}],"outlook":"Very Bullish|Bullish|Neutral|Bearish","summary":"3-4 sentence industry overview"}`,
+      `Industry research for ${symbol} (${name}). Industry: ${industry || "Technology"}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Industry err:", err.message); res.json({ analysis: { industryName: "N/A" } }); }
+});
+
+// ── 12. Sector Rotation ──
+app.post("/api/markets/ai-sector-rotation", async (req, res) => {
+  try {
+    const analysis = await callAI(
+      `You are a macro strategist. Return ONLY valid JSON:{"currentRegime":"Risk On|Risk Off|Rotation|Mixed","sectorRankings":[{"sector":"Technology","flow":"Inflow","strength":9,"trend":"Strong","etf":"XLK"},{"sector":"Healthcare","flow":"Inflow","strength":7,"trend":"Moderate","etf":"XLV"},{"sector":"Energy","flow":"Outflow","strength":3,"trend":"Weak","etf":"XLE"},{"sector":"Financials","flow":"Neutral","strength":5,"trend":"Stable","etf":"XLF"},{"sector":"Consumer Disc.","flow":"Outflow","strength":4,"trend":"Weakening","etf":"XLY"},{"sector":"Industrials","flow":"Inflow","strength":6,"trend":"Improving","etf":"XLI"},{"sector":"Utilities","flow":"Inflow","strength":7,"trend":"Defensive","etf":"XLU"},{"sector":"Real Estate","flow":"Neutral","strength":4,"trend":"Rate sensitive","etf":"XLRE"},{"sector":"Materials","flow":"Outflow","strength":3,"trend":"Weak","etf":"XLB"},{"sector":"Comm Services","flow":"Inflow","strength":8,"trend":"Strong","etf":"XLC"},{"sector":"Staples","flow":"Neutral","strength":5,"trend":"Defensive","etf":"XLP"}],"rotationSignal":"Description of current rotation","summary":"2-3 sentence assessment"}`,
+      `Analyze current sector rotation in US equities.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Sector Rotation err:", err.message); res.json({ analysis: { currentRegime: "N/A" } }); }
+});
+
+// ── 13. IPO Tracker ──
+app.post("/api/markets/ai-ipo-tracker", async (req, res) => {
+  try {
+    const analysis = await callAI(
+      `You are an IPO analyst. Return ONLY valid JSON:{"upcoming":[{"company":"...","ticker":"...","expectedDate":"Q2 2025","sector":"Technology","valuation":"$10B","description":"Brief"}],"recent":[{"company":"...","ticker":"...","ipoDate":"2025-01-15","ipoPrice":25,"currentPrice":35,"return":"+40%","sector":"Technology"}],"marketConditions":"Favorable|Neutral|Unfavorable","ipoWindow":"Open|Narrowing|Closed","summary":"2-3 sentence IPO assessment"}`,
+      `Analyze the current IPO market. List notable upcoming and recent IPOs.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("IPO err:", err.message); res.json({ analysis: { marketConditions: "N/A" } }); }
+});
+
+// ── 14. M&A Activity ──
+app.post("/api/markets/ai-ma-activity", async (req, res) => {
+  try {
+    const { symbol, name } = req.body;
+    const analysis = await callAI(
+      `You are an M&A analyst. Return ONLY valid JSON:{"recentDeals":[{"acquirer":"...","target":"...","value":"$5B","premium":"+30%","status":"Completed|Pending|Rumored","date":"2025-03-01","sector":"Technology","rationale":"Brief"}],"sectorActivity":"High|Medium|Low","avgPremium":"25%","trends":["trend1","trend2"],"potentialTargets":[{"company":"...","ticker":"...","reason":"..."}],"summary":"2-3 sentence M&A assessment"}`,
+      `Analyze M&A activity${symbol ? ` in ${symbol} (${name}) sector` : " across the market"}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("M&A err:", err.message); res.json({ analysis: { sectorActivity: "N/A" } }); }
+});
+
+// ── 15. Regulatory Monitor ──
+app.post("/api/markets/ai-regulatory", async (req, res) => {
+  try {
+    const { symbol, name } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a regulatory affairs analyst. Return ONLY valid JSON:{"riskLevel":"High|Medium|Low","activeIssues":[{"issue":"...","agency":"FTC|SEC|DOJ|EU|FDA","status":"Active|Pending|Resolved","impact":"High|Medium|Low","description":"...","timeline":"Q2 2025"}],"upcomingRegulations":[{"regulation":"...","impact":"...","effectiveDate":"..."}],"politicalRisks":["risk1"],"complianceCosts":"Significant|Moderate|Minimal","summary":"2-3 sentence regulatory assessment"}`,
+      `Analyze regulatory landscape for ${symbol} (${name}).`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Regulatory err:", err.message); res.json({ analysis: { riskLevel: "N/A" } }); }
+});
+
+// ── 16. Institutional Ownership ──
+app.post("/api/markets/ai-institutional", async (req, res) => {
+  try {
+    const { symbol, name } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are an institutional ownership analyst. Return ONLY valid JSON:{"institutionalOwnership":"68%","topHolders":[{"name":"Vanguard","shares":"195M","percentage":"8.0%","change":"+2M","changeType":"Increased"},{"name":"BlackRock","shares":"180M","percentage":"7.4%","change":"-5M","changeType":"Decreased"},{"name":"State Street","shares":"120M","percentage":"4.9%","change":"0","changeType":"Unchanged"},{"name":"Fidelity","shares":"95M","percentage":"3.9%","change":"+10M","changeType":"Increased"},{"name":"T. Rowe Price","shares":"60M","percentage":"2.5%","change":"+15M","changeType":"Increased"}],"recentChanges":{"netBuying":true,"buyersCount":450,"sellersCount":280,"netShares":"+50M"},"concentration":"Moderate|High|Low","smartMoneySignal":"Bullish|Bearish|Neutral","summary":"2-3 sentence assessment"}`,
+      `Analyze institutional ownership for ${symbol} (${name}).`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Institutional err:", err.message); res.json({ analysis: { smartMoneySignal: "N/A" } }); }
+});
+
+// ── 17. ETF Exposure ──
+app.post("/api/markets/ai-etf-exposure", async (req, res) => {
+  try {
+    const { symbol, name } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are an ETF analyst. Return ONLY valid JSON:{"totalETFsHolding":250,"totalETFOwnership":"15%","topETFs":[{"name":"SPDR S&P 500","ticker":"SPY","weight":"6.5%","shares":"45M","aum":"$500B"},{"name":"Invesco QQQ","ticker":"QQQ","weight":"8.2%","shares":"30M","aum":"$250B"},{"name":"Vanguard Total Stock","ticker":"VTI","weight":"4.1%","shares":"25M","aum":"$400B"},{"name":"iShares Semiconductor","ticker":"SOXX","weight":"12.5%","shares":"8M","aum":"$15B"},{"name":"VanEck Semiconductor","ticker":"SMH","weight":"20.1%","shares":"12M","aum":"$25B"}],"passiveFlowImpact":"High|Medium|Low","rebalanceRisk":"Significant|Moderate|Minimal","summary":"2-3 sentence ETF assessment"}`,
+      `Analyze ETF exposure for ${symbol} (${name}).`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("ETF err:", err.message); res.json({ analysis: { totalETFsHolding: 0 } }); }
+});
+
+// ── 18. Activist Investor Tracker ──
+app.post("/api/markets/ai-activist", async (req, res) => {
+  try {
+    const { symbol, name } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are an activist investor tracker. Return ONLY valid JSON:{"activeActivists":[{"investor":"...","stake":"5%","position":"New|Increased|Maintained","demands":["demand1"],"filingDate":"2025-01-15","outcome":"Ongoing|Settled|Won|Lost"}],"historicalActivism":[{"investor":"...","year":2023,"outcome":"...","stockImpact":"+15%"}],"activistRisk":"High|Medium|Low","vulnerabilities":["vulnerability1"],"summary":"2-3 sentence activist assessment"}`,
+      `Analyze activist investor activity for ${symbol} (${name}).`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Activist err:", err.message); res.json({ analysis: { activistRisk: "N/A" } }); }
+});
+
+// ── 19. Insider Pattern Analysis ──
+app.post("/api/markets/ai-insider-patterns", async (req, res) => {
+  try {
+    const { symbol, name } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are an insider trading pattern analyst. Return ONLY valid JSON:{"overallSignal":"Bullish|Bearish|Neutral|Mixed","patterns":[{"pattern":"Cluster Buying","detected":false,"description":"..."},{"pattern":"Unusual Size","detected":true,"description":"..."},{"pattern":"First-Time Purchase","detected":false,"description":"..."},{"pattern":"Pre-Earnings Activity","detected":false,"description":"..."},{"pattern":"10b5-1 Plan Changes","detected":true,"description":"..."}],"netActivity":{"last3Months":"Net Selling","last12Months":"Net Selling","buyCount":2,"sellCount":15,"netValue":"-$45M"},"notableTransactions":[{"insider":"...","title":"CEO","type":"Sale","amount":"$16M","date":"2025-02-15","significance":"Routine|Unusual|Notable"}],"summary":"2-3 sentence assessment"}`,
+      `Analyze insider trading patterns for ${symbol} (${name}).`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Insider Patterns err:", err.message); res.json({ analysis: { overallSignal: "N/A" } }); }
+});
+
+// ── 20. Short Interest Trends ──
+app.post("/api/markets/ai-short-interest", async (req, res) => {
+  try {
+    const { symbol, name } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a short interest analyst. Return ONLY valid JSON:{"currentShortInterest":{"sharesShort":"18M","percentOfFloat":"0.8%","daysToCover":1.2,"shortRatio":1.2,"costToBorrow":"0.3%"},"trend":"Decreasing|Increasing|Stable","trendData":[{"date":"2025-03-15","sharesShort":"18M","percentFloat":"0.8%"},{"date":"2025-02-28","sharesShort":"20M","percentFloat":"0.85%"},{"date":"2025-02-15","sharesShort":"22M","percentFloat":"0.9%"}],"squeezeRisk":"Low|Medium|High","signal":"Shorts covering|Shorts building|Stable","summary":"2-3 sentence assessment"}`,
+      `Analyze short interest trends for ${symbol} (${name}).`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Short Interest err:", err.message); res.json({ analysis: { signal: "N/A" } }); }
+});
+
+// ── 21. Earnings Replay ──
+app.post("/api/markets/ai-earnings-replay", async (req, res) => {
+  try {
+    const { symbol, name } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are an earnings analyst. Return ONLY valid JSON:{"quarter":"Q4 FY2025","date":"February 26, 2025","headline":"Massive beat driven by AI demand","revenue":{"actual":"$39.3B","estimate":"$38.1B","surprise":"+3.1%","yoyGrowth":"+78%"},"eps":{"actual":"$0.89","estimate":"$0.84","surprise":"+5.9%"},"segmentHighlights":[{"segment":"Data Center","revenue":"$35.6B","growth":"+93%","commentary":"..."}],"guidanceUpdate":{"nextQuarter":"$43B","vsConsensus":"Above","reaction":"Positive"},"keyQuotes":["CEO quote","CFO quote"],"stockReaction":{"afterHours":"+3.5%","nextDay":"+2.1%","oneWeekLater":"+5.0%"},"analystReactions":[{"firm":"Morgan Stanley","action":"Raised PT","comment":"..."}],"summary":"3-4 sentence recap"}`,
+      `Detailed earnings replay for most recent quarter of ${symbol} (${name}).`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Earnings Replay err:", err.message); res.json({ analysis: { quarter: "N/A" } }); }
+});
+
+// ── 22. Earnings Calendar ──
+app.post("/api/markets/ai-earnings-calendar", async (req, res) => {
+  try {
+    const { symbols } = req.body;
+    const analysis = await callAI(
+      `You are an earnings calendar tracker. Return ONLY valid JSON:{"upcoming":[{"symbol":"NVDA","name":"NVIDIA","date":"May 28, 2025","time":"After Close","epsEstimate":"$0.92","revenueEstimate":"$43.2B","beatStreak":8,"avgMove":"+5.2%"}],"thisWeek":[],"nextWeek":[],"summary":"Brief overview"}`,
+      `Earnings dates for: ${(symbols || ["NVDA","AAPL","MSFT","GOOGL","META","AMZN","TSLA"]).join(", ")}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Calendar err:", err.message); res.json({ analysis: { upcoming: [] } }); }
+});
+
+// ── 23. Estimate Revisions ──
+app.post("/api/markets/ai-estimate-revisions", async (req, res) => {
+  try {
+    const { symbol, name } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are an earnings estimate analyst. Return ONLY valid JSON:{"currentEstimates":{"currentQtrEPS":"$0.92","currentQtrRevenue":"$43.2B","nextQtrEPS":"$1.05","nextQtrRevenue":"$48B","currentYearEPS":"$3.80","nextYearEPS":"$4.50"},"revisionTrend":"Upward|Downward|Stable","revisions":[{"period":"Current Quarter","metric":"EPS","thirtyDaysAgo":"$0.88","current":"$0.92","change":"+4.5%","direction":"Up"},{"period":"Current Quarter","metric":"Revenue","thirtyDaysAgo":"$42B","current":"$43.2B","change":"+2.9%","direction":"Up"}],"analystChanges":{"upgrades":5,"downgrades":1,"initiations":2,"last30Days":"Net Positive"},"earningsMomentum":"Strong|Moderate|Weak|Negative","summary":"2-3 sentence assessment"}`,
+      `Analyze estimate revisions for ${symbol} (${name}).`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Estimate err:", err.message); res.json({ analysis: { revisionTrend: "N/A" } }); }
+});
+
+// ── 24. Cash Flow Waterfall ──
+app.post("/api/markets/ai-cashflow", async (req, res) => {
+  try {
+    const { symbol, name } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a cash flow analyst. Return ONLY valid JSON:{"period":"TTM","waterfall":[{"item":"Revenue","amount":"$130.5B","value":130500},{"item":"Cost of Revenue","amount":"-$35.2B","value":-35200},{"item":"Gross Profit","amount":"$95.3B","value":95300},{"item":"Operating Expenses","amount":"-$14.5B","value":-14500},{"item":"Operating Income","amount":"$80.8B","value":80800},{"item":"Taxes & Other","amount":"-$10.2B","value":-10200},{"item":"Net Income","amount":"$70.6B","value":70600},{"item":"D&A Add-back","amount":"+$3.5B","value":3500},{"item":"Working Capital","amount":"-$2.1B","value":-2100},{"item":"Operating Cash Flow","amount":"$72.0B","value":72000},{"item":"CapEx","amount":"-$3.2B","value":-3200},{"item":"Free Cash Flow","amount":"$68.8B","value":68800}],"fcfMargin":"52.7%","fcfYield":"1.7%","fcfPerShare":"$2.82","cashConversion":"97%","uses":[{"category":"Buybacks","amount":"$25B","percentage":36},{"category":"Dividends","amount":"$1B","percentage":1},{"category":"Debt Repayment","amount":"$2B","percentage":3},{"category":"Cash Accumulation","amount":"$40.8B","percentage":60}],"summary":"2-3 sentence assessment"}`,
+      `Analyze cash flow waterfall for ${symbol} (${name}).`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Cashflow err:", err.message); res.json({ analysis: { period: "N/A" } }); }
+});
+
+// ── 25. Margin Analysis ──
+app.post("/api/markets/ai-margins", async (req, res) => {
+  try {
+    const { symbol, name } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a margin analyst. Return ONLY valid JSON:{"currentMargins":{"gross":73.0,"operating":62.0,"net":55.0,"fcf":52.7},"marginTrend":"Expanding|Stable|Compressing","history":[{"quarter":"Q4 FY2025","gross":73.0,"operating":62.0,"net":55.0},{"quarter":"Q3 FY2025","gross":74.5,"operating":63.0,"net":56.0},{"quarter":"Q2 FY2025","gross":75.0,"operating":64.0,"net":57.0},{"quarter":"Q1 FY2025","gross":76.0,"operating":65.0,"net":58.0},{"quarter":"Q4 FY2024","gross":76.0,"operating":62.0,"net":55.0},{"quarter":"Q3 FY2024","gross":74.0,"operating":58.0,"net":50.0}],"peerComparison":[{"company":"AMD","gross":50.0,"operating":22.0,"net":18.0},{"company":"INTC","gross":41.0,"operating":1.0,"net":-5.0},{"company":"AVGO","gross":74.0,"operating":37.0,"net":30.0}],"drivers":["driver1","driver2"],"risks":["margin risk1"],"summary":"2-3 sentence assessment"}`,
+      `Analyze margin trends for ${symbol} (${name}).`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Margins err:", err.message); res.json({ analysis: { marginTrend: "N/A" } }); }
+});
+
+// ── 26. Deep Stock Comparison ──
+app.post("/api/markets/ai-deep-compare", async (req, res) => {
+  try {
+    const { symbols } = req.body;
+    if (!symbols || symbols.length < 2) return res.status(400).json({ error: "Need 2+ symbols" });
+    const analysis = await callAI(
+      `You are a comparative equity analyst. Return ONLY valid JSON:{"companies":[{"symbol":"NVDA","name":"NVIDIA","valuation":{"pe":35,"ps":20,"evEbitda":30,"pegRatio":1.2},"growth":{"revenueGrowth":"78%","epsGrowth":"85%","fcfGrowth":"90%"},"profitability":{"grossMargin":"73%","operatingMargin":"62%","roe":"115%"},"risk":{"beta":1.65,"debtToEquity":0.41,"shortInterest":"0.8%"},"score":92}],"winner":"NVDA","winnerReason":"Superior growth justifies premium","categories":[{"category":"Valuation","winner":"AMD","reason":"Lower P/E"},{"category":"Growth","winner":"NVDA","reason":"Faster growth"},{"category":"Profitability","winner":"NVDA","reason":"Higher margins"},{"category":"Risk","winner":"AMD","reason":"Lower beta"}],"summary":"3-4 sentence comparison"}`,
+      `Deep comparison: ${symbols.join(" vs ")}.`, 4000
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Compare err:", err.message); res.json({ analysis: { summary: "Unable to compare" } }); }
+});
+
+// ── 27. Research Note Suggestions ──
+app.post("/api/markets/ai-note-suggest", async (req, res) => {
+  try {
+    const { symbol, name, price, context } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a research assistant. Return ONLY valid JSON:{"suggestedNotes":[{"title":"Key Catalyst","content":"...","priority":"High"},{"title":"Earnings Setup","content":"...","priority":"Medium"},{"title":"Valuation Check","content":"...","priority":"Low"}],"keyDates":[{"date":"May 28, 2025","event":"Q1 Earnings","importance":"High"}],"watchItems":["item1","item2"]}`,
+      `Suggest research notes for ${symbol} (${name}) at $${price}. ${context || ""}`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Note err:", err.message); res.json({ analysis: { suggestedNotes: [] } }); }
+});
+
+// ── 28. Scenario Analysis ──
+app.post("/api/markets/ai-scenario", async (req, res) => {
+  try {
+    const { symbol, name, price, scenario } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a scenario analysis expert. Return ONLY valid JSON:{"baseCase":{"probability":50,"priceTarget":200,"upside":"+20%","assumptions":"Continued growth","revenueImpact":"+30%","marginImpact":"Stable"},"bullCase":{"probability":30,"priceTarget":280,"upside":"+68%","assumptions":"Acceleration","revenueImpact":"+50%","marginImpact":"Expand"},"bearCase":{"probability":20,"priceTarget":110,"downside":"-34%","assumptions":"Slowdown","revenueImpact":"-10%","marginImpact":"Compress"},"expectedValue":"$205","riskReward":"3.5:1","keyVariable":"AI spending trajectory","summary":"2-3 sentence analysis"}`,
+      `Scenario analysis for ${symbol} (${name}) at $${price}.${scenario ? " Scenario: " + scenario : ""}`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Scenario err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// ── 29. Quality Score ──
+app.post("/api/markets/ai-quality", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a quality factor analyst. Return ONLY valid JSON:{"qualityScore":94,"grade":"A+|A|B+|B|C|D|F","components":[{"factor":"Profitability","score":98,"metrics":{"roe":"115%","roic":"85%","grossMargin":"73%"},"assessment":"Elite"},{"factor":"Earnings Quality","score":90,"metrics":{"accrualRatio":"Low","cashConversion":"97%","earningsVolatility":"Moderate"},"assessment":"High quality"},{"factor":"Balance Sheet","score":95,"metrics":{"debtToEquity":"0.41","currentRatio":"4.2","interestCoverage":"58x"},"assessment":"Fortress"},{"factor":"Growth Consistency","score":88,"metrics":{"revenueCAGR5yr":"45%","epsCAGR5yr":"55%","missedQuarters":0},"assessment":"Exceptional"},{"factor":"Competitive Position","score":96,"metrics":{"marketShare":"80%","moat":"Wide","pricingPower":"Strong"},"assessment":"Dominant"},{"factor":"Management","score":92,"metrics":{"ceoTenure":"31 years","insiderOwnership":"3.2%","capitalAllocation":"A"},"assessment":"Founder-led"}],"percentileRank":"Top 2% of S&P 500","comparableScores":[{"symbol":"AAPL","score":91},{"symbol":"MSFT","score":93},{"symbol":"GOOGL","score":88}],"summary":"2-3 sentence quality assessment"}`,
+      `Quality score for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Quality err:", err.message); res.json({ analysis: { qualityScore: 0, grade: "N/A" } }); }
+});
+
+// ── 30. Watchlist Alerts ──
+app.post("/api/markets/ai-alerts", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a research alert system. Suggest fundamental alerts (NOT price alerts). Return ONLY valid JSON:{"suggestedAlerts":[{"type":"Valuation","condition":"P/E drops below 30","currentValue":"35","threshold":"30","rationale":"Better entry","priority":"High"},{"type":"Insider","condition":"Insider buying detected","currentValue":"Net selling","threshold":"Any purchase","rationale":"Bullish signal","priority":"High"},{"type":"Earnings","condition":"Earnings miss","currentValue":"8 consecutive beats","threshold":"Any miss","rationale":"Breaks streak","priority":"Medium"},{"type":"Margin","condition":"Gross margin below 70%","currentValue":"73%","threshold":"70%","rationale":"Competitive pressure","priority":"Medium"},{"type":"Growth","condition":"Revenue growth below 30%","currentValue":"78%","threshold":"30%","rationale":"Changes thesis","priority":"High"}],"activeFlags":[{"flag":"Short interest declining","significance":"Bullish"}],"summary":"Key alerts for this stock"}`,
+      `Suggest fundamental alerts for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Alerts err:", err.message); res.json({ analysis: { suggestedAlerts: [] } }); }
+});
+
 // ── Serve static files from dist/ ──
 app.use(express.static(path.join(__dirname, "dist")));
 

@@ -19,6 +19,18 @@ import {
 import OptionsFlow from "../components/OptionsFlow";
 import ShareCard from "../components/ShareCard";
 import { useWatchlist } from "../data/WatchlistContext";
+import {
+  ThesisTab, ValuationTab, MoatTab, ManagementTab, BullBearTab,
+  RevenueTab, CompetitiveTab, FinancialHealthTab, CapitalAllocationTab, GuidanceTab,
+} from "../components/ResearchTabs";
+import {
+  IndustryTab, SectorRotationTab, IPOTab, MATab, RegulatoryTab,
+  InstitutionalTab, ETFExposureTab, ActivistTab, InsiderPatternsTab, ShortInterestTab,
+} from "../components/ResearchTabs2";
+import {
+  EarningsReplayTab, EarningsCalendarTab, EstimateRevisionsTab, CashFlowTab, MarginsTab,
+  ScenarioTab, QualityTab, AlertsTab, ResearchNotesTab, DeepCompareTab,
+} from "../components/ResearchTabs3";
 
 type SectionKey =
   | "attention-trigger" | "what-moved" | "industry-chain" | "leverage-point"
@@ -42,7 +54,13 @@ const SECTIONS: { key: SectionKey; title: string; step: number }[] = [
   { key: "evidence", title: "Evidence & Sources", step: 14 },
 ];
 
-type TabKey = "chart" | "fundamentals" | "news" | "options" | "analysis" | "insiders" | "analyst" | "risk" | "dividends" | "peers";
+type TabKey = "chart" | "fundamentals" | "news" | "options" | "analysis" | "insiders" | "analyst" | "risk" | "dividends" | "peers"
+  | "thesis" | "valuation" | "moat" | "management" | "bullbear"
+  | "revenue" | "competitive" | "health" | "capital" | "guidance"
+  | "industry" | "sectors" | "ipo" | "ma" | "regulatory"
+  | "institutional" | "etf" | "activist" | "insiderpatterns" | "shortinterest"
+  | "earningsreplay" | "earningscalendar" | "estimates" | "cashflow" | "margins"
+  | "deepcompare" | "notes" | "scenario" | "quality" | "alerts";
 
 export default function TickerAnalysis() {
   const { symbol } = useParams<{ symbol: string }>();
@@ -164,18 +182,63 @@ export default function TickerAnalysis() {
   const isUp = pct >= 0;
   const tvSymbol = quote.exchange?.includes("NASDAQ") ? `NASDAQ:${quote.symbol}` : quote.exchange?.includes("NYSE") ? `NYSE:${quote.symbol}` : quote.symbol;
 
-  const TABS: { key: TabKey; label: string }[] = [
-    { key: "chart", label: "CHART" },
-    { key: "fundamentals", label: "FUNDAMENTALS" },
-    { key: "analyst", label: "ANALYST" },
-    { key: "insiders", label: "INSIDERS" },
-    { key: "risk", label: "RISK" },
-    { key: "dividends", label: "DIVIDENDS" },
-    { key: "peers", label: "PEERS" },
-    { key: "news", label: "NEWS" },
-    { key: "options", label: "OPTIONS" },
-    { key: "analysis", label: "AI PIPELINE" },
+  const TAB_GROUPS: { group: string; tabs: { key: TabKey; label: string }[] }[] = [
+    { group: "OVERVIEW", tabs: [
+      { key: "chart", label: "CHART" },
+      { key: "fundamentals", label: "FUNDAMENTALS" },
+      { key: "news", label: "NEWS" },
+      { key: "options", label: "OPTIONS" },
+    ]},
+    { group: "COMPANY", tabs: [
+      { key: "thesis", label: "THESIS" },
+      { key: "valuation", label: "VALUATION" },
+      { key: "moat", label: "MOAT" },
+      { key: "management", label: "MGMT" },
+      { key: "bullbear", label: "BULL/BEAR" },
+      { key: "revenue", label: "REVENUE" },
+      { key: "competitive", label: "COMPETITIVE" },
+      { key: "health", label: "FIN. HEALTH" },
+      { key: "capital", label: "CAPITAL" },
+      { key: "guidance", label: "GUIDANCE" },
+    ]},
+    { group: "MARKET", tabs: [
+      { key: "industry", label: "INDUSTRY" },
+      { key: "sectors", label: "SECTORS" },
+      { key: "ipo", label: "IPO" },
+      { key: "ma", label: "M&A" },
+      { key: "regulatory", label: "REGULATORY" },
+    ]},
+    { group: "OWNERSHIP", tabs: [
+      { key: "institutional", label: "INST. OWNERS" },
+      { key: "etf", label: "ETF MAP" },
+      { key: "activist", label: "ACTIVIST" },
+      { key: "insiderpatterns", label: "INSIDER PAT." },
+      { key: "shortinterest", label: "SHORT INT." },
+      { key: "insiders", label: "INSIDERS" },
+    ]},
+    { group: "EARNINGS", tabs: [
+      { key: "earningsreplay", label: "REPLAY" },
+      { key: "earningscalendar", label: "CALENDAR" },
+      { key: "estimates", label: "ESTIMATES" },
+      { key: "cashflow", label: "CASH FLOW" },
+      { key: "margins", label: "MARGINS" },
+    ]},
+    { group: "RESEARCH", tabs: [
+      { key: "analyst", label: "ANALYST" },
+      { key: "risk", label: "RISK" },
+      { key: "dividends", label: "DIVIDENDS" },
+      { key: "peers", label: "PEERS" },
+      { key: "deepcompare", label: "COMPARE" },
+      { key: "scenario", label: "SCENARIO" },
+      { key: "quality", label: "QUALITY" },
+      { key: "alerts", label: "ALERTS" },
+      { key: "notes", label: "NOTES" },
+    ]},
+    { group: "AI", tabs: [
+      { key: "analysis", label: "AI PIPELINE" },
+    ]},
   ];
+  const TABS = TAB_GROUPS.flatMap(g => g.tabs);
 
   return (
     <div className="min-h-screen bg-[#060606] text-white">
@@ -225,19 +288,25 @@ export default function TickerAnalysis() {
           </div>
 
           {/* Tab Navigation */}
-          <div className="flex gap-1 mt-3 -mb-[1px] overflow-x-auto scrollbar-hide">
-            {TABS.map(({ key, label }) => (
-              <button
-                key={key}
-                onClick={() => setActiveTab(key)}
-                className={`px-3 py-2 text-[10px] font-mono tracking-wider rounded-t-lg transition-all whitespace-nowrap ${
-                  activeTab === key
-                    ? "bg-white/[0.06] text-white border border-white/[0.1] border-b-transparent"
-                    : "text-white/25 hover:text-white/50 hover:bg-white/[0.02]"
-                }`}
-              >
-                {label}
-              </button>
+          <div className="flex gap-0.5 mt-3 -mb-[1px] overflow-x-auto scrollbar-hide items-end">
+            {TAB_GROUPS.map(({ group, tabs }) => (
+              <div key={group} className="flex items-end gap-0.5">
+                <span className="text-[8px] font-mono text-white/10 tracking-widest px-1 pb-2 select-none">{group}</span>
+                {tabs.map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => setActiveTab(key)}
+                    className={`px-2.5 py-1.5 text-[9px] font-mono tracking-wider rounded-t-lg transition-all whitespace-nowrap ${
+                      activeTab === key
+                        ? "bg-white/[0.06] text-white border border-white/[0.1] border-b-transparent"
+                        : "text-white/25 hover:text-white/50 hover:bg-white/[0.02]"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+                <div className="w-px h-4 bg-white/[0.06] mx-1 mb-1" />
+              </div>
             ))}
           </div>
         </div>
@@ -797,6 +866,96 @@ export default function TickerAnalysis() {
             ))}
           </div>
         )}
+
+        {/* ═══ THESIS TAB ═══ */}
+        {activeTab === "thesis" && <ThesisTab symbol={quote.symbol} name={quote.name} price={quote.price} change={quote.change || 0} />}
+
+        {/* ═══ VALUATION TAB ═══ */}
+        {activeTab === "valuation" && <ValuationTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+
+        {/* ═══ MOAT TAB ═══ */}
+        {activeTab === "moat" && <MoatTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+
+        {/* ═══ MANAGEMENT TAB ═══ */}
+        {activeTab === "management" && <ManagementTab symbol={quote.symbol} name={quote.name} />}
+
+        {/* ═══ BULL/BEAR TAB ═══ */}
+        {activeTab === "bullbear" && <BullBearTab symbol={quote.symbol} name={quote.name} price={quote.price} change={quote.change || 0} />}
+
+        {/* ═══ REVENUE TAB ═══ */}
+        {activeTab === "revenue" && <RevenueTab symbol={quote.symbol} name={quote.name} />}
+
+        {/* ═══ COMPETITIVE TAB ═══ */}
+        {activeTab === "competitive" && <CompetitiveTab symbol={quote.symbol} name={quote.name} />}
+
+        {/* ═══ FINANCIAL HEALTH TAB ═══ */}
+        {activeTab === "health" && <FinancialHealthTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+
+        {/* ═══ CAPITAL ALLOCATION TAB ═══ */}
+        {activeTab === "capital" && <CapitalAllocationTab symbol={quote.symbol} name={quote.name} />}
+
+        {/* ═══ GUIDANCE TAB ═══ */}
+        {activeTab === "guidance" && <GuidanceTab symbol={quote.symbol} name={quote.name} />}
+
+        {/* ═══ INDUSTRY TAB ═══ */}
+        {activeTab === "industry" && <IndustryTab symbol={quote.symbol} name={quote.name} />}
+
+        {/* ═══ SECTOR ROTATION TAB ═══ */}
+        {activeTab === "sectors" && <SectorRotationTab />}
+
+        {/* ═══ IPO TAB ═══ */}
+        {activeTab === "ipo" && <IPOTab />}
+
+        {/* ═══ M&A TAB ═══ */}
+        {activeTab === "ma" && <MATab symbol={quote.symbol} name={quote.name} />}
+
+        {/* ═══ REGULATORY TAB ═══ */}
+        {activeTab === "regulatory" && <RegulatoryTab symbol={quote.symbol} name={quote.name} />}
+
+        {/* ═══ INSTITUTIONAL TAB ═══ */}
+        {activeTab === "institutional" && <InstitutionalTab symbol={quote.symbol} name={quote.name} />}
+
+        {/* ═══ ETF EXPOSURE TAB ═══ */}
+        {activeTab === "etf" && <ETFExposureTab symbol={quote.symbol} name={quote.name} />}
+
+        {/* ═══ ACTIVIST TAB ═══ */}
+        {activeTab === "activist" && <ActivistTab symbol={quote.symbol} name={quote.name} />}
+
+        {/* ═══ INSIDER PATTERNS TAB ═══ */}
+        {activeTab === "insiderpatterns" && <InsiderPatternsTab symbol={quote.symbol} name={quote.name} />}
+
+        {/* ═══ SHORT INTEREST TAB ═══ */}
+        {activeTab === "shortinterest" && <ShortInterestTab symbol={quote.symbol} name={quote.name} />}
+
+        {/* ═══ EARNINGS REPLAY TAB ═══ */}
+        {activeTab === "earningsreplay" && <EarningsReplayTab symbol={quote.symbol} name={quote.name} />}
+
+        {/* ═══ EARNINGS CALENDAR TAB ═══ */}
+        {activeTab === "earningscalendar" && <EarningsCalendarTab />}
+
+        {/* ═══ ESTIMATE REVISIONS TAB ═══ */}
+        {activeTab === "estimates" && <EstimateRevisionsTab symbol={quote.symbol} name={quote.name} />}
+
+        {/* ═══ CASH FLOW TAB ═══ */}
+        {activeTab === "cashflow" && <CashFlowTab symbol={quote.symbol} name={quote.name} />}
+
+        {/* ═══ MARGINS TAB ═══ */}
+        {activeTab === "margins" && <MarginsTab symbol={quote.symbol} name={quote.name} />}
+
+        {/* ═══ DEEP COMPARE TAB ═══ */}
+        {activeTab === "deepcompare" && <DeepCompareTab symbol={quote.symbol} name={quote.name} />}
+
+        {/* ═══ SCENARIO TAB ═══ */}
+        {activeTab === "scenario" && <ScenarioTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+
+        {/* ═══ QUALITY TAB ═══ */}
+        {activeTab === "quality" && <QualityTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+
+        {/* ═══ ALERTS TAB ═══ */}
+        {activeTab === "alerts" && <AlertsTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+
+        {/* ═══ RESEARCH NOTES TAB ═══ */}
+        {activeTab === "notes" && <ResearchNotesTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
 
         <div className="text-center mt-12 pb-6">
           <p className="text-[10px] text-white/10 font-mono tracking-wider">

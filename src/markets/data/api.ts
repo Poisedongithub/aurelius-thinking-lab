@@ -704,3 +704,339 @@ export async function fetchRiskAnalysis(symbol: string, name: string, price: num
     return null;
   }
 }
+
+// ══════════════════════════════════════════════════════════════
+// 30 NEW RESEARCH & ANALYSIS API FUNCTIONS
+// ══════════════════════════════════════════════════════════════
+
+// Helper for AI POST calls
+async function aiPost<T>(endpoint: string, body: Record<string, unknown>): Promise<T | null> {
+  try {
+    const res = await fetch(`${API_BASE}/${endpoint}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error("Failed");
+    const data = await res.json();
+    return data.analysis as T;
+  } catch { return null; }
+}
+
+// 1. Thesis Builder
+export interface ThesisAnalysis {
+  bullCase: string; bearCase: string; catalysts: string[]; risks: string[];
+  keyMetrics: string[]; conviction: string; timeHorizon: string;
+  priceTarget: number; summary: string; whatChangesThesis: string;
+}
+export const fetchThesis = (s: string, n: string, p: number, c: number, t?: string) =>
+  aiPost<ThesisAnalysis>("ai-thesis", { symbol: s, name: n, price: p, change: c, existingThesis: t });
+
+// 2. Valuation Models
+export interface ValuationAnalysis {
+  dcf: { fairValue: number; upside: string; assumptions: Record<string, string>; sensitivity: Array<{ wacc: string; value: number }> };
+  comparables: Record<string, { current: number; sectorAvg: number; verdict: string }>;
+  historicalValuation: { fiveYrAvgPE: number; currentVsAvg: string; percentileRank: string };
+  verdict: string; summary: string;
+}
+export const fetchValuation = (s: string, n: string, p: number, mc?: string) =>
+  aiPost<ValuationAnalysis>("ai-valuation", { symbol: s, name: n, price: p, marketCap: mc });
+
+// 3. Moat Analysis
+export interface MoatSource { type: string; strength: string; evidence: string; score: number; }
+export interface MoatAnalysis {
+  moatRating: string; moatScore: number; sources: MoatSource[];
+  moatTrend: string; durability: string; threats: string[]; summary: string;
+}
+export const fetchMoat = (s: string, n: string, p: number) =>
+  aiPost<MoatAnalysis>("ai-moat", { symbol: s, name: n, price: p });
+
+// 4. Management Scorecard
+export interface ManagementAnalysis {
+  overallGrade: string;
+  ceo: { name: string; tenure: string; background: string; rating: string };
+  capitalAllocation: Record<string, string>;
+  execution: Record<string, string>;
+  compensation: Record<string, string>;
+  redFlags: string[]; greenFlags: string[]; summary: string;
+}
+export const fetchManagement = (s: string, n: string) =>
+  aiPost<ManagementAnalysis>("ai-management", { symbol: s, name: n });
+
+// 5. Bull vs Bear
+export interface BullBearArgument { point: string; evidence: string; strength: number; }
+export interface BullBearAnalysis {
+  bullCase: { headline: string; arguments: BullBearArgument[]; priceTarget: number; timeframe: string; confidence: number };
+  bearCase: { headline: string; arguments: BullBearArgument[]; priceTarget: number; timeframe: string; confidence: number };
+  verdict: string; keyQuestion: string;
+}
+export const fetchBullBear = (s: string, n: string, p: number, c: number) =>
+  aiPost<BullBearAnalysis>("ai-bull-bear", { symbol: s, name: n, price: p, change: c });
+
+// 6. Revenue Breakdown
+export interface RevenueSegment { name: string; revenue: string; percentage: number; growth: string; trend: string; }
+export interface RevenueAnalysis {
+  totalRevenue: string; revenueGrowth: string; segments: RevenueSegment[];
+  geographicBreakdown: Array<{ region: string; percentage: number }>;
+  topCustomers: string[]; concentrationRisk: string; summary: string;
+}
+export const fetchRevenue = (s: string, n: string) =>
+  aiPost<RevenueAnalysis>("ai-revenue", { symbol: s, name: n });
+
+// 7. Competitive Landscape
+export interface Competitor { name: string; ticker: string; marketShare: string; threat: string; advantage: string; weakness: string; }
+export interface CompetitiveAnalysis {
+  marketPosition: string; marketShare: string; totalAddressableMarket: string;
+  competitors: Competitor[]; competitiveAdvantages: string[];
+  vulnerabilities: string[]; industryTrends: string[]; summary: string;
+}
+export const fetchCompetitive = (s: string, n: string) =>
+  aiPost<CompetitiveAnalysis>("ai-competitive", { symbol: s, name: n });
+
+// 8. Financial Health
+export interface HealthMetric { value: number | string; status: string; benchmark: string; }
+export interface FinancialHealthAnalysis {
+  overallScore: number; grade: string;
+  altmanZScore: { score: number; interpretation: string };
+  piotroskiFScore: { score: number; interpretation: string };
+  metrics: Record<string, HealthMetric>;
+  cashPosition: string; totalDebt: string; netCash: string; summary: string;
+}
+export const fetchFinancialHealth = (s: string, n: string, p: number) =>
+  aiPost<FinancialHealthAnalysis>("ai-financial-health", { symbol: s, name: n, price: p });
+
+// 9. Capital Allocation
+export interface AllocationItem { category: string; amount: string; percentage: number; trend: string; effectiveness: string; }
+export interface CapitalAllocationAnalysis {
+  grade: string; totalCapitalDeployed: string; allocation: AllocationItem[];
+  roic: string; roicVsWacc: string; valueCreation: string; summary: string;
+}
+export const fetchCapitalAllocation = (s: string, n: string) =>
+  aiPost<CapitalAllocationAnalysis>("ai-capital-allocation", { symbol: s, name: n });
+
+// 10. Guidance Tracker
+export interface GuidanceRecord { quarter: string; metricType: string; guided: string; actual: string; result: string; surprise: string; }
+export interface GuidanceAnalysis {
+  currentGuidance: Record<string, string>;
+  guidanceHistory: GuidanceRecord[];
+  beatRate: string; avgSurprise: string; managementCredibility: string;
+  guidanceTrend: string; nextEarningsDate: string; summary: string;
+}
+export const fetchGuidance = (s: string, n: string) =>
+  aiPost<GuidanceAnalysis>("ai-guidance", { symbol: s, name: n });
+
+// 11. Industry Research
+export interface IndustryPlayer { name: string; ticker: string; role: string; share: string; }
+export interface IndustryAnalysis {
+  industryName: string; marketSize: string; projectedSize: string; cagr: string; stage: string;
+  keyPlayers: IndustryPlayer[];
+  secularTrends: Array<{ trend: string; impact: string; timeline: string }>;
+  risks: Array<{ risk: string; severity: string; description: string }>;
+  outlook: string; summary: string;
+}
+export const fetchIndustry = (s: string, n: string, ind?: string) =>
+  aiPost<IndustryAnalysis>("ai-industry", { symbol: s, name: n, industry: ind });
+
+// 12. Sector Rotation
+export interface SectorRanking { sector: string; flow: string; strength: number; trend: string; etf: string; }
+export interface SectorRotationAnalysis {
+  currentRegime: string; sectorRankings: SectorRanking[];
+  rotationSignal: string; summary: string;
+}
+export const fetchSectorRotation = () =>
+  aiPost<SectorRotationAnalysis>("ai-sector-rotation", {});
+
+// 13. IPO Tracker
+export interface IPOEntry { company: string; ticker: string; expectedDate?: string; ipoDate?: string; sector: string; valuation?: string; ipoPrice?: number; currentPrice?: number; return?: string; description?: string; }
+export interface IPOAnalysis {
+  upcoming: IPOEntry[]; recent: IPOEntry[];
+  marketConditions: string; ipoWindow: string; summary: string;
+}
+export const fetchIPOTracker = () =>
+  aiPost<IPOAnalysis>("ai-ipo-tracker", {});
+
+// 14. M&A Activity
+export interface MADeal { acquirer: string; target: string; value: string; premium: string; status: string; date: string; sector: string; rationale: string; }
+export interface MAAnalysis {
+  recentDeals: MADeal[]; sectorActivity: string; avgPremium: string;
+  trends: string[]; potentialTargets: Array<{ company: string; ticker: string; reason: string }>;
+  summary: string;
+}
+export const fetchMAActivity = (s?: string, n?: string) =>
+  aiPost<MAAnalysis>("ai-ma-activity", { symbol: s, name: n });
+
+// 15. Regulatory Monitor
+export interface RegulatoryIssue { issue: string; agency: string; status: string; impact: string; description: string; timeline: string; }
+export interface RegulatoryAnalysis {
+  riskLevel: string; activeIssues: RegulatoryIssue[];
+  upcomingRegulations: Array<{ regulation: string; impact: string; effectiveDate: string }>;
+  politicalRisks: string[]; complianceCosts: string; summary: string;
+}
+export const fetchRegulatory = (s: string, n: string) =>
+  aiPost<RegulatoryAnalysis>("ai-regulatory", { symbol: s, name: n });
+
+// 16. Institutional Ownership
+export interface InstitutionalHolder { name: string; shares: string; percentage: string; change: string; changeType: string; }
+export interface InstitutionalAnalysis {
+  institutionalOwnership: string; topHolders: InstitutionalHolder[];
+  recentChanges: { netBuying: boolean; buyersCount: number; sellersCount: number; netShares: string };
+  concentration: string; smartMoneySignal: string; summary: string;
+}
+export const fetchInstitutional = (s: string, n: string) =>
+  aiPost<InstitutionalAnalysis>("ai-institutional", { symbol: s, name: n });
+
+// 17. ETF Exposure
+export interface ETFHolding { name: string; ticker: string; weight: string; shares: string; aum: string; }
+export interface ETFExposureAnalysis {
+  totalETFsHolding: number; totalETFOwnership: string; topETFs: ETFHolding[];
+  passiveFlowImpact: string; rebalanceRisk: string; summary: string;
+}
+export const fetchETFExposure = (s: string, n: string) =>
+  aiPost<ETFExposureAnalysis>("ai-etf-exposure", { symbol: s, name: n });
+
+// 18. Activist Tracker
+export interface ActivistEntry { investor: string; stake: string; position: string; demands: string[]; filingDate: string; outcome: string; }
+export interface ActivistAnalysis {
+  activeActivists: ActivistEntry[];
+  historicalActivism: Array<{ investor: string; year: number; outcome: string; stockImpact: string }>;
+  activistRisk: string; vulnerabilities: string[]; summary: string;
+}
+export const fetchActivist = (s: string, n: string) =>
+  aiPost<ActivistAnalysis>("ai-activist", { symbol: s, name: n });
+
+// 19. Insider Patterns
+export interface InsiderPattern { pattern: string; detected: boolean; description: string; }
+export interface InsiderTransaction { insider: string; title: string; type: string; amount: string; date: string; significance: string; }
+export interface InsiderPatternsAnalysis {
+  overallSignal: string; patterns: InsiderPattern[];
+  netActivity: { last3Months: string; last12Months: string; buyCount: number; sellCount: number; netValue: string };
+  notableTransactions: InsiderTransaction[]; summary: string;
+}
+export const fetchInsiderPatterns = (s: string, n: string) =>
+  aiPost<InsiderPatternsAnalysis>("ai-insider-patterns", { symbol: s, name: n });
+
+// 20. Short Interest
+export interface ShortInterestAnalysis {
+  currentShortInterest: { sharesShort: string; percentOfFloat: string; daysToCover: number; shortRatio: number; costToBorrow: string };
+  trend: string;
+  trendData: Array<{ date: string; sharesShort: string; percentFloat: string }>;
+  squeezeRisk: string; signal: string; summary: string;
+}
+export const fetchShortInterest = (s: string, n: string) =>
+  aiPost<ShortInterestAnalysis>("ai-short-interest", { symbol: s, name: n });
+
+// 21. Earnings Replay
+export interface EarningsReplayAnalysis {
+  quarter: string; date: string; headline: string;
+  revenue: { actual: string; estimate: string; surprise: string; yoyGrowth: string };
+  eps: { actual: string; estimate: string; surprise: string };
+  segmentHighlights: Array<{ segment: string; revenue: string; growth: string; commentary: string }>;
+  guidanceUpdate: { nextQuarter: string; vsConsensus: string; reaction: string };
+  keyQuotes: string[];
+  stockReaction: { afterHours: string; nextDay: string; oneWeekLater: string };
+  analystReactions: Array<{ firm: string; action: string; comment: string }>;
+  summary: string;
+}
+export const fetchEarningsReplay = (s: string, n: string) =>
+  aiPost<EarningsReplayAnalysis>("ai-earnings-replay", { symbol: s, name: n });
+
+// 22. Earnings Calendar
+export interface EarningsCalendarEntry { symbol: string; name: string; date: string; time: string; epsEstimate: string; revenueEstimate: string; beatStreak: number; avgMove: string; }
+export interface EarningsCalendarAnalysis {
+  upcoming: EarningsCalendarEntry[]; thisWeek: EarningsCalendarEntry[];
+  nextWeek: EarningsCalendarEntry[]; summary: string;
+}
+export const fetchEarningsCalendar = (symbols?: string[]) =>
+  aiPost<EarningsCalendarAnalysis>("ai-earnings-calendar", { symbols });
+
+// 23. Estimate Revisions
+export interface EstimateRevision { period: string; metric: string; thirtyDaysAgo: string; current: string; change: string; direction: string; }
+export interface EstimateRevisionsAnalysis {
+  currentEstimates: Record<string, string>; revisionTrend: string;
+  revisions: EstimateRevision[];
+  analystChanges: { upgrades: number; downgrades: number; initiations: number; last30Days: string };
+  earningsMomentum: string; summary: string;
+}
+export const fetchEstimateRevisions = (s: string, n: string) =>
+  aiPost<EstimateRevisionsAnalysis>("ai-estimate-revisions", { symbol: s, name: n });
+
+// 24. Cash Flow Waterfall
+export interface WaterfallItem { item: string; amount: string; value: number; }
+export interface CashFlowAnalysis {
+  period: string; waterfall: WaterfallItem[];
+  fcfMargin: string; fcfYield: string; fcfPerShare: string; cashConversion: string;
+  uses: Array<{ category: string; amount: string; percentage: number }>;
+  summary: string;
+}
+export const fetchCashFlow = (s: string, n: string) =>
+  aiPost<CashFlowAnalysis>("ai-cashflow", { symbol: s, name: n });
+
+// 25. Margin Analysis
+export interface MarginHistory { quarter: string; gross: number; operating: number; net: number; }
+export interface MarginPeer { company: string; gross: number; operating: number; net: number; }
+export interface MarginAnalysis {
+  currentMargins: { gross: number; operating: number; net: number; fcf: number };
+  marginTrend: string; history: MarginHistory[];
+  peerComparison: MarginPeer[];
+  drivers: string[]; risks: string[]; summary: string;
+}
+export const fetchMargins = (s: string, n: string) =>
+  aiPost<MarginAnalysis>("ai-margins", { symbol: s, name: n });
+
+// 26. Deep Comparison
+export interface CompanyScore {
+  symbol: string; name: string;
+  valuation: Record<string, number>;
+  growth: Record<string, string>;
+  profitability: Record<string, string>;
+  risk: Record<string, number | string>;
+  score: number;
+}
+export interface DeepCompareAnalysis {
+  companies: CompanyScore[];
+  winner: string; winnerReason: string;
+  categories: Array<{ category: string; winner: string; reason: string }>;
+  summary: string;
+}
+export const fetchDeepCompare = (symbols: string[]) =>
+  aiPost<DeepCompareAnalysis>("ai-deep-compare", { symbols });
+
+// 27. Note Suggestions
+export interface NoteSuggestion { title: string; content: string; priority: string; }
+export interface NoteSuggestAnalysis {
+  suggestedNotes: NoteSuggestion[];
+  keyDates: Array<{ date: string; event: string; importance: string }>;
+  watchItems: string[];
+}
+export const fetchNoteSuggestions = (s: string, n: string, p: number, ctx?: string) =>
+  aiPost<NoteSuggestAnalysis>("ai-note-suggest", { symbol: s, name: n, price: p, context: ctx });
+
+// 28. Scenario Analysis
+export interface ScenarioCase { probability: number; priceTarget: number; upside?: string; downside?: string; assumptions: string; revenueImpact: string; marginImpact: string; }
+export interface ScenarioAnalysis {
+  baseCase: ScenarioCase; bullCase: ScenarioCase; bearCase: ScenarioCase;
+  expectedValue: string; riskReward: string; keyVariable: string; summary: string;
+}
+export const fetchScenario = (s: string, n: string, p: number, sc?: string) =>
+  aiPost<ScenarioAnalysis>("ai-scenario", { symbol: s, name: n, price: p, scenario: sc });
+
+// 29. Quality Score
+export interface QualityComponent { factor: string; score: number; metrics: Record<string, string>; assessment: string; }
+export interface QualityAnalysis {
+  qualityScore: number; grade: string; components: QualityComponent[];
+  percentileRank: string;
+  comparableScores: Array<{ symbol: string; score: number }>;
+  summary: string;
+}
+export const fetchQuality = (s: string, n: string, p: number) =>
+  aiPost<QualityAnalysis>("ai-quality", { symbol: s, name: n, price: p });
+
+// 30. Watchlist Alerts
+export interface SuggestedAlert { type: string; condition: string; currentValue: string; threshold: string; rationale: string; priority: string; }
+export interface AlertsAnalysis {
+  suggestedAlerts: SuggestedAlert[];
+  activeFlags: Array<{ flag: string; significance: string }>;
+  summary: string;
+}
+export const fetchAlerts = (s: string, n: string, p: number) =>
+  aiPost<AlertsAnalysis>("ai-alerts", { symbol: s, name: n, price: p });
