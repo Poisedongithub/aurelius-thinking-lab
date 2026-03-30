@@ -167,12 +167,12 @@ export default function PriceChart({ symbol, currentPrice, change }: PriceChartP
     : change;
 
   return (
-    <div className="bg-[#0a0a0a] border border-white/[0.06] rounded-xl overflow-hidden">
+    <div className="bg-[var(--t-bg-elevated)] border border-[var(--t-border)] rounded-xl overflow-hidden">
       {/* Header */}
       <div className="p-4 flex items-center justify-between">
         <div>
           <div className="flex items-baseline gap-3">
-            <span className="text-2xl font-bold text-white font-mono">
+            <span className="text-2xl font-bold text-[var(--t-text)] font-mono">
               ${displayPrice?.toFixed(2) || "—"}
             </span>
             {displayChange !== undefined && (
@@ -182,7 +182,7 @@ export default function PriceChart({ symbol, currentPrice, change }: PriceChartP
             )}
           </div>
           {hoveredBar && (
-            <div className="text-[14px] text-white/30 font-mono mt-1">
+            <div className="text-[14px] text-[var(--t-text-muted)] font-mono mt-1">
               O: ${hoveredBar.o.toFixed(2)} H: ${hoveredBar.h.toFixed(2)} L: ${hoveredBar.l.toFixed(2)} V: {(hoveredBar.v / 1e6).toFixed(1)}M
             </div>
           )}
@@ -195,7 +195,7 @@ export default function PriceChart({ symbol, currentPrice, change }: PriceChartP
               className={`px-2.5 py-1 text-[14px] font-mono rounded transition-all ${
                 range === r
                   ? "bg-white text-black font-bold"
-                  : "text-white/40 hover:text-white/70 hover:bg-white/5"
+                  : "text-[var(--t-text-secondary)] hover:text-[var(--t-text)] hover:bg-white/5"
               }`}
             >
               {r}
@@ -208,11 +208,11 @@ export default function PriceChart({ symbol, currentPrice, change }: PriceChartP
       <div ref={containerRef} className="relative px-0">
         {loading ? (
           <div className="h-[280px] flex items-center justify-center">
-            <div className="text-white/20 text-xs font-mono">Loading chart...</div>
+            <div className="text-[var(--t-text-muted)] text-xs font-mono">Loading chart...</div>
           </div>
         ) : data.length === 0 ? (
           <div className="h-[280px] flex items-center justify-center">
-            <div className="text-white/20 text-xs font-mono">No chart data available</div>
+            <div className="text-[var(--t-text-muted)] text-xs font-mono">No chart data available</div>
           </div>
         ) : (
           <canvas

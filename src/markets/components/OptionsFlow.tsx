@@ -25,8 +25,8 @@ export default function OptionsFlow({ symbol }: OptionsFlowProps) {
 
   if (loading) {
     return (
-      <div className="bg-[#0a0a0a] border border-white/[0.06] rounded-xl p-4">
-        <div className="text-[14px] text-white/20 font-mono uppercase tracking-widest mb-4">OPTIONS FLOW</div>
+      <div className="bg-[var(--t-bg-elevated)] border border-[var(--t-border)] rounded-xl p-4">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono uppercase tracking-widest mb-4">OPTIONS FLOW</div>
         <div className="animate-pulse space-y-3">
           {[1, 2, 3].map((i) => <div key={i} className="h-10 bg-white/5 rounded" />)}
         </div>
@@ -35,26 +35,26 @@ export default function OptionsFlow({ symbol }: OptionsFlowProps) {
   }
 
   return (
-    <div className="bg-[#0a0a0a] border border-white/[0.06] rounded-xl p-4">
-      <div className="text-[14px] text-white/20 font-mono uppercase tracking-widest mb-4">OPTIONS FLOW</div>
+    <div className="bg-[var(--t-bg-elevated)] border border-[var(--t-border)] rounded-xl p-4">
+      <div className="text-[14px] text-[var(--t-text-muted)] font-mono uppercase tracking-widest mb-4">OPTIONS FLOW</div>
 
       {/* Summary */}
       <div className="grid grid-cols-4 gap-2 mb-4">
-        <div className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.04]">
-          <div className="text-[13px] text-white/30 font-mono">TOTAL</div>
-          <div className="text-sm font-bold text-white font-mono mt-1">{summary.totalContracts}</div>
+        <div className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
+          <div className="text-[13px] text-[var(--t-text-muted)] font-mono">TOTAL</div>
+          <div className="text-sm font-bold text-[var(--t-text)] font-mono mt-1">{summary.totalContracts}</div>
         </div>
-        <div className="bg-white/[0.03] rounded-lg p-3 border border-green-500/10">
+        <div className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-green-500/10">
           <div className="text-[13px] text-green-400/60 font-mono">CALLS</div>
           <div className="text-sm font-bold text-green-400 font-mono mt-1">{summary.calls}</div>
         </div>
-        <div className="bg-white/[0.03] rounded-lg p-3 border border-red-500/10">
+        <div className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-red-500/10">
           <div className="text-[13px] text-red-400/60 font-mono">PUTS</div>
           <div className="text-sm font-bold text-red-400 font-mono mt-1">{summary.puts}</div>
         </div>
-        <div className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.04]">
-          <div className="text-[13px] text-white/30 font-mono">P/C RATIO</div>
-          <div className="text-sm font-bold text-white font-mono mt-1">{summary.putCallRatio}</div>
+        <div className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
+          <div className="text-[13px] text-[var(--t-text-muted)] font-mono">P/C RATIO</div>
+          <div className="text-sm font-bold text-[var(--t-text)] font-mono mt-1">{summary.putCallRatio}</div>
         </div>
       </div>
 
@@ -77,7 +77,7 @@ export default function OptionsFlow({ symbol }: OptionsFlowProps) {
             key={f}
             onClick={() => setFilter(f)}
             className={`px-3 py-1 text-[14px] font-mono rounded transition-all ${
-              filter === f ? "bg-white text-black font-bold" : "text-white/40 hover:text-white/70 hover:bg-white/5"
+              filter === f ? "bg-white text-black font-bold" : "text-[var(--t-text-secondary)] hover:text-[var(--t-text)] hover:bg-white/5"
             }`}
           >
             {f.toUpperCase()}S
@@ -87,12 +87,12 @@ export default function OptionsFlow({ symbol }: OptionsFlowProps) {
 
       {/* Contracts table */}
       {filtered.length === 0 ? (
-        <div className="text-white/20 text-xs font-mono text-center py-4">No contracts available</div>
+        <div className="text-[var(--t-text-muted)] text-xs font-mono text-center py-4">No contracts available</div>
       ) : (
         <div className="overflow-x-auto max-h-64 overflow-y-auto">
           <table className="w-full text-[14px] font-mono">
-            <thead className="sticky top-0 bg-[#0a0a0a]">
-              <tr className="text-white/30 border-b border-white/[0.06]">
+            <thead className="sticky top-0 bg-[var(--t-bg-elevated)]">
+              <tr className="text-[var(--t-text-muted)] border-b border-[var(--t-border)]">
                 <th className="text-left py-2 font-normal">TYPE</th>
                 <th className="text-right py-2 font-normal">STRIKE</th>
                 <th className="text-right py-2 font-normal">EXPIRATION</th>
@@ -101,15 +101,15 @@ export default function OptionsFlow({ symbol }: OptionsFlowProps) {
             </thead>
             <tbody>
               {filtered.map((c, i) => (
-                <tr key={i} className="border-b border-white/[0.03] hover:bg-white/[0.02]">
+                <tr key={i} className="border-b border-white/[0.03] hover:bg-[var(--t-stat-bg)]">
                   <td className="py-2">
                     <span className={`px-2 py-0.5 rounded text-[13px] ${c.type === "call" ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400"}`}>
                       {c.type.toUpperCase()}
                     </span>
                   </td>
-                  <td className="py-2 text-right text-white/80">${c.strike?.toFixed(2)}</td>
-                  <td className="py-2 text-right text-white/50">{c.expiration}</td>
-                  <td className="py-2 text-right text-white/40">{c.style || "american"}</td>
+                  <td className="py-2 text-right text-[var(--t-text)]">${c.strike?.toFixed(2)}</td>
+                  <td className="py-2 text-right text-[var(--t-text-secondary)]">{c.expiration}</td>
+                  <td className="py-2 text-right text-[var(--t-text-secondary)]">{c.style || "american"}</td>
                 </tr>
               ))}
             </tbody>

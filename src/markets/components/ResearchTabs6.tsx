@@ -11,24 +11,24 @@ import {
 
 function GenBtn({ label, onClick, loading }: { label: string; onClick: () => void; loading: boolean }) {
   if (loading) return (
-    <div className="bg-white/[0.02] border border-white/[0.08] rounded-xl p-12 text-center">
-      <div className="w-8 h-8 border-2 border-white/10 border-t-white/50 rounded-full animate-spin mx-auto mb-4" />
-      <p className="text-sm font-mono text-white/30 animate-pulse">{label}</p>
+    <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-12 text-center">
+      <div className="w-8 h-8 border-2 border-[var(--t-border-hover)] border-t-white/50 rounded-full animate-spin mx-auto mb-4" />
+      <p className="text-sm font-mono text-[var(--t-text-muted)] animate-pulse">{label}</p>
     </div>
   );
   return (
-    <button onClick={onClick} className="w-full group bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden hover:bg-white/[0.04] hover:border-white/[0.1] transition-all">
+    <button onClick={onClick} className="w-full group bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl overflow-hidden hover:bg-[var(--t-btn-bg)] hover:border-[var(--t-border-hover)] transition-all">
       <div className="flex items-center justify-between px-5 py-4">
-        <h3 className="text-sm text-white/30 group-hover:text-white/60 transition-colors">{label}</h3>
-        <span className="text-[14px] font-mono text-white/15 bg-white/[0.04] px-2.5 py-1 rounded-md group-hover:text-white/30 group-hover:bg-white/[0.06] transition-all">GENERATE</span>
+        <h3 className="text-sm text-[var(--t-text-muted)] group-hover:text-[var(--t-text-secondary)] transition-colors">{label}</h3>
+        <span className="text-[14px] font-mono text-[var(--t-text-dim)] bg-[var(--t-btn-bg)] px-2.5 py-1 rounded-md group-hover:text-[var(--t-text-muted)] group-hover:bg-[var(--t-btn-bg)] transition-all">GENERATE</span>
       </div>
     </button>
   );
 }
 function Crd({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
-      <div className="px-5 py-3 border-b border-white/[0.06]"><div className="text-[14px] text-white/25 font-mono tracking-widest">{title}</div></div>
+    <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl overflow-hidden">
+      <div className="px-5 py-3 border-b border-[var(--t-border)]"><div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest">{title}</div></div>
       <div className="p-5">{children}</div>
     </div>
   );
@@ -49,19 +49,19 @@ export function RegressionTab({ symbol, name, price }: { symbol: string; name: s
       </div>
       <Crd title="FACTOR LOADINGS">
         {d.factors?.map((f, i) => (
-          <div key={i} className="flex justify-between items-center py-3 border-b border-white/[0.04] last:border-0">
-            <span className="text-sm text-white/60 font-semibold">{f.factor}</span>
-            <span className="text-base font-mono text-white">{f.beta.toFixed(3)}</span>
-            <span className="text-sm text-white/30">p={f.pValue.toFixed(4)}</span>
+          <div key={i} className="flex justify-between items-center py-3 border-b border-[var(--t-border)] last:border-0">
+            <span className="text-sm text-[var(--t-text-secondary)] font-semibold">{f.factor}</span>
+            <span className="text-base font-mono text-[var(--t-text)]">{f.beta.toFixed(3)}</span>
+            <span className="text-sm text-[var(--t-text-muted)]">p={f.pValue.toFixed(4)}</span>
             <Tag label={f.significance} color={f.significance === "High" ? "green" : f.significance === "Low" ? "red" : "gray"} />
           </div>
         ))}
       </Crd>
       <Crd title="INTERPRETATIONS">
-        {d.factors?.map((f, i) => <p key={i} className="text-sm text-white/40 mb-2">• <span className="text-white/60">{f.factor}:</span> {f.interpretation}</p>)}
+        {d.factors?.map((f, i) => <p key={i} className="text-sm text-[var(--t-text-secondary)] mb-2">• <span className="text-[var(--t-text-secondary)]">{f.factor}:</span> {f.interpretation}</p>)}
       </Crd>
-      <p className="text-sm text-white/30">Residual Volatility: {d.residualVolatility}</p>
-      <p className="text-sm text-white/40 leading-relaxed">{d.summary}</p>
+      <p className="text-sm text-[var(--t-text-muted)]">Residual Volatility: {d.residualVolatility}</p>
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.summary}</p>
     </div>
   );
 }
@@ -82,13 +82,13 @@ export function SeasonalityTab({ symbol, name, price }: { symbol: string; name: 
       <Crd title="MONTHLY RETURNS">
         <div className="grid grid-cols-4 gap-2">
           {d.monthlyReturns?.map((m, i) => (
-            <div key={i} className="bg-white/[0.02] border border-white/[0.04] rounded-lg p-3 text-center">
-              <div className="text-[13px] text-white/25 font-mono">{m.month}</div>
+            <div key={i} className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-lg p-3 text-center">
+              <div className="text-[13px] text-[var(--t-text-muted)] font-mono">{m.month}</div>
               <div className={`text-lg font-mono font-semibold ${m.avgReturn >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                 {m.avgReturn >= 0 ? "+" : ""}{m.avgReturn.toFixed(1)}%
               </div>
-              <div className="text-[12px] text-white/20">Win: {m.winRate}%</div>
-              <div className="text-[11px] text-white/15">Best: {m.best > 0 ? "+" : ""}{m.best}% | Worst: {m.worst}%</div>
+              <div className="text-[12px] text-[var(--t-text-muted)]">Win: {m.winRate}%</div>
+              <div className="text-[11px] text-[var(--t-text-dim)]">Best: {m.best > 0 ? "+" : ""}{m.best}% | Worst: {m.worst}%</div>
             </div>
           ))}
         </div>
@@ -99,8 +99,8 @@ export function SeasonalityTab({ symbol, name, price }: { symbol: string; name: 
           <StatBox label="POST-EARNINGS" value={d.earningsDrift?.postEarnings} />
         </div>
       </Crd>
-      <p className="text-sm text-white/30">Day-of-Week Effect: {d.dayOfWeekEffect}</p>
-      <p className="text-sm text-white/40 leading-relaxed">{d.summary}</p>
+      <p className="text-sm text-[var(--t-text-muted)]">Day-of-Week Effect: {d.dayOfWeekEffect}</p>
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.summary}</p>
     </div>
   );
 }
@@ -119,14 +119,14 @@ export function CorrelationTab({ symbol, name, price }: { symbol: string; name: 
       </div>
       <Crd title="CORRELATIONS">
         {d.correlations?.map((c, i) => (
-          <div key={i} className="flex justify-between items-center py-2 border-b border-white/[0.04] last:border-0">
-            <span className="text-sm text-white/60">{c.asset}</span>
+          <div key={i} className="flex justify-between items-center py-2 border-b border-[var(--t-border)] last:border-0">
+            <span className="text-sm text-[var(--t-text-secondary)]">{c.asset}</span>
             <Tag label={c.category} />
             <div className="flex items-center gap-2">
-              <div className="w-24 h-2 bg-white/[0.04] rounded-full overflow-hidden">
+              <div className="w-24 h-2 bg-[var(--t-btn-bg)] rounded-full overflow-hidden">
                 <div className={`h-full rounded-full ${c.correlation >= 0 ? "bg-emerald-500" : "bg-red-500"}`} style={{ width: `${Math.abs(c.correlation) * 100}%` }} />
               </div>
-              <span className={`text-sm font-mono ${c.correlation >= 0.5 ? "text-emerald-400" : c.correlation <= -0.5 ? "text-red-400" : "text-white/50"}`}>
+              <span className={`text-sm font-mono ${c.correlation >= 0.5 ? "text-emerald-400" : c.correlation <= -0.5 ? "text-red-400" : "text-[var(--t-text-secondary)]"}`}>
                 {c.correlation.toFixed(2)}
               </span>
             </div>
@@ -136,8 +136,8 @@ export function CorrelationTab({ symbol, name, price }: { symbol: string; name: 
       <div className="flex gap-2">
         <Tag label={`Diversification: ${d.diversificationBenefit}`} />
       </div>
-      <p className="text-sm text-white/30">Regime Changes: {d.regimeChanges}</p>
-      <p className="text-sm text-white/40 leading-relaxed">{d.summary}</p>
+      <p className="text-sm text-[var(--t-text-muted)]">Regime Changes: {d.regimeChanges}</p>
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.summary}</p>
     </div>
   );
 }
@@ -159,13 +159,13 @@ export function VolatilityTab({ symbol, name, price }: { symbol: string; name: s
       <Crd title="IMPLIED VS HISTORICAL">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <div className="text-[13px] text-white/25 font-mono mb-2">IMPLIED</div>
+            <div className="text-[13px] text-[var(--t-text-muted)] font-mono mb-2">IMPLIED</div>
             <StatBox label="CURRENT" value={`${d.impliedVolatility?.current}%`} />
-            <p className="text-sm text-white/30 mt-1">Percentile: {d.impliedVolatility?.percentileRank}</p>
-            <p className="text-sm text-white/30">vs Historical: {d.impliedVolatility?.vsHistorical}</p>
+            <p className="text-sm text-[var(--t-text-muted)] mt-1">Percentile: {d.impliedVolatility?.percentileRank}</p>
+            <p className="text-sm text-[var(--t-text-muted)]">vs Historical: {d.impliedVolatility?.vsHistorical}</p>
           </div>
           <div>
-            <div className="text-[13px] text-white/25 font-mono mb-2">HISTORICAL</div>
+            <div className="text-[13px] text-[var(--t-text-muted)] font-mono mb-2">HISTORICAL</div>
             <div className="grid grid-cols-3 gap-2">
               <StatBox label="HV20" value={`${d.historicalVolatility?.hv20}%`} />
               <StatBox label="HV60" value={`${d.historicalVolatility?.hv60}%`} />
@@ -179,20 +179,20 @@ export function VolatilityTab({ symbol, name, price }: { symbol: string; name: s
           <StatBox label="PUT SKEW" value={d.volatilitySkew?.putSkew} />
           <StatBox label="CALL SKEW" value={d.volatilitySkew?.callSkew} />
         </div>
-        <p className="text-sm text-white/40 mt-2">{d.volatilitySkew?.implication}</p>
+        <p className="text-sm text-[var(--t-text-secondary)] mt-2">{d.volatilitySkew?.implication}</p>
       </Crd>
       <Crd title="TERM STRUCTURE">
         {d.termStructure?.map((t, i) => (
-          <div key={i} className="flex justify-between items-center py-2 border-b border-white/[0.04] last:border-0">
-            <span className="text-sm text-white/50">{t.expiry}</span>
-            <span className="text-base font-mono text-white">{t.iv}%</span>
+          <div key={i} className="flex justify-between items-center py-2 border-b border-[var(--t-border)] last:border-0">
+            <span className="text-sm text-[var(--t-text-secondary)]">{t.expiry}</span>
+            <span className="text-base font-mono text-[var(--t-text)]">{t.iv}%</span>
           </div>
         ))}
         <Tag label={d.termStructureShape} />
       </Crd>
-      <p className="text-sm text-white/30">Vol of Vol: {d.volOfVol}</p>
-      <p className="text-sm text-white/40 leading-relaxed">{d.tradingImplication}</p>
-      <p className="text-sm text-white/40 leading-relaxed">{d.summary}</p>
+      <p className="text-sm text-[var(--t-text-muted)]">Vol of Vol: {d.volOfVol}</p>
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.tradingImplication}</p>
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.summary}</p>
     </div>
   );
 }
@@ -227,8 +227,8 @@ export function MonteCarloTab({ symbol, name, price }: { symbol: string; name: s
           <div className="mt-3 space-y-2">
             {Object.entries(d.results.percentiles).map(([k, v]) => (
               <div key={k} className="flex justify-between items-center py-1">
-                <span className="text-sm text-white/30">{k} percentile</span>
-                <span className="text-sm font-mono text-white">${v}</span>
+                <span className="text-sm text-[var(--t-text-muted)]">{k} percentile</span>
+                <span className="text-sm font-mono text-[var(--t-text)]">${v}</span>
               </div>
             ))}
           </div>
@@ -236,9 +236,9 @@ export function MonteCarloTab({ symbol, name, price }: { symbol: string; name: s
       </Crd>
       <Crd title="PROBABILITY TARGETS">
         {d.probabilityAbove?.map((p, i) => (
-          <div key={i} className="flex justify-between items-center py-2 border-b border-white/[0.04] last:border-0">
-            <span className="text-sm text-white/50">Above ${p.target}</span>
-            <span className="text-base font-mono text-white">{p.probability}</span>
+          <div key={i} className="flex justify-between items-center py-2 border-b border-[var(--t-border)] last:border-0">
+            <span className="text-sm text-[var(--t-text-secondary)]">Above ${p.target}</span>
+            <span className="text-base font-mono text-[var(--t-text)]">{p.probability}</span>
           </div>
         ))}
       </Crd>
@@ -248,8 +248,8 @@ export function MonteCarloTab({ symbol, name, price }: { symbol: string; name: s
           <StatBox label="WORST 5%" value={d.maxDrawdown?.worst5pct} />
         </div>
       </Crd>
-      <p className="text-sm text-white/30">Expected Return: {d.expectedReturn}</p>
-      <p className="text-sm text-white/40 leading-relaxed">{d.summary}</p>
+      <p className="text-sm text-[var(--t-text-muted)]">Expected Return: {d.expectedReturn}</p>
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.summary}</p>
     </div>
   );
 }
@@ -272,27 +272,27 @@ export function ESGTab({ symbol, name, price }: { symbol: string; name: string; 
         <Crd title="ENVIRONMENTAL">
           <StatBox label="SCORE" value={`${d.environmental?.score}/100`} />
           <div className="mt-2 space-y-1">
-            <p className="text-sm text-white/40">Carbon: {d.environmental?.carbonEmissions}</p>
-            <p className="text-sm text-white/40">Renewable: {d.environmental?.renewableEnergy}</p>
-            <p className="text-sm text-white/40">Target: {d.environmental?.climateTarget}</p>
+            <p className="text-sm text-[var(--t-text-secondary)]">Carbon: {d.environmental?.carbonEmissions}</p>
+            <p className="text-sm text-[var(--t-text-secondary)]">Renewable: {d.environmental?.renewableEnergy}</p>
+            <p className="text-sm text-[var(--t-text-secondary)]">Target: {d.environmental?.climateTarget}</p>
           </div>
           <div className="mt-2 flex flex-wrap gap-1">{d.environmental?.keyIssues?.map((k, i) => <Tag key={i} label={k} />)}</div>
         </Crd>
         <Crd title="SOCIAL">
           <StatBox label="SCORE" value={`${d.social?.score}/100`} />
           <div className="mt-2 space-y-1">
-            <p className="text-sm text-white/40">Diversity: {d.social?.diversityScore}</p>
-            <p className="text-sm text-white/40">Employees: {d.social?.employeeSatisfaction}</p>
-            <p className="text-sm text-white/40">Privacy: {d.social?.dataPrivacy}</p>
+            <p className="text-sm text-[var(--t-text-secondary)]">Diversity: {d.social?.diversityScore}</p>
+            <p className="text-sm text-[var(--t-text-secondary)]">Employees: {d.social?.employeeSatisfaction}</p>
+            <p className="text-sm text-[var(--t-text-secondary)]">Privacy: {d.social?.dataPrivacy}</p>
           </div>
           <div className="mt-2 flex flex-wrap gap-1">{d.social?.keyIssues?.map((k, i) => <Tag key={i} label={k} />)}</div>
         </Crd>
         <Crd title="GOVERNANCE">
           <StatBox label="SCORE" value={`${d.governance?.score}/100`} />
           <div className="mt-2 space-y-1">
-            <p className="text-sm text-white/40">Independence: {d.governance?.boardIndependence}</p>
-            <p className="text-sm text-white/40">Pay Alignment: {d.governance?.executivePayAlignment}</p>
-            <p className="text-sm text-white/40">Rights: {d.governance?.shareholderRights}</p>
+            <p className="text-sm text-[var(--t-text-secondary)]">Independence: {d.governance?.boardIndependence}</p>
+            <p className="text-sm text-[var(--t-text-secondary)]">Pay Alignment: {d.governance?.executivePayAlignment}</p>
+            <p className="text-sm text-[var(--t-text-secondary)]">Rights: {d.governance?.shareholderRights}</p>
           </div>
           <div className="mt-2 flex flex-wrap gap-1">{d.governance?.keyIssues?.map((k, i) => <Tag key={i} label={k} />)}</div>
         </Crd>
@@ -300,15 +300,15 @@ export function ESGTab({ symbol, name, price }: { symbol: string; name: string; 
       {d.controversies?.length > 0 && (
         <Crd title="CONTROVERSIES">
           {d.controversies.map((c, i) => (
-            <div key={i} className="flex justify-between items-center py-2 border-b border-white/[0.04] last:border-0">
-              <span className="text-sm text-white/60">{c.issue}</span>
+            <div key={i} className="flex justify-between items-center py-2 border-b border-[var(--t-border)] last:border-0">
+              <span className="text-sm text-[var(--t-text-secondary)]">{c.issue}</span>
               <Tag label={c.severity} color={c.severity === "High" ? "red" : c.severity === "Medium" ? "yellow" : "gray"} />
               <Tag label={c.status} />
             </div>
           ))}
         </Crd>
       )}
-      <p className="text-sm text-white/40 leading-relaxed">{d.summary}</p>
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.summary}</p>
     </div>
   );
 }
@@ -323,7 +323,7 @@ export function ExecCompTab({ symbol, name, price }: { symbol: string; name: str
     <div className="space-y-4">
       <Crd title="CEO COMPENSATION">
         <div className="flex items-center gap-3 mb-3">
-          <span className="text-lg text-white font-semibold">{d.ceo?.name}</span>
+          <span className="text-lg text-[var(--t-text)] font-semibold">{d.ceo?.name}</span>
           <span className="text-lg font-mono text-amber-400">{d.ceo?.totalComp}</span>
         </div>
         <div className="grid grid-cols-4 gap-2">
@@ -332,13 +332,13 @@ export function ExecCompTab({ symbol, name, price }: { symbol: string; name: str
           <StatBox label="STOCK" value={d.ceo?.stockAwards} />
           <StatBox label="OPTIONS" value={d.ceo?.options} />
         </div>
-        <p className="text-sm text-white/40 mt-2">Pay for Performance: {d.ceo?.payForPerformance}</p>
+        <p className="text-sm text-[var(--t-text-secondary)] mt-2">Pay for Performance: {d.ceo?.payForPerformance}</p>
       </Crd>
       <Crd title="C-SUITE">
         {d.cSuite?.map((e, i) => (
-          <div key={i} className="flex justify-between items-center py-2 border-b border-white/[0.04] last:border-0">
-            <div><span className="text-sm text-white/60">{e.name}</span><span className="text-[13px] text-white/25 ml-2">{e.title}</span></div>
-            <span className="text-sm font-mono text-white">{e.totalComp}</span>
+          <div key={i} className="flex justify-between items-center py-2 border-b border-[var(--t-border)] last:border-0">
+            <div><span className="text-sm text-[var(--t-text-secondary)]">{e.name}</span><span className="text-[13px] text-[var(--t-text-muted)] ml-2">{e.title}</span></div>
+            <span className="text-sm font-mono text-[var(--t-text)]">{e.totalComp}</span>
           </div>
         ))}
       </Crd>
@@ -357,10 +357,10 @@ export function ExecCompTab({ symbol, name, price }: { symbol: string; name: str
         <div className="flex gap-2 mt-2">
           <Tag label={d.alignment?.meetsGuideline ? "MEETS GUIDELINE" : "BELOW GUIDELINE"} color={d.alignment?.meetsGuideline ? "green" : "red"} />
         </div>
-        <p className="text-sm text-white/30 mt-1">Vesting: {d.alignment?.vestingSchedule}</p>
+        <p className="text-sm text-[var(--t-text-muted)] mt-1">Vesting: {d.alignment?.vestingSchedule}</p>
       </Crd>
       {d.concerns?.length > 0 && <Crd title="CONCERNS">{d.concerns.map((c, i) => <p key={i} className="text-sm text-amber-400/60 mb-1">⚠ {c}</p>)}</Crd>}
-      <p className="text-sm text-white/40 leading-relaxed">{d.summary}</p>
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.summary}</p>
     </div>
   );
 }
@@ -387,9 +387,9 @@ export function BoardTab({ symbol, name, price }: { symbol: string; name: string
       </Crd>
       <Crd title="EXPERTISE">
         {d.expertise?.map((e, i) => (
-          <div key={i} className="flex justify-between items-center py-2 border-b border-white/[0.04] last:border-0">
-            <span className="text-sm text-white/60">{e.area}</span>
-            <span className="text-sm font-mono text-white">{e.members} members</span>
+          <div key={i} className="flex justify-between items-center py-2 border-b border-[var(--t-border)] last:border-0">
+            <span className="text-sm text-[var(--t-text-secondary)]">{e.area}</span>
+            <span className="text-sm font-mono text-[var(--t-text)]">{e.members} members</span>
           </div>
         ))}
       </Crd>
@@ -412,8 +412,8 @@ export function BoardTab({ symbol, name, price }: { symbol: string; name: string
         <Crd title="INTERLOCKING DIRECTORSHIPS">
           {d.interlockingDirectorships.map((id, i) => (
             <div key={i} className="mb-2 last:mb-0">
-              <span className="text-sm text-white/60">{id.director}:</span>
-              <span className="text-sm text-white/30 ml-2">{id.otherBoards?.join(", ")}</span>
+              <span className="text-sm text-[var(--t-text-secondary)]">{id.director}:</span>
+              <span className="text-sm text-[var(--t-text-muted)] ml-2">{id.otherBoards?.join(", ")}</span>
             </div>
           ))}
         </Crd>
@@ -422,7 +422,7 @@ export function BoardTab({ symbol, name, price }: { symbol: string; name: string
         <Crd title="STRENGTHS">{d.strengths?.map((s, i) => <p key={i} className="text-sm text-emerald-400/60 mb-1">✓ {s}</p>)}</Crd>
         <Crd title="WEAKNESSES">{d.weaknesses?.map((w, i) => <p key={i} className="text-sm text-red-400/60 mb-1">✗ {w}</p>)}</Crd>
       </div>
-      <p className="text-sm text-white/40 leading-relaxed">{d.summary}</p>
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.summary}</p>
     </div>
   );
 }
@@ -442,12 +442,12 @@ export function ActivismHistoryTab({ symbol, name, price }: { symbol: string; na
       </div>
       <Crd title="ACTIVISM CAMPAIGNS">
         {d.activismHistory?.length ? d.activismHistory.map((c, i) => (
-          <div key={i} className="mb-3 last:mb-0 border-b border-white/[0.04] pb-3 last:border-0 last:pb-0">
+          <div key={i} className="mb-3 last:mb-0 border-b border-[var(--t-border)] pb-3 last:border-0 last:pb-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-base font-semibold text-white">{c.activist}</span>
-              <span className="text-sm text-white/30 font-mono">{c.year}</span>
+              <span className="text-base font-semibold text-[var(--t-text)]">{c.activist}</span>
+              <span className="text-sm text-[var(--t-text-muted)] font-mono">{c.year}</span>
             </div>
-            <p className="text-sm text-white/50">{c.campaign}</p>
+            <p className="text-sm text-[var(--t-text-secondary)]">{c.campaign}</p>
             <div className="flex gap-2 mt-1">
               <Tag label={c.outcome} color={c.outcome === "Successful" ? "green" : c.outcome === "Failed" ? "red" : "gray"} />
               <Tag label={c.stockImpact} color={c.stockImpact?.startsWith("+") ? "green" : "red"} />
@@ -459,8 +459,8 @@ export function ActivismHistoryTab({ symbol, name, price }: { symbol: string; na
         {d.currentVulnerability?.factors?.map((f, i) => <p key={i} className="text-sm text-amber-400/60 mb-1">• {f}</p>)}
       </Crd>
       <div className="grid grid-cols-2 gap-4">
-        <Crd title="LIKELY DEMANDS">{d.potentialTargets?.likelyDemands?.map((d2, i) => <p key={i} className="text-sm text-white/40 mb-1">• {d2}</p>)}</Crd>
-        <Crd title="DEFENSES">{d.potentialTargets?.defenses?.map((d2, i) => <p key={i} className="text-sm text-white/40 mb-1">• {d2}</p>)}</Crd>
+        <Crd title="LIKELY DEMANDS">{d.potentialTargets?.likelyDemands?.map((d2, i) => <p key={i} className="text-sm text-[var(--t-text-secondary)] mb-1">• {d2}</p>)}</Crd>
+        <Crd title="DEFENSES">{d.potentialTargets?.defenses?.map((d2, i) => <p key={i} className="text-sm text-[var(--t-text-secondary)] mb-1">• {d2}</p>)}</Crd>
       </div>
       {d.proxyFightHistory && (
         <Crd title="PROXY FIGHT RECORD">
@@ -472,7 +472,7 @@ export function ActivismHistoryTab({ symbol, name, price }: { symbol: string; na
           </div>
         </Crd>
       )}
-      <p className="text-sm text-white/40 leading-relaxed">{d.summary}</p>
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.summary}</p>
     </div>
   );
 }
@@ -487,27 +487,27 @@ export function CorporateEventsTab({ symbol, name, price }: { symbol: string; na
     <div className="space-y-4">
       <Crd title="UPCOMING EVENTS">
         {d.upcomingEvents?.length ? d.upcomingEvents.map((e, i) => (
-          <div key={i} className="flex justify-between items-center py-3 border-b border-white/[0.04] last:border-0">
+          <div key={i} className="flex justify-between items-center py-3 border-b border-[var(--t-border)] last:border-0">
             <div>
-              <span className="text-sm font-mono text-white/30">{e.date}</span>
+              <span className="text-sm font-mono text-[var(--t-text-muted)]">{e.date}</span>
               <Tag label={e.type} color="blue" />
             </div>
-            <span className="text-sm text-white/60 flex-1 mx-4">{e.description}</span>
+            <span className="text-sm text-[var(--t-text-secondary)] flex-1 mx-4">{e.description}</span>
             <div className="text-right">
               <Tag label={e.significance} color={e.significance === "High" ? "red" : e.significance === "Medium" ? "yellow" : "gray"} />
-              <p className="text-[13px] text-white/25 mt-1">{e.expectedImpact}</p>
+              <p className="text-[13px] text-[var(--t-text-muted)] mt-1">{e.expectedImpact}</p>
             </div>
           </div>
         )) : <EmptyState message="No upcoming events" />}
       </Crd>
       <Crd title="RECENT EVENTS">
         {d.recentEvents?.map((e, i) => (
-          <div key={i} className="flex justify-between items-center py-3 border-b border-white/[0.04] last:border-0">
+          <div key={i} className="flex justify-between items-center py-3 border-b border-[var(--t-border)] last:border-0">
             <div>
-              <span className="text-sm font-mono text-white/30">{e.date}</span>
+              <span className="text-sm font-mono text-[var(--t-text-muted)]">{e.date}</span>
               <Tag label={e.type} />
             </div>
-            <span className="text-sm text-white/60 flex-1 mx-4">{e.description}</span>
+            <span className="text-sm text-[var(--t-text-secondary)] flex-1 mx-4">{e.description}</span>
             <div className="text-right">
               <Tag label={e.outcome} />
               <Tag label={e.stockReaction} color={e.stockReaction?.startsWith("+") ? "green" : "red"} />
@@ -518,24 +518,24 @@ export function CorporateEventsTab({ symbol, name, price }: { symbol: string; na
       <Crd title="CORPORATE ACTIONS">
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <div className="text-[13px] text-white/25 font-mono mb-2">BUYBACKS</div>
+            <div className="text-[13px] text-[var(--t-text-muted)] font-mono mb-2">BUYBACKS</div>
             <Tag label={d.corporateActions?.buybacks?.active ? "ACTIVE" : "INACTIVE"} color={d.corporateActions?.buybacks?.active ? "green" : "gray"} />
-            <p className="text-sm text-white/30 mt-1">Remaining: {d.corporateActions?.buybacks?.remaining}</p>
-            <p className="text-sm text-white/30">Pace: {d.corporateActions?.buybacks?.pace}</p>
+            <p className="text-sm text-[var(--t-text-muted)] mt-1">Remaining: {d.corporateActions?.buybacks?.remaining}</p>
+            <p className="text-sm text-[var(--t-text-muted)]">Pace: {d.corporateActions?.buybacks?.pace}</p>
           </div>
           <div>
-            <div className="text-[13px] text-white/25 font-mono mb-2">SPLITS</div>
-            <p className="text-sm text-white/30">Last: {d.corporateActions?.splits?.lastSplit}</p>
+            <div className="text-[13px] text-[var(--t-text-muted)] font-mono mb-2">SPLITS</div>
+            <p className="text-sm text-[var(--t-text-muted)]">Last: {d.corporateActions?.splits?.lastSplit}</p>
             <Tag label={d.corporateActions?.splits?.splitCandidate ? "SPLIT CANDIDATE" : "NOT LIKELY"} color={d.corporateActions?.splits?.splitCandidate ? "yellow" : "gray"} />
           </div>
           <div>
-            <div className="text-[13px] text-white/25 font-mono mb-2">SPINOFFS</div>
+            <div className="text-[13px] text-[var(--t-text-muted)] font-mono mb-2">SPINOFFS</div>
             <Tag label={d.corporateActions?.spinoffs?.planned ? "PLANNED" : "NONE PLANNED"} color={d.corporateActions?.spinoffs?.planned ? "yellow" : "gray"} />
           </div>
         </div>
       </Crd>
-      <p className="text-sm text-white/30">Catalyst Calendar: {d.catalystCalendar}</p>
-      <p className="text-sm text-white/40 leading-relaxed">{d.summary}</p>
+      <p className="text-sm text-[var(--t-text-muted)]">Catalyst Calendar: {d.catalystCalendar}</p>
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.summary}</p>
     </div>
   );
 }

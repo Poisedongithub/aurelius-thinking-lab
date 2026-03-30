@@ -11,24 +11,24 @@ import {
 
 function GenBtn({ label, onClick, loading }: { label: string; onClick: () => void; loading: boolean }) {
   if (loading) return (
-    <div className="bg-white/[0.02] border border-white/[0.08] rounded-xl p-12 text-center">
-      <div className="w-8 h-8 border-2 border-white/10 border-t-white/50 rounded-full animate-spin mx-auto mb-4" />
-      <p className="text-sm font-mono text-white/30 animate-pulse">{label}</p>
+    <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-12 text-center">
+      <div className="w-8 h-8 border-2 border-[var(--t-border-hover)] border-t-white/50 rounded-full animate-spin mx-auto mb-4" />
+      <p className="text-sm font-mono text-[var(--t-text-muted)] animate-pulse">{label}</p>
     </div>
   );
   return (
-    <button onClick={onClick} className="w-full group bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden hover:bg-white/[0.04] hover:border-white/[0.1] transition-all">
+    <button onClick={onClick} className="w-full group bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl overflow-hidden hover:bg-[var(--t-btn-bg)] hover:border-[var(--t-border-hover)] transition-all">
       <div className="flex items-center justify-between px-5 py-4">
-        <h3 className="text-sm text-white/30 group-hover:text-white/60 transition-colors">{label}</h3>
-        <span className="text-[14px] font-mono text-white/15 bg-white/[0.04] px-2.5 py-1 rounded-md group-hover:text-white/30 group-hover:bg-white/[0.06] transition-all">GENERATE</span>
+        <h3 className="text-sm text-[var(--t-text-muted)] group-hover:text-[var(--t-text-secondary)] transition-colors">{label}</h3>
+        <span className="text-[14px] font-mono text-[var(--t-text-dim)] bg-[var(--t-btn-bg)] px-2.5 py-1 rounded-md group-hover:text-[var(--t-text-muted)] group-hover:bg-[var(--t-btn-bg)] transition-all">GENERATE</span>
       </div>
     </button>
   );
 }
 function Crd({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
-      <div className="px-5 py-3 border-b border-white/[0.06]"><div className="text-[14px] text-white/25 font-mono tracking-widest">{title}</div></div>
+    <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl overflow-hidden">
+      <div className="px-5 py-3 border-b border-[var(--t-border)]"><div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest">{title}</div></div>
       <div className="p-5">{children}</div>
     </div>
   );
@@ -49,15 +49,15 @@ export function PatternScannerTab({ symbol, name, price }: { symbol: string; nam
       </div>
       <Crd title="DETECTED PATTERNS">
         {d.patterns?.length ? d.patterns.map((p, i) => (
-          <div key={i} className="mb-4 last:mb-0 border-b border-white/[0.04] pb-4 last:border-0 last:pb-0">
+          <div key={i} className="mb-4 last:mb-0 border-b border-[var(--t-border)] pb-4 last:border-0 last:pb-0">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-base font-semibold text-white">{p.name}</span>
+              <span className="text-base font-semibold text-[var(--t-text)]">{p.name}</span>
               <Tag label={p.type} color={p.type === "Bullish" ? "green" : p.type === "Bearish" ? "red" : "gray"} />
               <Tag label={p.reliability} />
               <Tag label={p.status} color="blue" />
             </div>
-            <p className="text-sm text-white/40">{p.description}</p>
-            <p className="text-sm text-white/30 font-mono mt-1">Target: ${p.priceTarget}</p>
+            <p className="text-sm text-[var(--t-text-secondary)]">{p.description}</p>
+            <p className="text-sm text-[var(--t-text-muted)] font-mono mt-1">Target: ${p.priceTarget}</p>
           </div>
         )) : <EmptyState message="No patterns detected" />}
       </Crd>
@@ -73,7 +73,7 @@ export function PatternScannerTab({ symbol, name, price }: { symbol: string; nam
           </div>
         </div>
       </Crd>
-      <p className="text-sm text-white/40 leading-relaxed">{d.summary}</p>
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.summary}</p>
     </div>
   );
 }
@@ -97,7 +97,7 @@ export function SupportResistanceTab({ symbol, name, price }: { symbol: string; 
             <div key={i} className="flex justify-between items-center mb-3 last:mb-0">
               <div>
                 <span className="text-base font-mono text-red-400 font-semibold">${r.price}</span>
-                <span className="text-sm text-white/30 ml-2">{r.type}</span>
+                <span className="text-sm text-[var(--t-text-muted)] ml-2">{r.type}</span>
               </div>
               <Tag label={r.strength} color={r.strength === "Strong" ? "red" : "gray"} />
             </div>
@@ -108,7 +108,7 @@ export function SupportResistanceTab({ symbol, name, price }: { symbol: string; 
             <div key={i} className="flex justify-between items-center mb-3 last:mb-0">
               <div>
                 <span className="text-base font-mono text-emerald-400 font-semibold">${s.price}</span>
-                <span className="text-sm text-white/30 ml-2">{s.type}</span>
+                <span className="text-sm text-[var(--t-text-muted)] ml-2">{s.type}</span>
               </div>
               <Tag label={s.strength} color={s.strength === "Strong" ? "green" : "gray"} />
             </div>
@@ -117,12 +117,12 @@ export function SupportResistanceTab({ symbol, name, price }: { symbol: string; 
       </div>
       <Crd title="TRADING RANGE">
         <div className="flex items-center gap-4">
-          <span className="text-sm text-white/30">Low: <span className="text-emerald-400 font-mono">${d.tradingRange?.low}</span></span>
-          <span className="text-sm text-white/30">High: <span className="text-red-400 font-mono">${d.tradingRange?.high}</span></span>
+          <span className="text-sm text-[var(--t-text-muted)]">Low: <span className="text-emerald-400 font-mono">${d.tradingRange?.low}</span></span>
+          <span className="text-sm text-[var(--t-text-muted)]">High: <span className="text-red-400 font-mono">${d.tradingRange?.high}</span></span>
           <Tag label={d.tradingRange?.bias} color={d.tradingRange?.bias === "Bullish" ? "green" : d.tradingRange?.bias === "Bearish" ? "red" : "gray"} />
         </div>
       </Crd>
-      <p className="text-sm text-white/40 leading-relaxed">{d.summary}</p>
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.summary}</p>
     </div>
   );
 }
@@ -145,13 +145,13 @@ export function MomentumTab({ symbol, name, price }: { symbol: string; name: str
       <Crd title="INDICATORS">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-3">
-            <div><span className="text-[13px] text-white/25 font-mono">RSI</span><div className="text-lg font-mono text-white">{ind?.rsi?.value} <Tag label={ind?.rsi?.signal} /></div></div>
-            <div><span className="text-[13px] text-white/25 font-mono">STOCHASTIC</span><div className="text-lg font-mono text-white">K:{ind?.stochastic?.k} D:{ind?.stochastic?.d} <Tag label={ind?.stochastic?.signal} /></div></div>
-            <div><span className="text-[13px] text-white/25 font-mono">ADX</span><div className="text-lg font-mono text-white">{ind?.adx?.value} <Tag label={ind?.adx?.trend} /></div></div>
+            <div><span className="text-[13px] text-[var(--t-text-muted)] font-mono">RSI</span><div className="text-lg font-mono text-[var(--t-text)]">{ind?.rsi?.value} <Tag label={ind?.rsi?.signal} /></div></div>
+            <div><span className="text-[13px] text-[var(--t-text-muted)] font-mono">STOCHASTIC</span><div className="text-lg font-mono text-[var(--t-text)]">K:{ind?.stochastic?.k} D:{ind?.stochastic?.d} <Tag label={ind?.stochastic?.signal} /></div></div>
+            <div><span className="text-[13px] text-[var(--t-text-muted)] font-mono">ADX</span><div className="text-lg font-mono text-[var(--t-text)]">{ind?.adx?.value} <Tag label={ind?.adx?.trend} /></div></div>
           </div>
           <div className="space-y-3">
-            <div><span className="text-[13px] text-white/25 font-mono">MACD</span><div className="text-lg font-mono text-white">{ind?.macd?.value} <Tag label={ind?.macd?.crossover} color={ind?.macd?.crossover === "Bullish" ? "green" : "red"} /></div></div>
-            <div><span className="text-[13px] text-white/25 font-mono">BOLLINGER</span><div className="text-sm font-mono text-white/60">Upper: {ind?.bollingerBands?.upper} | Mid: {ind?.bollingerBands?.middle} | Low: {ind?.bollingerBands?.lower}</div><Tag label={ind?.bollingerBands?.squeeze ? "SQUEEZE" : "NO SQUEEZE"} color={ind?.bollingerBands?.squeeze ? "yellow" : "gray"} /></div>
+            <div><span className="text-[13px] text-[var(--t-text-muted)] font-mono">MACD</span><div className="text-lg font-mono text-[var(--t-text)]">{ind?.macd?.value} <Tag label={ind?.macd?.crossover} color={ind?.macd?.crossover === "Bullish" ? "green" : "red"} /></div></div>
+            <div><span className="text-[13px] text-[var(--t-text-muted)] font-mono">BOLLINGER</span><div className="text-sm font-mono text-[var(--t-text-secondary)]">Upper: {ind?.bollingerBands?.upper} | Mid: {ind?.bollingerBands?.middle} | Low: {ind?.bollingerBands?.lower}</div><Tag label={ind?.bollingerBands?.squeeze ? "SQUEEZE" : "NO SQUEEZE"} color={ind?.bollingerBands?.squeeze ? "yellow" : "gray"} /></div>
           </div>
         </div>
       </Crd>
@@ -173,12 +173,12 @@ export function MomentumTab({ symbol, name, price }: { symbol: string; name: str
           {d.divergences.map((dv, i) => (
             <div key={i} className="mb-2 last:mb-0">
               <Tag label={`${dv.indicator} - ${dv.type}`} color={dv.type === "Bullish" ? "green" : "red"} />
-              <p className="text-sm text-white/40 mt-1">{dv.description}</p>
+              <p className="text-sm text-[var(--t-text-secondary)] mt-1">{dv.description}</p>
             </div>
           ))}
         </Crd>
       )}
-      <p className="text-sm text-white/40 leading-relaxed">{d.summary}</p>
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.summary}</p>
     </div>
   );
 }
@@ -197,29 +197,29 @@ export function FibonacciTab({ symbol, name, price }: { symbol: string; name: st
         <StatBox label="FIB RESISTANCE" value={`$${d.nearestFibResistance}`} />
       </div>
       <Crd title="RETRACEMENT LEVELS">
-        <div className="text-sm text-white/30 mb-3 font-mono">Swing: ${d.retracement?.swingLow} → ${d.retracement?.swingHigh}</div>
+        <div className="text-sm text-[var(--t-text-muted)] mb-3 font-mono">Swing: ${d.retracement?.swingLow} → ${d.retracement?.swingHigh}</div>
         {d.retracement?.levels?.map((lv, i) => (
-          <div key={i} className="flex justify-between items-center py-2 border-b border-white/[0.04] last:border-0">
-            <span className="text-sm font-mono text-white/50">{lv.level}</span>
-            <span className="text-base font-mono text-white font-semibold">${lv.price}</span>
+          <div key={i} className="flex justify-between items-center py-2 border-b border-[var(--t-border)] last:border-0">
+            <span className="text-sm font-mono text-[var(--t-text-secondary)]">{lv.level}</span>
+            <span className="text-base font-mono text-[var(--t-text)] font-semibold">${lv.price}</span>
             <Tag label={lv.status} color={lv.status === "Above" ? "green" : lv.status === "Below" ? "red" : "yellow"} />
           </div>
         ))}
-        <p className="text-sm text-white/30 mt-2">{d.retracement?.currentPosition}</p>
+        <p className="text-sm text-[var(--t-text-muted)] mt-2">{d.retracement?.currentPosition}</p>
       </Crd>
       <Crd title="EXTENSION LEVELS">
         {d.extension?.levels?.map((lv, i) => (
-          <div key={i} className="flex justify-between py-2 border-b border-white/[0.04] last:border-0">
-            <span className="text-sm font-mono text-white/50">{lv.level}</span>
+          <div key={i} className="flex justify-between py-2 border-b border-[var(--t-border)] last:border-0">
+            <span className="text-sm font-mono text-[var(--t-text-secondary)]">{lv.level}</span>
             <span className="text-base font-mono text-emerald-400">${lv.price}</span>
           </div>
         ))}
       </Crd>
       <Crd title="KEY LEVEL">
         <div className="text-lg font-mono text-amber-400">${d.keyLevel?.price} ({d.keyLevel?.level})</div>
-        <p className="text-sm text-white/40 mt-1">{d.keyLevel?.significance}</p>
+        <p className="text-sm text-[var(--t-text-secondary)] mt-1">{d.keyLevel?.significance}</p>
       </Crd>
-      <p className="text-sm text-white/40 leading-relaxed">{d.summary}</p>
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.summary}</p>
     </div>
   );
 }
@@ -240,17 +240,17 @@ export function VolumeProfileTab({ symbol, name, price }: { symbol: string; name
       </div>
       <Crd title="VALUE AREA">
         <div className="flex items-center gap-4">
-          <span className="text-sm text-white/30">VAH: <span className="text-red-400 font-mono">${d.valueArea?.high}</span></span>
-          <span className="text-sm text-white/30">VAL: <span className="text-emerald-400 font-mono">${d.valueArea?.low}</span></span>
-          <span className="text-sm text-white/30">Coverage: {d.valueArea?.percentage}</span>
+          <span className="text-sm text-[var(--t-text-muted)]">VAH: <span className="text-red-400 font-mono">${d.valueArea?.high}</span></span>
+          <span className="text-sm text-[var(--t-text-muted)]">VAL: <span className="text-emerald-400 font-mono">${d.valueArea?.low}</span></span>
+          <span className="text-sm text-[var(--t-text-muted)]">Coverage: {d.valueArea?.percentage}</span>
         </div>
       </Crd>
       <Crd title="VOLUME NODES">
         {d.volumeNodes?.map((n, i) => (
-          <div key={i} className="flex justify-between items-center py-2 border-b border-white/[0.04] last:border-0">
-            <span className="text-base font-mono text-white">${n.price}</span>
+          <div key={i} className="flex justify-between items-center py-2 border-b border-[var(--t-border)] last:border-0">
+            <span className="text-base font-mono text-[var(--t-text)]">${n.price}</span>
             <Tag label={n.type} color={n.type.includes("High") ? "blue" : "gray"} />
-            <span className="text-sm text-white/40">{n.significance}</span>
+            <span className="text-sm text-[var(--t-text-secondary)]">{n.significance}</span>
           </div>
         ))}
       </Crd>
@@ -258,7 +258,7 @@ export function VolumeProfileTab({ symbol, name, price }: { symbol: string; name
         <Tag label={d.accumulation} color={d.accumulation === "Accumulation" ? "green" : d.accumulation === "Distribution" ? "red" : "gray"} />
         {d.unusualVolume && <Tag label="UNUSUAL VOLUME" color="yellow" />}
       </div>
-      <p className="text-sm text-white/40 leading-relaxed">{d.summary}</p>
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.summary}</p>
     </div>
   );
 }
@@ -286,18 +286,18 @@ export function FedImpactTab({ symbol, name, price, sector }: { symbol: string; 
       </Crd>
       <Crd title="SCENARIO ANALYSIS">
         {d.scenarioAnalysis?.map((s, i) => (
-          <div key={i} className="flex justify-between items-center py-3 border-b border-white/[0.04] last:border-0">
-            <span className="text-sm text-white/60">{s.scenario}</span>
+          <div key={i} className="flex justify-between items-center py-3 border-b border-[var(--t-border)] last:border-0">
+            <span className="text-sm text-[var(--t-text-secondary)]">{s.scenario}</span>
             <Tag label={s.stockImpact} color={s.stockImpact?.startsWith("+") ? "green" : s.stockImpact?.startsWith("-") ? "red" : "gray"} />
-            <span className="text-sm text-white/30">{s.rationale}</span>
+            <span className="text-sm text-[var(--t-text-muted)]">{s.rationale}</span>
           </div>
         ))}
       </Crd>
       <Crd title="QT IMPACT">
-        <Tag label={d.qtImpact?.effect} /><p className="text-sm text-white/40 mt-2">{d.qtImpact?.description}</p>
+        <Tag label={d.qtImpact?.effect} /><p className="text-sm text-[var(--t-text-secondary)] mt-2">{d.qtImpact?.description}</p>
       </Crd>
-      <p className="text-sm text-white/40 leading-relaxed">{d.rateImpact?.mechanism}</p>
-      <p className="text-sm text-white/40 leading-relaxed">{d.summary}</p>
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.rateImpact?.mechanism}</p>
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.summary}</p>
     </div>
   );
 }
@@ -325,15 +325,15 @@ export function InflationTab({ symbol, name, price, sector }: { symbol: string; 
       </Crd>
       <Crd title="PASS-THROUGH">
         <StatBox label="ABILITY" value={d.passThrough?.ability} />
-        <p className="text-sm text-white/40 mt-2">Lag: {d.passThrough?.lagTime}</p>
-        <p className="text-sm text-white/40">{d.passThrough?.evidence}</p>
+        <p className="text-sm text-[var(--t-text-secondary)] mt-2">Lag: {d.passThrough?.lagTime}</p>
+        <p className="text-sm text-[var(--t-text-secondary)]">{d.passThrough?.evidence}</p>
       </Crd>
       <div className="flex gap-2">
         <Tag label={d.inflationBeneficiary ? "INFLATION BENEFICIARY" : "NOT A BENEFICIARY"} color={d.inflationBeneficiary ? "green" : "red"} />
         <Tag label={`Real Growth: ${d.realRevenueGrowth}`} />
       </div>
-      {d.hedges?.length > 0 && <Crd title="HEDGES">{d.hedges.map((h, i) => <p key={i} className="text-sm text-white/40 mb-1">{h}</p>)}</Crd>}
-      <p className="text-sm text-white/40 leading-relaxed">{d.summary}</p>
+      {d.hedges?.length > 0 && <Crd title="HEDGES">{d.hedges.map((h, i) => <p key={i} className="text-sm text-[var(--t-text-secondary)] mb-1">{h}</p>)}</Crd>}
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.summary}</p>
     </div>
   );
 }
@@ -352,26 +352,26 @@ export function CurrencyTab({ symbol, name, price }: { symbol: string; name: str
       </div>
       <Crd title="CURRENCY BREAKDOWN">
         {d.currencyBreakdown?.map((c, i) => (
-          <div key={i} className="flex justify-between items-center py-2 border-b border-white/[0.04] last:border-0">
-            <span className="text-base font-mono text-white">{c.currency}</span>
-            <span className="text-sm text-white/50">{c.revenueShare}</span>
+          <div key={i} className="flex justify-between items-center py-2 border-b border-[var(--t-border)] last:border-0">
+            <span className="text-base font-mono text-[var(--t-text)]">{c.currency}</span>
+            <span className="text-sm text-[var(--t-text-secondary)]">{c.revenueShare}</span>
             <Tag label={c.trend} color={c.trend === "Stable" ? "gray" : c.trend === "Strengthening" ? "green" : "red"} />
           </div>
         ))}
       </Crd>
       <Crd title="DOLLAR IMPACT">
         <div className="space-y-2">
-          <p className="text-sm text-white/40"><span className="text-red-400 font-mono">Strong $:</span> {d.dollarImpact?.strongDollar}</p>
-          <p className="text-sm text-white/40"><span className="text-emerald-400 font-mono">Weak $:</span> {d.dollarImpact?.weakDollar}</p>
-          <p className="text-sm text-white/30 font-mono">{d.dollarImpact?.sensitivity}</p>
+          <p className="text-sm text-[var(--t-text-secondary)]"><span className="text-red-400 font-mono">Strong $:</span> {d.dollarImpact?.strongDollar}</p>
+          <p className="text-sm text-[var(--t-text-secondary)]"><span className="text-emerald-400 font-mono">Weak $:</span> {d.dollarImpact?.weakDollar}</p>
+          <p className="text-sm text-[var(--t-text-muted)] font-mono">{d.dollarImpact?.sensitivity}</p>
         </div>
       </Crd>
       <Crd title="HEDGING">
         <Tag label={d.hedgingStrategy?.isHedged ? "HEDGED" : "UNHEDGED"} color={d.hedgingStrategy?.isHedged ? "green" : "red"} />
-        <p className="text-sm text-white/40 mt-2">{d.hedgingStrategy?.instruments}</p>
-        <p className="text-sm text-white/30">{d.hedgingStrategy?.effectiveness}</p>
+        <p className="text-sm text-[var(--t-text-secondary)] mt-2">{d.hedgingStrategy?.instruments}</p>
+        <p className="text-sm text-[var(--t-text-muted)]">{d.hedgingStrategy?.effectiveness}</p>
       </Crd>
-      <p className="text-sm text-white/40 leading-relaxed">{d.summary}</p>
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.summary}</p>
     </div>
   );
 }
@@ -398,8 +398,8 @@ export function YieldCurveTab({ symbol, name, price, sector }: { symbol: string;
       </Crd>
       <Crd title="SECTOR IMPACT">
         <Tag label={d.sectorImplication?.impact} color={d.sectorImplication?.impact === "Positive" ? "green" : "red"} />
-        <p className="text-sm text-white/40 mt-2">{d.sectorImplication?.mechanism}</p>
-        <p className="text-sm text-white/30 mt-1">{d.sectorImplication?.historicalPattern}</p>
+        <p className="text-sm text-[var(--t-text-secondary)] mt-2">{d.sectorImplication?.mechanism}</p>
+        <p className="text-sm text-[var(--t-text-muted)] mt-1">{d.sectorImplication?.historicalPattern}</p>
       </Crd>
       <Crd title="STOCK IMPACT">
         <div className="grid grid-cols-3 gap-3">
@@ -408,7 +408,7 @@ export function YieldCurveTab({ symbol, name, price, sector }: { symbol: string;
           <StatBox label="INT. EXP." value={d.stockSpecificImpact?.interestExpenseSensitivity} />
         </div>
       </Crd>
-      <p className="text-sm text-white/40 leading-relaxed">{d.summary}</p>
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.summary}</p>
     </div>
   );
 }
@@ -428,19 +428,19 @@ export function GeopoliticalTab({ symbol, name, price }: { symbol: string; name:
       </div>
       <Crd title="REGIONAL EXPOSURES">
         {d.exposures?.map((e, i) => (
-          <div key={i} className="mb-3 last:mb-0 border-b border-white/[0.04] pb-3 last:border-0 last:pb-0">
+          <div key={i} className="mb-3 last:mb-0 border-b border-[var(--t-border)] pb-3 last:border-0 last:pb-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-base font-semibold text-white">{e.region}</span>
+              <span className="text-base font-semibold text-[var(--t-text)]">{e.region}</span>
               <Tag label={e.type} /><Tag label={e.exposure} color={e.exposure === "High" ? "red" : "gray"} />
             </div>
-            <p className="text-sm text-white/40">{e.description}</p>
+            <p className="text-sm text-[var(--t-text-secondary)]">{e.description}</p>
           </div>
         ))}
       </Crd>
       <Crd title="TARIFF RISK">
         <Tag label={d.tariffRisk?.level} color={d.tariffRisk?.level === "High" ? "red" : "gray"} />
-        <p className="text-sm text-white/40 mt-2">{d.tariffRisk?.currentTariffs}</p>
-        <p className="text-sm text-white/30">{d.tariffRisk?.potentialImpact}</p>
+        <p className="text-sm text-[var(--t-text-secondary)] mt-2">{d.tariffRisk?.currentTariffs}</p>
+        <p className="text-sm text-[var(--t-text-muted)]">{d.tariffRisk?.potentialImpact}</p>
       </Crd>
       <Crd title="SUPPLY CHAIN">
         <StatBox label="DIVERSIFICATION" value={d.supplyChainVulnerability?.diversificationLevel} />
@@ -448,14 +448,14 @@ export function GeopoliticalTab({ symbol, name, price }: { symbol: string; name:
       </Crd>
       <Crd title="HOTSPOTS">
         {d.currentHotspots?.map((h, i) => (
-          <div key={i} className="flex justify-between items-center py-2 border-b border-white/[0.04] last:border-0">
-            <span className="text-sm text-white/60">{h.issue}</span>
+          <div key={i} className="flex justify-between items-center py-2 border-b border-[var(--t-border)] last:border-0">
+            <span className="text-sm text-[var(--t-text-secondary)]">{h.issue}</span>
             <Tag label={h.impact} color={h.impact === "High" ? "red" : "gray"} />
-            <span className="text-sm text-white/30">P: {h.probability}</span>
+            <span className="text-sm text-[var(--t-text-muted)]">P: {h.probability}</span>
           </div>
         ))}
       </Crd>
-      <p className="text-sm text-white/40 leading-relaxed">{d.summary}</p>
+      <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{d.summary}</p>
     </div>
   );
 }

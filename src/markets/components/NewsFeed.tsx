@@ -21,8 +21,8 @@ export default function NewsFeed({ symbol, limit = 10 }: NewsFeedProps) {
 
   if (loading) {
     return (
-      <div className="bg-[#0a0a0a] border border-white/[0.06] rounded-xl p-4">
-        <div className="text-[14px] text-white/20 font-mono uppercase tracking-widest mb-4">
+      <div className="bg-[var(--t-bg-elevated)] border border-[var(--t-border)] rounded-xl p-4">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono uppercase tracking-widest mb-4">
           {symbol ? `${symbol} NEWS` : "MARKET NEWS"}
         </div>
         <div className="space-y-3">
@@ -39,18 +39,18 @@ export default function NewsFeed({ symbol, limit = 10 }: NewsFeedProps) {
 
   if (news.length === 0) {
     return (
-      <div className="bg-[#0a0a0a] border border-white/[0.06] rounded-xl p-4">
-        <div className="text-[14px] text-white/20 font-mono uppercase tracking-widest mb-4">
+      <div className="bg-[var(--t-bg-elevated)] border border-[var(--t-border)] rounded-xl p-4">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono uppercase tracking-widest mb-4">
           {symbol ? `${symbol} NEWS` : "MARKET NEWS"}
         </div>
-        <div className="text-white/20 text-xs font-mono text-center py-6">No news available</div>
+        <div className="text-[var(--t-text-muted)] text-xs font-mono text-center py-6">No news available</div>
       </div>
     );
   }
 
   return (
-    <div className="bg-[#0a0a0a] border border-white/[0.06] rounded-xl p-4">
-      <div className="text-[14px] text-white/20 font-mono uppercase tracking-widest mb-4">
+    <div className="bg-[var(--t-bg-elevated)] border border-[var(--t-border)] rounded-xl p-4">
+      <div className="text-[14px] text-[var(--t-text-muted)] font-mono uppercase tracking-widest mb-4">
         {symbol ? `${symbol} NEWS` : "MARKET NEWS"}
       </div>
       <div className="space-y-3">
@@ -60,7 +60,7 @@ export default function NewsFeed({ symbol, limit = 10 }: NewsFeedProps) {
             href={article.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="block p-3 rounded-lg border border-white/[0.04] hover:border-white/[0.1] hover:bg-white/[0.02] transition-all group"
+            className="block p-3 rounded-lg border border-[var(--t-border)] hover:border-[var(--t-border-hover)] hover:bg-[var(--t-stat-bg)] transition-all group"
           >
             <div className="flex gap-3">
               {article.image && (
@@ -72,18 +72,18 @@ export default function NewsFeed({ symbol, limit = 10 }: NewsFeedProps) {
                 />
               )}
               <div className="flex-1 min-w-0">
-                <h3 className="text-xs text-white/80 font-medium leading-tight line-clamp-2 group-hover:text-white transition-colors">
+                <h3 className="text-xs text-[var(--t-text)] font-medium leading-tight line-clamp-2 group-hover:text-[var(--t-text)] transition-colors">
                   {article.title}
                 </h3>
                 <div className="flex items-center gap-2 mt-1.5">
-                  <span className="text-[14px] text-white/30 font-mono">{article.source}</span>
-                  <span className="text-[14px] text-white/15">|</span>
-                  <span className="text-[14px] text-white/30 font-mono">{timeAgo(article.published)}</span>
+                  <span className="text-[14px] text-[var(--t-text-muted)] font-mono">{article.source}</span>
+                  <span className="text-[14px] text-[var(--t-text-dim)]">|</span>
+                  <span className="text-[14px] text-[var(--t-text-muted)] font-mono">{timeAgo(article.published)}</span>
                 </div>
                 {article.tickers.length > 0 && (
                   <div className="flex gap-1 mt-1.5 flex-wrap">
                     {article.tickers.slice(0, 4).map((t) => (
-                      <span key={t} className="text-[13px] px-1.5 py-0.5 rounded bg-white/5 text-white/40 font-mono">
+                      <span key={t} className="text-[13px] px-1.5 py-0.5 rounded bg-white/5 text-[var(--t-text-secondary)] font-mono">
                         {t}
                       </span>
                     ))}

@@ -74,7 +74,7 @@ export const TradingViewAdvancedChart = memo(function TradingViewAdvancedChart({
   return (
     <div
       ref={container}
-      className="tradingview-widget-container rounded-xl overflow-hidden border border-white/[0.06]"
+      className="tradingview-widget-container rounded-xl overflow-hidden border border-[var(--t-border)]"
       style={{ height: `${height}px`, width: "100%" }}
     />
   );
@@ -179,7 +179,7 @@ export const TradingViewTechnicalAnalysis = memo(function TradingViewTechnicalAn
   return (
     <div
       ref={container}
-      className="tradingview-widget-container rounded-xl overflow-hidden border border-white/[0.06]"
+      className="tradingview-widget-container rounded-xl overflow-hidden border border-[var(--t-border)]"
       style={{ height: `${height}px` }}
     />
   );
@@ -247,7 +247,7 @@ export const TradingViewSymbolOverview = memo(function TradingViewSymbolOverview
   return (
     <div
       ref={container}
-      className="tradingview-widget-container rounded-xl overflow-hidden border border-white/[0.06]"
+      className="tradingview-widget-container rounded-xl overflow-hidden border border-[var(--t-border)]"
       style={{ height: `${height}px` }}
     />
   );
@@ -306,7 +306,7 @@ export const TradingViewStockHeatmap = memo(function TradingViewStockHeatmap({
   return (
     <div
       ref={container}
-      className="tradingview-widget-container rounded-xl overflow-hidden border border-white/[0.06]"
+      className="tradingview-widget-container rounded-xl overflow-hidden border border-[var(--t-border)]"
       style={{ height: `${height}px` }}
     />
   );
@@ -357,7 +357,7 @@ export const TradingViewScreener = memo(function TradingViewScreener({
   return (
     <div
       ref={container}
-      className="tradingview-widget-container rounded-xl overflow-hidden border border-white/[0.06]"
+      className="tradingview-widget-container rounded-xl overflow-hidden border border-[var(--t-border)]"
       style={{ height: `${height}px` }}
     />
   );
@@ -469,7 +469,7 @@ export const TradingViewMarketOverview = memo(function TradingViewMarketOverview
   return (
     <div
       ref={container}
-      className="tradingview-widget-container rounded-xl overflow-hidden border border-white/[0.06]"
+      className="tradingview-widget-container rounded-xl overflow-hidden border border-[var(--t-border)]"
       style={{ height: `${height}px` }}
     />
   );
@@ -521,7 +521,7 @@ export const TradingViewTopStories = memo(function TradingViewTopStories({
   return (
     <div
       ref={container}
-      className="tradingview-widget-container rounded-xl overflow-hidden border border-white/[0.06]"
+      className="tradingview-widget-container rounded-xl overflow-hidden border border-[var(--t-border)]"
       style={{ height: `${height}px` }}
     />
   );
@@ -564,7 +564,7 @@ export const TradingViewEconomicCalendar = memo(function TradingViewEconomicCale
   return (
     <div
       ref={container}
-      className="tradingview-widget-container rounded-xl overflow-hidden border border-white/[0.06]"
+      className="tradingview-widget-container rounded-xl overflow-hidden border border-[var(--t-border)]"
       style={{ height: `${height}px` }}
     />
   );
@@ -610,7 +610,7 @@ export const TradingViewFundamentalData = memo(function TradingViewFundamentalDa
   return (
     <div
       ref={container}
-      className="tradingview-widget-container rounded-xl overflow-hidden border border-white/[0.06]"
+      className="tradingview-widget-container rounded-xl overflow-hidden border border-[var(--t-border)]"
       style={{ height: `${height}px` }}
     />
   );
@@ -654,7 +654,7 @@ export const TradingViewCompanyProfile = memo(function TradingViewCompanyProfile
   return (
     <div
       ref={container}
-      className="tradingview-widget-container rounded-xl overflow-hidden border border-white/[0.06]"
+      className="tradingview-widget-container rounded-xl overflow-hidden border border-[var(--t-border)]"
       style={{ height: `${height}px` }}
     />
   );
@@ -742,7 +742,7 @@ export const TradingViewMiniChart = memo(function TradingViewMiniChart({
   return (
     <div
       ref={container}
-      className="tradingview-widget-container rounded-xl overflow-hidden border border-white/[0.06]"
+      className="tradingview-widget-container rounded-xl overflow-hidden border border-[var(--t-border)]"
       style={{ height: `${height}px` }}
     />
   );

@@ -61,7 +61,7 @@ export default function ThemeAnalysis() {
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-3">
-                        <span className="w-6 h-6 rounded-full bg-gray-900 text-white text-xs flex items-center justify-center font-mono">{i + 1}</span>
+                        <span className="w-6 h-6 rounded-full bg-gray-900 text-[var(--t-text)] text-xs flex items-center justify-center font-mono">{i + 1}</span>
                         <span className="text-base font-semibold font-mono text-gray-900">{stock.symbol}</span>
                         {data && <span className="text-xs text-gray-400">{data.name}</span>}
                       </div>

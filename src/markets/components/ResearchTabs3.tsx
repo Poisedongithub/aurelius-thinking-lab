@@ -10,16 +10,16 @@ import {
 
 function GenerateButton({ label, onClick, loading }: { label: string; onClick: () => void; loading: boolean }) {
   if (loading) return (
-    <div className="bg-white/[0.02] border border-white/[0.08] rounded-xl p-12 text-center">
-      <div className="w-8 h-8 border-2 border-white/10 border-t-white/50 rounded-full animate-spin mx-auto mb-4" />
-      <p className="text-sm font-mono text-white/30 animate-pulse">{label}</p>
+    <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-12 text-center">
+      <div className="w-8 h-8 border-2 border-[var(--t-border-hover)] border-t-white/50 rounded-full animate-spin mx-auto mb-4" />
+      <p className="text-sm font-mono text-[var(--t-text-muted)] animate-pulse">{label}</p>
     </div>
   );
   return (
-    <button onClick={onClick} className="w-full group bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden hover:bg-white/[0.04] hover:border-white/[0.1] transition-all duration-200">
+    <button onClick={onClick} className="w-full group bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl overflow-hidden hover:bg-[var(--t-btn-bg)] hover:border-[var(--t-border-hover)] transition-all duration-200">
       <div className="flex items-center justify-between px-5 py-4">
-        <h3 className="text-sm text-white/30 group-hover:text-white/60 transition-colors">{label}</h3>
-        <span className="text-[14px] font-mono text-white/15 bg-white/[0.04] px-2.5 py-1 rounded-md group-hover:text-white/30 group-hover:bg-white/[0.06] transition-all">GENERATE</span>
+        <h3 className="text-sm text-[var(--t-text-muted)] group-hover:text-[var(--t-text-secondary)] transition-colors">{label}</h3>
+        <span className="text-[14px] font-mono text-[var(--t-text-dim)] bg-[var(--t-btn-bg)] px-2.5 py-1 rounded-md group-hover:text-[var(--t-text-muted)] group-hover:bg-[var(--t-btn-bg)] transition-all">GENERATE</span>
       </div>
     </button>
   );
@@ -27,9 +27,9 @@ function GenerateButton({ label, onClick, loading }: { label: string; onClick: (
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
-      <div className="px-5 py-3 border-b border-white/[0.06]">
-        <div className="text-[14px] text-white/25 font-mono tracking-widest">{title}</div>
+    <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl overflow-hidden">
+      <div className="px-5 py-3 border-b border-[var(--t-border)]">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest">{title}</div>
       </div>
       <div className="p-5">{children}</div>
     </div>
@@ -48,11 +48,11 @@ export function EarningsReplayTab({ symbol, name }: { symbol: string; name: stri
   if (!data) return <EmptyState message="No data" />;
   return (
     <div className="space-y-4">
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-6">
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-6">
         <div className="flex items-center justify-between mb-2">
           <div>
-            <div className="text-[14px] text-white/25 font-mono tracking-widest">{data.quarter} · {data.date}</div>
-            <h3 className="text-lg font-bold text-white mt-1">{data.headline}</h3>
+            <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest">{data.quarter} · {data.date}</div>
+            <h3 className="text-lg font-bold text-[var(--t-text)] mt-1">{data.headline}</h3>
           </div>
         </div>
       </div>
@@ -81,15 +81,15 @@ export function EarningsReplayTab({ symbol, name }: { symbol: string; name: stri
         <Card title="SEGMENT HIGHLIGHTS">
           <div className="space-y-3">
             {data.segmentHighlights.map((s, i) => (
-              <div key={i} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={i} className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-semibold text-white/70">{s.segment}</span>
+                  <span className="text-xs font-semibold text-[var(--t-text)]">{s.segment}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-white/40">{s.revenue}</span>
+                    <span className="text-xs font-mono text-[var(--t-text-secondary)]">{s.revenue}</span>
                     <Tag label={s.growth} color={s.growth?.startsWith("+") ? "green" : "red"} />
                   </div>
                 </div>
-                <p className="text-xs text-white/40">{s.commentary}</p>
+                <p className="text-xs text-[var(--t-text-secondary)]">{s.commentary}</p>
               </div>
             ))}
           </div>
@@ -117,7 +117,7 @@ export function EarningsReplayTab({ symbol, name }: { symbol: string; name: stri
         <Card title="KEY QUOTES FROM CALL">
           <div className="space-y-2">
             {data.keyQuotes.map((q, i) => (
-              <blockquote key={i} className="text-xs text-white/50 italic border-l-2 border-white/10 pl-3">"{q}"</blockquote>
+              <blockquote key={i} className="text-xs text-[var(--t-text-secondary)] italic border-l-2 border-[var(--t-border-hover)] pl-3">"{q}"</blockquote>
             ))}
           </div>
         </Card>
@@ -126,17 +126,17 @@ export function EarningsReplayTab({ symbol, name }: { symbol: string; name: stri
         <Card title="ANALYST REACTIONS">
           <div className="space-y-2">
             {data.analystReactions.map((a, i) => (
-              <div key={i} className="flex items-center justify-between text-xs bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
-                <div><span className="text-white/60">{a.firm}</span><span className="text-white/25 ml-2">{a.action}</span></div>
-                <p className="text-white/40 max-w-[50%] text-right">{a.comment}</p>
+              <div key={i} className="flex items-center justify-between text-xs bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
+                <div><span className="text-[var(--t-text-secondary)]">{a.firm}</span><span className="text-[var(--t-text-muted)] ml-2">{a.action}</span></div>
+                <p className="text-[var(--t-text-secondary)] max-w-[50%] text-right">{a.comment}</p>
               </div>
             ))}
           </div>
         </Card>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -156,23 +156,23 @@ export function EarningsCalendarTab({ watchlistSymbols }: { watchlistSymbols?: s
     <Card title={title}>
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
-          <thead><tr className="border-b border-white/[0.06]">
-            <th className="text-left py-2 text-[13px] text-white/20 font-mono">SYMBOL</th>
-            <th className="text-left py-2 text-[13px] text-white/20 font-mono">DATE</th>
-            <th className="text-right py-2 text-[13px] text-white/20 font-mono">EPS EST</th>
-            <th className="text-right py-2 text-[13px] text-white/20 font-mono">REV EST</th>
-            <th className="text-right py-2 text-[13px] text-white/20 font-mono">BEAT STREAK</th>
-            <th className="text-right py-2 text-[13px] text-white/20 font-mono">AVG MOVE</th>
+          <thead><tr className="border-b border-[var(--t-border)]">
+            <th className="text-left py-2 text-[13px] text-[var(--t-text-muted)] font-mono">SYMBOL</th>
+            <th className="text-left py-2 text-[13px] text-[var(--t-text-muted)] font-mono">DATE</th>
+            <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">EPS EST</th>
+            <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">REV EST</th>
+            <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">BEAT STREAK</th>
+            <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">AVG MOVE</th>
           </tr></thead>
-          <tbody className="divide-y divide-white/[0.04]">
+          <tbody className="divide-y divide-[var(--t-border)]">
             {entries.map((e, i) => (
               <tr key={i}>
-                <td className="py-2"><span className="text-white/60 font-mono font-semibold">{e.symbol}</span><span className="text-white/25 ml-1 text-[14px]">{e.name}</span></td>
-                <td className="py-2 text-white/40 font-mono">{e.date} {e.time}</td>
-                <td className="py-2 text-right text-white/50 font-mono">{e.epsEstimate}</td>
-                <td className="py-2 text-right text-white/50 font-mono">{e.revenueEstimate}</td>
+                <td className="py-2"><span className="text-[var(--t-text-secondary)] font-mono font-semibold">{e.symbol}</span><span className="text-[var(--t-text-muted)] ml-1 text-[14px]">{e.name}</span></td>
+                <td className="py-2 text-[var(--t-text-secondary)] font-mono">{e.date} {e.time}</td>
+                <td className="py-2 text-right text-[var(--t-text-secondary)] font-mono">{e.epsEstimate}</td>
+                <td className="py-2 text-right text-[var(--t-text-secondary)] font-mono">{e.revenueEstimate}</td>
                 <td className="py-2 text-right"><span className={`font-mono ${e.beatStreak > 0 ? "text-emerald-400" : "text-red-400"}`}>{e.beatStreak}</span></td>
-                <td className="py-2 text-right text-white/40 font-mono">{e.avgMove}</td>
+                <td className="py-2 text-right text-[var(--t-text-secondary)] font-mono">{e.avgMove}</td>
               </tr>
             ))}
           </tbody>
@@ -185,9 +185,9 @@ export function EarningsCalendarTab({ watchlistSymbols }: { watchlistSymbols?: s
       {renderTable(data.thisWeek, "THIS WEEK")}
       {renderTable(data.nextWeek, "NEXT WEEK")}
       {renderTable(data.upcoming, "UPCOMING")}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -212,7 +212,7 @@ export function EstimateRevisionsTab({ symbol, name }: { symbol: string; name: s
       {data.currentEstimates && (
         <Card title="CURRENT ESTIMATES">
           <div className="space-y-1.5">{Object.entries(data.currentEstimates).map(([k, v]) => (
-            <div key={k} className="flex justify-between text-xs"><span className="text-white/30">{k}</span><span className="text-white/60 font-mono">{v}</span></div>
+            <div key={k} className="flex justify-between text-xs"><span className="text-[var(--t-text-muted)]">{k}</span><span className="text-[var(--t-text-secondary)] font-mono">{v}</span></div>
           ))}</div>
         </Card>
       )}
@@ -228,22 +228,22 @@ export function EstimateRevisionsTab({ symbol, name }: { symbol: string; name: s
         <Card title="REVISION HISTORY">
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
-              <thead><tr className="border-b border-white/[0.06]">
-                <th className="text-left py-2 text-[13px] text-white/20 font-mono">PERIOD</th>
-                <th className="text-left py-2 text-[13px] text-white/20 font-mono">METRIC</th>
-                <th className="text-right py-2 text-[13px] text-white/20 font-mono">30D AGO</th>
-                <th className="text-right py-2 text-[13px] text-white/20 font-mono">CURRENT</th>
-                <th className="text-right py-2 text-[13px] text-white/20 font-mono">CHANGE</th>
+              <thead><tr className="border-b border-[var(--t-border)]">
+                <th className="text-left py-2 text-[13px] text-[var(--t-text-muted)] font-mono">PERIOD</th>
+                <th className="text-left py-2 text-[13px] text-[var(--t-text-muted)] font-mono">METRIC</th>
+                <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">30D AGO</th>
+                <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">CURRENT</th>
+                <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">CHANGE</th>
               </tr></thead>
-              <tbody className="divide-y divide-white/[0.04]">
+              <tbody className="divide-y divide-[var(--t-border)]">
                 {data.revisions.map((r, i) => (
                   <tr key={i}>
-                    <td className="py-2 text-white/50 font-mono">{r.period}</td>
-                    <td className="py-2 text-white/40">{r.metric}</td>
-                    <td className="py-2 text-right text-white/30 font-mono">{r.thirtyDaysAgo}</td>
-                    <td className="py-2 text-right text-white/60 font-mono">{r.current}</td>
+                    <td className="py-2 text-[var(--t-text-secondary)] font-mono">{r.period}</td>
+                    <td className="py-2 text-[var(--t-text-secondary)]">{r.metric}</td>
+                    <td className="py-2 text-right text-[var(--t-text-muted)] font-mono">{r.thirtyDaysAgo}</td>
+                    <td className="py-2 text-right text-[var(--t-text-secondary)] font-mono">{r.current}</td>
                     <td className="py-2 text-right">
-                      <span className={`font-mono ${r.direction === "up" ? "text-emerald-400" : r.direction === "down" ? "text-red-400" : "text-white/40"}`}>{r.change}</span>
+                      <span className={`font-mono ${r.direction === "up" ? "text-emerald-400" : r.direction === "down" ? "text-red-400" : "text-[var(--t-text-secondary)]"}`}>{r.change}</span>
                     </td>
                   </tr>
                 ))}
@@ -252,9 +252,9 @@ export function EstimateRevisionsTab({ symbol, name }: { symbol: string; name: s
           </div>
         </Card>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -286,8 +286,8 @@ export function CashFlowTab({ symbol, name }: { symbol: string; name: string }) 
               const pct = maxVal > 0 ? (Math.abs(w.value) / maxVal) * 100 : 0;
               return (
                 <div key={i} className="flex items-center gap-3">
-                  <span className="w-32 text-xs text-white/40 text-right truncate">{w.item}</span>
-                  <div className="flex-1 h-4 bg-white/[0.03] rounded overflow-hidden relative">
+                  <span className="w-32 text-xs text-[var(--t-text-secondary)] text-right truncate">{w.item}</span>
+                  <div className="flex-1 h-4 bg-[var(--t-stat-bg)] rounded overflow-hidden relative">
                     <div className={`h-full rounded ${w.value >= 0 ? "bg-emerald-400/30" : "bg-red-400/30"}`} style={{ width: `${pct}%` }} />
                   </div>
                   <span className={`w-20 text-xs font-mono text-right ${w.value >= 0 ? "text-emerald-400" : "text-red-400"}`}>{w.amount}</span>
@@ -302,19 +302,19 @@ export function CashFlowTab({ symbol, name }: { symbol: string; name: string }) 
           <div className="space-y-2">
             {data.uses.map((u, i) => (
               <div key={i} className="flex items-center gap-3">
-                <span className="w-28 text-xs text-white/40">{u.category}</span>
-                <div className="flex-1 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                <span className="w-28 text-xs text-[var(--t-text-secondary)]">{u.category}</span>
+                <div className="flex-1 h-1.5 bg-[var(--t-btn-bg)] rounded-full overflow-hidden">
                   <div className="h-full bg-blue-400 rounded-full" style={{ width: `${u.percentage}%` }} />
                 </div>
-                <span className="text-xs font-mono text-white/50 w-16 text-right">{u.amount}</span>
+                <span className="text-xs font-mono text-[var(--t-text-secondary)] w-16 text-right">{u.amount}</span>
               </div>
             ))}
           </div>
         </Card>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -345,19 +345,19 @@ export function MarginsTab({ symbol, name }: { symbol: string; name: string }) {
         <Card title="MARGIN HISTORY">
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
-              <thead><tr className="border-b border-white/[0.06]">
-                <th className="text-left py-2 text-[13px] text-white/20 font-mono">QUARTER</th>
-                <th className="text-right py-2 text-[13px] text-white/20 font-mono">GROSS</th>
-                <th className="text-right py-2 text-[13px] text-white/20 font-mono">OPERATING</th>
-                <th className="text-right py-2 text-[13px] text-white/20 font-mono">NET</th>
+              <thead><tr className="border-b border-[var(--t-border)]">
+                <th className="text-left py-2 text-[13px] text-[var(--t-text-muted)] font-mono">QUARTER</th>
+                <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">GROSS</th>
+                <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">OPERATING</th>
+                <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">NET</th>
               </tr></thead>
-              <tbody className="divide-y divide-white/[0.04]">
+              <tbody className="divide-y divide-[var(--t-border)]">
                 {data.history.map((h, i) => (
                   <tr key={i}>
-                    <td className="py-2 text-white/50 font-mono">{h.quarter}</td>
-                    <td className="py-2 text-right text-white/50 font-mono">{h.gross?.toFixed(1)}%</td>
-                    <td className="py-2 text-right text-white/50 font-mono">{h.operating?.toFixed(1)}%</td>
-                    <td className="py-2 text-right text-white/50 font-mono">{h.net?.toFixed(1)}%</td>
+                    <td className="py-2 text-[var(--t-text-secondary)] font-mono">{h.quarter}</td>
+                    <td className="py-2 text-right text-[var(--t-text-secondary)] font-mono">{h.gross?.toFixed(1)}%</td>
+                    <td className="py-2 text-right text-[var(--t-text-secondary)] font-mono">{h.operating?.toFixed(1)}%</td>
+                    <td className="py-2 text-right text-[var(--t-text-secondary)] font-mono">{h.net?.toFixed(1)}%</td>
                   </tr>
                 ))}
               </tbody>
@@ -369,19 +369,19 @@ export function MarginsTab({ symbol, name }: { symbol: string; name: string }) {
         <Card title="PEER COMPARISON">
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
-              <thead><tr className="border-b border-white/[0.06]">
-                <th className="text-left py-2 text-[13px] text-white/20 font-mono">COMPANY</th>
-                <th className="text-right py-2 text-[13px] text-white/20 font-mono">GROSS</th>
-                <th className="text-right py-2 text-[13px] text-white/20 font-mono">OPERATING</th>
-                <th className="text-right py-2 text-[13px] text-white/20 font-mono">NET</th>
+              <thead><tr className="border-b border-[var(--t-border)]">
+                <th className="text-left py-2 text-[13px] text-[var(--t-text-muted)] font-mono">COMPANY</th>
+                <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">GROSS</th>
+                <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">OPERATING</th>
+                <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">NET</th>
               </tr></thead>
-              <tbody className="divide-y divide-white/[0.04]">
+              <tbody className="divide-y divide-[var(--t-border)]">
                 {data.peerComparison.map((p, i) => (
                   <tr key={i}>
-                    <td className="py-2 text-white/60">{p.company}</td>
-                    <td className="py-2 text-right text-white/50 font-mono">{p.gross?.toFixed(1)}%</td>
-                    <td className="py-2 text-right text-white/50 font-mono">{p.operating?.toFixed(1)}%</td>
-                    <td className="py-2 text-right text-white/50 font-mono">{p.net?.toFixed(1)}%</td>
+                    <td className="py-2 text-[var(--t-text-secondary)]">{p.company}</td>
+                    <td className="py-2 text-right text-[var(--t-text-secondary)] font-mono">{p.gross?.toFixed(1)}%</td>
+                    <td className="py-2 text-right text-[var(--t-text-secondary)] font-mono">{p.operating?.toFixed(1)}%</td>
+                    <td className="py-2 text-right text-[var(--t-text-secondary)] font-mono">{p.net?.toFixed(1)}%</td>
                   </tr>
                 ))}
               </tbody>
@@ -405,9 +405,9 @@ export function MarginsTab({ symbol, name }: { symbol: string; name: string }) {
           </Card>
         )}
       </div>
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -433,9 +433,9 @@ export function ScenarioTab({ symbol, name, price }: { symbol: string; name: str
       {c.upside && <div className="text-xs font-mono text-emerald-400 mb-1">Upside: {c.upside}</div>}
       {c.downside && <div className="text-xs font-mono text-red-400 mb-1">Downside: {c.downside}</div>}
       <div className="space-y-1.5 mt-3 text-xs">
-        <div><span className="text-white/30">Assumptions: </span><span className="text-white/50">{c.assumptions}</span></div>
-        <div><span className="text-white/30">Revenue Impact: </span><span className="text-white/50">{c.revenueImpact}</span></div>
-        <div><span className="text-white/30">Margin Impact: </span><span className="text-white/50">{c.marginImpact}</span></div>
+        <div><span className="text-[var(--t-text-muted)]">Assumptions: </span><span className="text-[var(--t-text-secondary)]">{c.assumptions}</span></div>
+        <div><span className="text-[var(--t-text-muted)]">Revenue Impact: </span><span className="text-[var(--t-text-secondary)]">{c.revenueImpact}</span></div>
+        <div><span className="text-[var(--t-text-muted)]">Margin Impact: </span><span className="text-[var(--t-text-secondary)]">{c.marginImpact}</span></div>
       </div>
     </div>
   );
@@ -451,9 +451,9 @@ export function ScenarioTab({ symbol, name, price }: { symbol: string; name: str
         {renderCase(data.baseCase, "BASE CASE", "bg-blue-500/5", "border-blue-500/20")}
         {renderCase(data.bullCase, "BULL CASE", "bg-emerald-500/5", "border-emerald-500/20")}
       </div>
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -471,36 +471,36 @@ export function QualityTab({ symbol, name, price }: { symbol: string; name: stri
   if (!data) return <EmptyState message="No data" />;
   return (
     <div className="space-y-4">
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-6 flex items-center gap-6">
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-6 flex items-center gap-6">
         <div className="text-center">
-          <div className="text-4xl font-bold font-mono text-white">{data.qualityScore}<span className="text-sm text-white/20">/100</span></div>
-          <div className="text-[13px] text-white/20 font-mono mt-1">QUALITY SCORE</div>
+          <div className="text-4xl font-bold font-mono text-[var(--t-text)]">{data.qualityScore}<span className="text-sm text-[var(--t-text-muted)]">/100</span></div>
+          <div className="text-[13px] text-[var(--t-text-muted)] font-mono mt-1">QUALITY SCORE</div>
         </div>
         <div className="text-center">
           <div className={`text-4xl font-bold font-mono ${data.grade?.startsWith("A") ? "text-emerald-400" : data.grade?.startsWith("B") ? "text-blue-400" : data.grade?.startsWith("C") ? "text-amber-400" : "text-red-400"}`}>{data.grade}</div>
-          <div className="text-[13px] text-white/20 font-mono mt-1">GRADE</div>
+          <div className="text-[13px] text-[var(--t-text-muted)] font-mono mt-1">GRADE</div>
         </div>
         <div className="text-center flex-1">
-          <div className="text-sm font-mono text-white/50">{data.percentileRank}</div>
-          <div className="text-[13px] text-white/20 font-mono mt-1">PERCENTILE</div>
+          <div className="text-sm font-mono text-[var(--t-text-secondary)]">{data.percentileRank}</div>
+          <div className="text-[13px] text-[var(--t-text-muted)] font-mono mt-1">PERCENTILE</div>
         </div>
       </div>
       {data.components?.length > 0 && (
         <Card title="QUALITY COMPONENTS">
           <div className="space-y-4">
             {data.components.map((c, i) => (
-              <div key={i} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={i} className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-white/70">{c.factor}</span>
-                  <span className="text-xs font-mono text-white/50">{c.score}/100</span>
+                  <span className="text-xs font-semibold text-[var(--t-text)]">{c.factor}</span>
+                  <span className="text-xs font-mono text-[var(--t-text-secondary)]">{c.score}/100</span>
                 </div>
                 <ScoreBar label="" value={c.score} max={100} color={c.score >= 70 ? "#34d399" : c.score >= 40 ? "#fbbf24" : "#f87171"} />
                 {c.metrics && (
                   <div className="mt-2 space-y-1">{Object.entries(c.metrics).map(([k, v]) => (
-                    <div key={k} className="flex justify-between text-[14px]"><span className="text-white/25">{k}</span><span className="text-white/50 font-mono">{v}</span></div>
+                    <div key={k} className="flex justify-between text-[14px]"><span className="text-[var(--t-text-muted)]">{k}</span><span className="text-[var(--t-text-secondary)] font-mono">{v}</span></div>
                   ))}</div>
                 )}
-                <p className="text-xs text-white/40 mt-1">{c.assessment}</p>
+                <p className="text-xs text-[var(--t-text-secondary)] mt-1">{c.assessment}</p>
               </div>
             ))}
           </div>
@@ -511,21 +511,21 @@ export function QualityTab({ symbol, name, price }: { symbol: string; name: stri
           <div className="space-y-2">
             {data.comparableScores.map((c, i) => (
               <div key={i} className="flex items-center justify-between text-xs">
-                <span className="text-white/60 font-mono">{c.symbol}</span>
+                <span className="text-[var(--t-text-secondary)] font-mono">{c.symbol}</span>
                 <div className="flex items-center gap-2">
-                  <div className="w-24 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                  <div className="w-24 h-1.5 bg-[var(--t-btn-bg)] rounded-full overflow-hidden">
                     <div className={`h-full rounded-full ${c.score >= 70 ? "bg-emerald-400" : c.score >= 40 ? "bg-amber-400" : "bg-red-400"}`} style={{ width: `${c.score}%` }} />
                   </div>
-                  <span className="font-mono text-white/50 w-8 text-right">{c.score}</span>
+                  <span className="font-mono text-[var(--t-text-secondary)] w-8 text-right">{c.score}</span>
                 </div>
               </div>
             ))}
           </div>
         </Card>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -562,27 +562,27 @@ export function AlertsTab({ symbol, name, price }: { symbol: string; name: strin
         <Card title="SUGGESTED ALERTS">
           <div className="space-y-3">
             {data.suggestedAlerts.map((a, i) => (
-              <div key={i} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={i} className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <Tag label={a.type} color="blue" />
                     <Tag label={a.priority} color={a.priority === "high" ? "red" : a.priority === "medium" ? "yellow" : "green"} />
                   </div>
                 </div>
-                <p className="text-xs text-white/60 mb-1">{a.condition}</p>
-                <div className="flex gap-3 text-[14px] text-white/30 font-mono">
+                <p className="text-xs text-[var(--t-text-secondary)] mb-1">{a.condition}</p>
+                <div className="flex gap-3 text-[14px] text-[var(--t-text-muted)] font-mono">
                   <span>Current: {a.currentValue}</span>
                   <span>Threshold: {a.threshold}</span>
                 </div>
-                <p className="text-xs text-white/40 mt-1">{a.rationale}</p>
+                <p className="text-xs text-[var(--t-text-secondary)] mt-1">{a.rationale}</p>
               </div>
             ))}
           </div>
         </Card>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -624,9 +624,9 @@ export function ResearchNotesTab({ symbol, name, price }: { symbol: string; name
       {/* Add Note */}
       <Card title="ADD RESEARCH NOTE">
         <div className="space-y-3">
-          <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Note title..." className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/20" />
-          <textarea value={newContent} onChange={e => setNewContent(e.target.value)} placeholder="Your research notes..." rows={3} className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/20 resize-none" />
-          <button onClick={addNote} className="px-4 py-2 bg-white/[0.08] hover:bg-white/[0.12] rounded-lg text-xs font-mono text-white/60 transition-colors">SAVE NOTE</button>
+          <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Note title..." className="w-full bg-[var(--t-btn-bg)] border border-[var(--t-border)] rounded-lg px-3 py-2 text-sm text-[var(--t-text)] placeholder-[var(--t-text-muted)] focus:outline-none focus:border-[var(--t-border-hover)]" />
+          <textarea value={newContent} onChange={e => setNewContent(e.target.value)} placeholder="Your research notes..." rows={3} className="w-full bg-[var(--t-btn-bg)] border border-[var(--t-border)] rounded-lg px-3 py-2 text-sm text-[var(--t-text)] placeholder-[var(--t-text-muted)] focus:outline-none focus:border-[var(--t-border-hover)] resize-none" />
+          <button onClick={addNote} className="px-4 py-2 bg-[var(--t-btn-hover)] hover:bg-[var(--t-tab-active)] rounded-lg text-xs font-mono text-[var(--t-text-secondary)] transition-colors">SAVE NOTE</button>
         </div>
       </Card>
       {/* AI Suggestions */}
@@ -635,15 +635,15 @@ export function ResearchNotesTab({ symbol, name, price }: { symbol: string; name
         <Card title="AI SUGGESTED NOTES">
           <div className="space-y-2">
             {suggestions.suggestedNotes.map((s, i) => (
-              <div key={i} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={i} className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-semibold text-white/70">{s.title}</span>
+                  <span className="text-xs font-semibold text-[var(--t-text)]">{s.title}</span>
                   <div className="flex items-center gap-2">
                     <Tag label={s.priority} color={s.priority === "high" ? "red" : s.priority === "medium" ? "yellow" : "green"} />
                     <button onClick={() => addSuggested(s)} className="text-[14px] font-mono text-blue-400 hover:text-blue-300">+ ADD</button>
                   </div>
                 </div>
-                <p className="text-xs text-white/40">{s.content}</p>
+                <p className="text-xs text-[var(--t-text-secondary)]">{s.content}</p>
               </div>
             ))}
           </div>
@@ -652,7 +652,7 @@ export function ResearchNotesTab({ symbol, name, price }: { symbol: string; name
       {suggestions?.watchItems?.length > 0 && (
         <Card title="WATCH ITEMS">
           <ul className="space-y-1.5">{suggestions.watchItems.map((w, i) => (
-            <li key={i} className="flex items-center gap-2 text-xs text-white/50"><span className="w-1.5 h-1.5 rounded-full bg-blue-400" />{w}</li>
+            <li key={i} className="flex items-center gap-2 text-xs text-[var(--t-text-secondary)]"><span className="w-1.5 h-1.5 rounded-full bg-blue-400" />{w}</li>
           ))}</ul>
         </Card>
       )}
@@ -661,15 +661,15 @@ export function ResearchNotesTab({ symbol, name, price }: { symbol: string; name
         <Card title={`YOUR NOTES (${notes.length})`}>
           <div className="space-y-3">
             {notes.map(n => (
-              <div key={n.id} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={n.id} className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-semibold text-white/70">{n.title}</span>
+                  <span className="text-xs font-semibold text-[var(--t-text)]">{n.title}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-[14px] text-white/20 font-mono">{n.date}</span>
+                    <span className="text-[14px] text-[var(--t-text-muted)] font-mono">{n.date}</span>
                     <button onClick={() => deleteNote(n.id)} className="text-[14px] text-red-400 hover:text-red-300 font-mono">DEL</button>
                   </div>
                 </div>
-                <p className="text-xs text-white/40 whitespace-pre-wrap">{n.content}</p>
+                <p className="text-xs text-[var(--t-text-secondary)] whitespace-pre-wrap">{n.content}</p>
               </div>
             ))}
           </div>
@@ -701,14 +701,14 @@ export function DeepCompareTab({ symbol, name }: { symbol: string; name: string 
     <div className="space-y-3">
       <Card title="DEEP COMPARE">
         <div className="space-y-3">
-          <p className="text-xs text-white/40">Compare {symbol} against other companies. Enter comma-separated tickers:</p>
+          <p className="text-xs text-[var(--t-text-secondary)]">Compare {symbol} against other companies. Enter comma-separated tickers:</p>
           <input
             value={compareInput}
             onChange={e => setCompareInput(e.target.value)}
             placeholder="e.g. MSFT, GOOG, AMZN"
-            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/20"
+            className="w-full bg-[var(--t-btn-bg)] border border-[var(--t-border)] rounded-lg px-3 py-2 text-sm text-[var(--t-text)] placeholder-[var(--t-text-muted)] focus:outline-none focus:border-[var(--t-border-hover)]"
           />
-          <button onClick={load} className="px-4 py-2 bg-white/[0.08] hover:bg-white/[0.12] rounded-lg text-xs font-mono text-white/60 transition-colors">COMPARE</button>
+          <button onClick={load} className="px-4 py-2 bg-[var(--t-btn-hover)] hover:bg-[var(--t-tab-active)] rounded-lg text-xs font-mono text-[var(--t-text-secondary)] transition-colors">COMPARE</button>
         </div>
       </Card>
     </div>
@@ -728,14 +728,14 @@ export function DeepCompareTab({ symbol, name }: { symbol: string; name: string 
         <Card title="COMPANY SCORES">
           <div className="space-y-3">
             {data.companies.sort((a, b) => b.score - a.score).map((c, i) => (
-              <div key={i} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={i} className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-white/20 font-mono w-5">#{i + 1}</span>
-                    <span className="text-xs font-semibold text-white/70">{c.symbol}</span>
-                    <span className="text-[14px] text-white/30">{c.name}</span>
+                    <span className="text-xs font-bold text-[var(--t-text-muted)] font-mono w-5">#{i + 1}</span>
+                    <span className="text-xs font-semibold text-[var(--t-text)]">{c.symbol}</span>
+                    <span className="text-[14px] text-[var(--t-text-muted)]">{c.name}</span>
                   </div>
-                  <span className="text-sm font-mono font-bold text-white">{c.score}/100</span>
+                  <span className="text-sm font-mono font-bold text-[var(--t-text)]">{c.score}/100</span>
                 </div>
                 <ScoreBar label="" value={c.score} max={100} color={c.score >= 70 ? "#34d399" : c.score >= 40 ? "#fbbf24" : "#f87171"} />
               </div>
@@ -747,20 +747,20 @@ export function DeepCompareTab({ symbol, name }: { symbol: string; name: string 
         <Card title="CATEGORY WINNERS">
           <div className="space-y-2">
             {data.categories.map((c, i) => (
-              <div key={i} className="flex items-center justify-between bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
-                <span className="text-xs text-white/50">{c.category}</span>
+              <div key={i} className="flex items-center justify-between bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
+                <span className="text-xs text-[var(--t-text-secondary)]">{c.category}</span>
                 <div className="text-right">
                   <span className="text-xs font-mono font-semibold text-emerald-400">{c.winner}</span>
-                  <p className="text-[14px] text-white/30 max-w-[200px]">{c.reason}</p>
+                  <p className="text-[14px] text-[var(--t-text-muted)] max-w-[200px]">{c.reason}</p>
                 </div>
               </div>
             ))}
           </div>
         </Card>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );

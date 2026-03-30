@@ -3,8 +3,8 @@ import { useState } from "react";
 // ── Score Bar (horizontal progress) ──
 export const ScoreBar = ({ label, value, max, color = "#3b82f6" }: { label: string; value: number; max: number; color?: string }) => (
   <div className="flex items-center gap-3 text-sm">
-    <span className="w-28 text-white/30 font-mono text-xs">{label}</span>
-    <div className="flex-1 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+    <span className="w-28 text-[var(--t-text-muted)] font-mono text-xs">{label}</span>
+    <div className="flex-1 h-1.5 bg-[var(--t-btn-bg)] rounded-full overflow-hidden">
       <div className="h-full rounded-full transition-all duration-700" style={{ width: `${(value / max) * 100}%`, backgroundColor: color }} />
     </div>
     <span className="w-8 text-right font-mono text-xs font-semibold" style={{ color }}>{value}</span>
@@ -15,17 +15,17 @@ export const ScoreBar = ({ label, value, max, color = "#3b82f6" }: { label: stri
 export const SectionCard = ({ title, step, children, defaultOpen = true }: { title: string; step?: number; children: React.ReactNode; defaultOpen?: boolean }) => {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="bg-white/[0.02] border border-white/[0.08] rounded-xl overflow-hidden">
-      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-white/[0.04] transition-colors">
+    <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl overflow-hidden">
+      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-[var(--t-btn-bg)] transition-colors">
         <div className="flex items-center gap-3.5">
           {step && (
-            <span className="w-7 h-7 rounded-lg bg-white/[0.1] text-white/60 text-xs flex items-center justify-center font-mono">{step}</span>
+            <span className="w-7 h-7 rounded-lg bg-[var(--t-group-active)] text-[var(--t-text-secondary)] text-xs flex items-center justify-center font-mono">{step}</span>
           )}
-          <h3 className="text-sm font-semibold text-white/70 tracking-tight">{title}</h3>
+          <h3 className="text-sm font-semibold text-[var(--t-text)] tracking-tight">{title}</h3>
         </div>
-        <svg className={`w-4 h-4 text-white/20 transition-transform ${open ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+        <svg className={`w-4 h-4 text-[var(--t-text-muted)] transition-transform ${open ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
       </button>
-      {open && <div className="px-5 pb-5 border-t border-white/[0.06]">{children}</div>}
+      {open && <div className="px-5 pb-5 border-t border-[var(--t-border)]">{children}</div>}
     </div>
   );
 };
@@ -37,7 +37,7 @@ export const Tag = ({ label, color = "gray" }: { label: string; color?: string }
     red: "bg-red-500/10 text-red-400 border-red-500/20",
     blue: "bg-blue-500/10 text-blue-400 border-blue-500/20",
     yellow: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    gray: "bg-white/[0.04] text-white/40 border-white/[0.08]",
+    gray: "bg-[var(--t-btn-bg)] text-[var(--t-text-secondary)] border-[var(--t-border)]",
     purple: "bg-purple-500/10 text-purple-400 border-purple-500/20",
   };
   return <span className={`inline-block px-2 py-0.5 text-[14px] font-mono uppercase tracking-wider border rounded-md ${colors[color] || colors.gray}`}>{label}</span>;
@@ -56,7 +56,7 @@ export const ConfidenceDots = ({ value }: { value: number }) => {
   return (
     <div className="flex gap-0.5">
       {Array.from({ length: 10 }).map((_, i) => (
-        <div key={i} className={`w-1.5 h-1.5 rounded-full ${i < filled ? (filled >= 8 ? "bg-emerald-400" : filled >= 5 ? "bg-amber-400" : "bg-red-400") : "bg-white/[0.08]"}`} />
+        <div key={i} className={`w-1.5 h-1.5 rounded-full ${i < filled ? (filled >= 8 ? "bg-emerald-400" : filled >= 5 ? "bg-amber-400" : "bg-red-400") : "bg-[var(--t-btn-hover)]"}`} />
       ))}
     </div>
   );
@@ -109,17 +109,17 @@ export const SourceBadge = ({ type }: { type: string }) => {
 
 // ── Stat Box ──
 export const StatBox = ({ label, value, sub }: { label: string; value: string; sub?: string }) => (
-  <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-3 text-center">
-    <div className="text-[13px] text-white/20 font-mono tracking-widest mb-1">{label.toUpperCase()}</div>
-    <div className="text-sm font-semibold text-white tabular-nums">{value}</div>
-    {sub && <div className="text-[14px] text-white/15 mt-0.5">{sub}</div>}
+  <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl px-3 py-3 text-center">
+    <div className="text-[13px] text-[var(--t-text-muted)] font-mono tracking-widest mb-1">{label.toUpperCase()}</div>
+    <div className="text-sm font-semibold text-[var(--t-text)] tabular-nums">{value}</div>
+    {sub && <div className="text-[14px] text-[var(--t-text-dim)] mt-0.5">{sub}</div>}
   </div>
 );
 
 // ── Empty State ──
 export const EmptyState = ({ message }: { message: string }) => (
-  <div className="flex flex-col items-center justify-center py-20 text-white/20">
-    <svg className="w-12 h-12 mb-3 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+  <div className="flex flex-col items-center justify-center py-20 text-[var(--t-text-muted)]">
+    <svg className="w-12 h-12 mb-3 text-[var(--t-text-dim)]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
     <p className="text-sm font-mono">{message}</p>
   </div>
 );

@@ -413,3 +413,93 @@
     background: linear-gradient(90deg, #dfdcd2, #8ec2b7);
   }
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   TERMINAL THEME SYSTEM
+   Maps the 3 site themes to terminal-specific color tokens
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Dark Stoic — the current default terminal look */
+[data-theme="original"] .terminal-page {
+  --t-bg: #060606;
+  --t-bg-elevated: #0a0a0a;
+  --t-bg-card: #0d0d0d;
+  --t-bg-hover: #111111;
+  --t-text: #ffffff;
+  --t-text-secondary: rgba(255,255,255,0.50);
+  --t-text-muted: rgba(255,255,255,0.25);
+  --t-text-dim: rgba(255,255,255,0.10);
+  --t-border: rgba(255,255,255,0.06);
+  --t-border-hover: rgba(255,255,255,0.12);
+  --t-accent: #ffffff;
+  --t-accent-muted: rgba(255,255,255,0.08);
+  --t-green: #22c55e;
+  --t-red: #ef4444;
+  --t-group-bg: rgba(255,255,255,0.04);
+  --t-group-active: rgba(255,255,255,0.10);
+  --t-tab-active: rgba(255,255,255,0.12);
+  --t-btn-bg: rgba(255,255,255,0.06);
+  --t-btn-hover: rgba(255,255,255,0.10);
+  --t-stat-bg: rgba(255,255,255,0.03);
+  --t-stat-border: rgba(255,255,255,0.06);
+  --t-gen-bg: rgba(255,255,255,0.06);
+  --t-gen-hover: rgba(255,255,255,0.10);
+  --t-gen-text: #ffffff;
+}
+
+/* Cherry Blossom — pink & warm terminal */
+[data-theme="cherry-blossom"] .terminal-page {
+  --t-bg: #1a0a10;
+  --t-bg-elevated: #220e16;
+  --t-bg-card: #2a1018;
+  --t-bg-hover: #35141e;
+  --t-text: #fce4ec;
+  --t-text-secondary: rgba(252,228,236,0.60);
+  --t-text-muted: rgba(252,228,236,0.30);
+  --t-text-dim: rgba(252,228,236,0.12);
+  --t-border: rgba(214,39,90,0.15);
+  --t-border-hover: rgba(214,39,90,0.30);
+  --t-accent: #D6275A;
+  --t-accent-muted: rgba(214,39,90,0.12);
+  --t-green: #4ade80;
+  --t-red: #f87171;
+  --t-group-bg: rgba(214,39,90,0.08);
+  --t-group-active: rgba(214,39,90,0.20);
+  --t-tab-active: rgba(214,39,90,0.18);
+  --t-btn-bg: rgba(214,39,90,0.10);
+  --t-btn-hover: rgba(214,39,90,0.18);
+  --t-stat-bg: rgba(214,39,90,0.06);
+  --t-stat-border: rgba(214,39,90,0.12);
+  --t-gen-bg: rgba(214,39,90,0.15);
+  --t-gen-hover: rgba(214,39,90,0.25);
+  --t-gen-text: #fce4ec;
+}
+
+/* Ocean — teal & deep blue terminal */
+[data-theme="ocean"] .terminal-page {
+  --t-bg: #041a22;
+  --t-bg-elevated: #062430;
+  --t-bg-card: #082c3a;
+  --t-bg-hover: #0a3648;
+  --t-text: #e0f2f7;
+  --t-text-secondary: rgba(224,242,247,0.60);
+  --t-text-muted: rgba(224,242,247,0.30);
+  --t-text-dim: rgba(224,242,247,0.12);
+  --t-border: rgba(6,153,186,0.15);
+  --t-border-hover: rgba(6,153,186,0.30);
+  --t-accent: #0699ba;
+  --t-accent-muted: rgba(6,153,186,0.12);
+  --t-green: #34d399;
+  --t-red: #fb7185;
+  --t-group-bg: rgba(6,153,186,0.08);
+  --t-group-active: rgba(6,153,186,0.20);
+  --t-tab-active: rgba(6,153,186,0.18);
+  --t-btn-bg: rgba(6,153,186,0.10);
+  --t-btn-hover: rgba(6,153,186,0.18);
+  --t-stat-bg: rgba(6,153,186,0.06);
+  --t-stat-border: rgba(6,153,186,0.12);
+  --t-gen-bg: rgba(6,153,186,0.15);
+  --t-gen-hover: rgba(6,153,186,0.25);
+  --t-gen-text: #e0f2f7;
+}

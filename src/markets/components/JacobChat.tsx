@@ -77,26 +77,26 @@ export default function JacobChat({ symbol, name, price, change }: JacobChatProp
 
   // Open — chat panel
   return (
-    <div className="fixed bottom-0 right-0 z-50 w-full sm:w-[400px] sm:bottom-6 sm:right-6 flex flex-col bg-[#0a0a0a] border border-white/[0.08] rounded-t-2xl sm:rounded-2xl shadow-2xl shadow-black/50 overflow-hidden" style={{ maxHeight: "min(600px, 80vh)" }}>
+    <div className="fixed bottom-0 right-0 z-50 w-full sm:w-[400px] sm:bottom-6 sm:right-6 flex flex-col bg-[var(--t-bg-elevated)] border border-[var(--t-border)] rounded-t-2xl sm:rounded-2xl shadow-2xl shadow-black/50 overflow-hidden" style={{ maxHeight: "min(600px, 80vh)" }}>
       {/* Header */}
-      <div className="bg-[#0a0a0a] border-b border-white/[0.06] px-4 py-3.5 flex items-center justify-between flex-shrink-0">
+      <div className="bg-[var(--t-bg-elevated)] border-b border-[var(--t-border)] px-4 py-3.5 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
             <span className="text-xs font-mono font-bold text-[#060606]">J</span>
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-white">Jacob</span>
-              <span className="text-[12px] font-mono text-white/30 bg-white/[0.06] px-1.5 py-0.5 rounded tracking-widest">ANALYST</span>
+              <span className="text-sm font-semibold text-[var(--t-text)]">Jacob</span>
+              <span className="text-[12px] font-mono text-[var(--t-text-muted)] bg-[var(--t-btn-bg)] px-1.5 py-0.5 rounded tracking-widest">ANALYST</span>
             </div>
-            <span className="text-[14px] text-white/20 font-mono">
+            <span className="text-[14px] text-[var(--t-text-muted)] font-mono">
               talking about {symbol}
             </span>
           </div>
         </div>
         <button
           onClick={() => setIsOpen(false)}
-          className="text-white/20 hover:text-white/60 transition-colors p-1"
+          className="text-[var(--t-text-muted)] hover:text-[var(--t-text-secondary)] transition-colors p-1"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="18" y1="6" x2="6" y2="18" />
@@ -106,14 +106,14 @@ export default function JacobChat({ symbol, name, price, change }: JacobChatProp
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-[#060606]" style={{ minHeight: "200px" }}>
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-[var(--t-bg)]" style={{ minHeight: "200px" }}>
         {messages.length === 0 && (
           <div className="text-center py-8">
-            <div className="w-12 h-12 rounded-full bg-white/[0.06] flex items-center justify-center mx-auto mb-3">
-              <span className="text-lg font-mono font-bold text-white/30">J</span>
+            <div className="w-12 h-12 rounded-full bg-[var(--t-btn-bg)] flex items-center justify-center mx-auto mb-3">
+              <span className="text-lg font-mono font-bold text-[var(--t-text-muted)]">J</span>
             </div>
-            <p className="text-sm text-white/40 mb-1">ask me anything about {symbol}</p>
-            <p className="text-[14px] text-white/15 font-mono">i'll give you the real take, not the polished one</p>
+            <p className="text-sm text-[var(--t-text-secondary)] mb-1">ask me anything about {symbol}</p>
+            <p className="text-[14px] text-[var(--t-text-dim)] font-mono">i'll give you the real take, not the polished one</p>
             <div className="flex flex-wrap gap-2 justify-center mt-5">
               {[
                 `should i buy ${symbol} here`,
@@ -124,7 +124,7 @@ export default function JacobChat({ symbol, name, price, change }: JacobChatProp
                 <button
                   key={q}
                   onClick={() => { setInput(q); }}
-                  className="text-[14px] text-white/30 bg-white/[0.03] border border-white/[0.06] rounded-full px-3 py-1.5 hover:bg-white/[0.06] hover:text-white/50 hover:border-white/[0.1] transition-all"
+                  className="text-[14px] text-[var(--t-text-muted)] bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-full px-3 py-1.5 hover:bg-[var(--t-btn-bg)] hover:text-[var(--t-text-secondary)] hover:border-[var(--t-border-hover)] transition-all"
                 >
                   {q}
                 </button>
@@ -138,12 +138,12 @@ export default function JacobChat({ symbol, name, price, change }: JacobChatProp
             <div
               className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${
                 msg.role === "user"
-                  ? "bg-white text-[#060606]"
-                  : "bg-white/[0.04] border border-white/[0.06] text-white/70"
+                  ? "bg-[var(--t-accent)] text-[var(--t-bg)]"
+                  : "bg-[var(--t-btn-bg)] border border-[var(--t-border)] text-[var(--t-text)]"
               }`}
             >
               {msg.role === "assistant" && (
-                <span className="text-[12px] font-mono text-white/20 block mb-1 tracking-wider">JACOB</span>
+                <span className="text-[12px] font-mono text-[var(--t-text-muted)] block mb-1 tracking-wider">JACOB</span>
               )}
               <p className={`text-[16px] leading-relaxed whitespace-pre-wrap ${
                 msg.role === "user" ? "font-medium" : ""
@@ -156,8 +156,8 @@ export default function JacobChat({ symbol, name, price, change }: JacobChatProp
 
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl px-4 py-3">
-              <span className="text-[12px] font-mono text-white/20 block mb-1.5 tracking-wider">JACOB</span>
+            <div className="bg-[var(--t-btn-bg)] border border-[var(--t-border)] rounded-2xl px-4 py-3">
+              <span className="text-[12px] font-mono text-[var(--t-text-muted)] block mb-1.5 tracking-wider">JACOB</span>
               <div className="flex items-center gap-1.5">
                 <div className="w-1.5 h-1.5 bg-white/20 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
                 <div className="w-1.5 h-1.5 bg-white/20 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
@@ -171,7 +171,7 @@ export default function JacobChat({ symbol, name, price, change }: JacobChatProp
       </div>
 
       {/* Input */}
-      <div className="border-t border-white/[0.06] bg-[#0a0a0a] px-4 py-3 flex-shrink-0">
+      <div className="border-t border-[var(--t-border)] bg-[var(--t-bg-elevated)] px-4 py-3 flex-shrink-0">
         <div className="flex items-center gap-2">
           <input
             ref={inputRef}
@@ -180,13 +180,13 @@ export default function JacobChat({ symbol, name, price, change }: JacobChatProp
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={`ask jacob about ${symbol}...`}
-            className="flex-1 text-sm bg-white/[0.04] border border-white/[0.06] rounded-full px-4 py-2.5 text-white placeholder:text-white/15 focus:outline-none focus:border-white/[0.15] focus:bg-white/[0.06] transition-all font-mono"
+            className="flex-1 text-sm bg-[var(--t-btn-bg)] border border-[var(--t-border)] rounded-full px-4 py-2.5 text-[var(--t-text)] placeholder:text-[var(--t-text-dim)] focus:outline-none focus:border-[var(--t-border-hover)] focus:bg-[var(--t-btn-bg)] transition-all font-mono"
             disabled={isLoading}
           />
           <button
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
-            className="w-10 h-10 rounded-full bg-white text-[#060606] flex items-center justify-center hover:bg-white/90 disabled:opacity-20 disabled:cursor-not-allowed transition-all active:scale-95"
+            className="w-10 h-10 rounded-full bg-[var(--t-accent)] text-[var(--t-bg)] flex items-center justify-center hover:bg-[var(--t-accent)]/90 disabled:opacity-20 disabled:cursor-not-allowed transition-all active:scale-95"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="22" y1="2" x2="11" y2="13" />

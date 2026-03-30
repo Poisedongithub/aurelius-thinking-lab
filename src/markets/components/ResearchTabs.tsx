@@ -13,16 +13,16 @@ import {
 /* ─── Shared loading / generate button ─── */
 function GenerateButton({ label, onClick, loading }: { label: string; onClick: () => void; loading: boolean }) {
   if (loading) return (
-    <div className="bg-white/[0.02] border border-white/[0.08] rounded-xl p-12 text-center">
-      <div className="w-8 h-8 border-2 border-white/10 border-t-white/50 rounded-full animate-spin mx-auto mb-4" />
-      <p className="text-sm font-mono text-white/30 animate-pulse">{label}</p>
+    <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-12 text-center">
+      <div className="w-8 h-8 border-2 border-[var(--t-border-hover)] border-t-white/50 rounded-full animate-spin mx-auto mb-4" />
+      <p className="text-sm font-mono text-[var(--t-text-muted)] animate-pulse">{label}</p>
     </div>
   );
   return (
-    <button onClick={onClick} className="w-full group bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden hover:bg-white/[0.04] hover:border-white/[0.1] transition-all duration-200">
+    <button onClick={onClick} className="w-full group bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl overflow-hidden hover:bg-[var(--t-btn-bg)] hover:border-[var(--t-border-hover)] transition-all duration-200">
       <div className="flex items-center justify-between px-5 py-4">
-        <h3 className="text-sm text-white/30 group-hover:text-white/60 transition-colors">{label}</h3>
-        <span className="text-[14px] font-mono text-white/15 bg-white/[0.04] px-2.5 py-1 rounded-md group-hover:text-white/30 group-hover:bg-white/[0.06] transition-all">GENERATE</span>
+        <h3 className="text-sm text-[var(--t-text-muted)] group-hover:text-[var(--t-text-secondary)] transition-colors">{label}</h3>
+        <span className="text-[14px] font-mono text-[var(--t-text-dim)] bg-[var(--t-btn-bg)] px-2.5 py-1 rounded-md group-hover:text-[var(--t-text-muted)] group-hover:bg-[var(--t-btn-bg)] transition-all">GENERATE</span>
       </div>
     </button>
   );
@@ -30,9 +30,9 @@ function GenerateButton({ label, onClick, loading }: { label: string; onClick: (
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
-      <div className="px-5 py-3 border-b border-white/[0.06]">
-        <div className="text-[14px] text-white/25 font-mono tracking-widest">{title}</div>
+    <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl overflow-hidden">
+      <div className="px-5 py-3 border-b border-[var(--t-border)]">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest">{title}</div>
       </div>
       <div className="p-5">{children}</div>
     </div>
@@ -46,7 +46,7 @@ function GradeDisplay({ grade, label }: { grade: string; label: string }) {
   return (
     <div className="text-center">
       <div className={`text-4xl font-bold font-mono ${color}`}>{grade}</div>
-      <div className="text-[13px] text-white/20 font-mono tracking-widest mt-1">{label}</div>
+      <div className="text-[13px] text-[var(--t-text-muted)] font-mono tracking-widest mt-1">{label}</div>
     </div>
   );
 }
@@ -68,9 +68,9 @@ export function ThesisTab({ symbol, name, price, change }: { symbol: string; nam
         <StatBox label="TIME HORIZON" value={data.timeHorizon} />
         <StatBox label="PRICE TARGET" value={`$${data.priceTarget}`} />
       </div>
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">THESIS SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">THESIS SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-5">
@@ -95,7 +95,7 @@ export function ThesisTab({ symbol, name, price, change }: { symbol: string; nam
       {data.keyMetrics?.length > 0 && (
         <Card title="KEY METRICS TO WATCH">
           <ul className="space-y-1.5">{data.keyMetrics.map((m, i) => (
-            <li key={i} className="flex items-center gap-2 text-xs text-white/50"><span className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0" />{m}</li>
+            <li key={i} className="flex items-center gap-2 text-xs text-[var(--t-text-secondary)]"><span className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0" />{m}</li>
           ))}</ul>
         </Card>
       )}
@@ -121,12 +121,12 @@ export function ValuationTab({ symbol, name, price }: { symbol: string; name: st
   if (!data) return <EmptyState message="No valuation data" />;
   return (
     <div className="space-y-4">
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
         <div className="flex items-center justify-between mb-3">
-          <div className="text-[14px] text-white/20 font-mono tracking-widest">OVERALL VERDICT</div>
+          <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest">OVERALL VERDICT</div>
           <Tag label={data.verdict} color={data.verdict?.toLowerCase().includes("under") ? "green" : data.verdict?.toLowerCase().includes("over") ? "red" : "blue"} />
         </div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
       {data.dcf && (
         <Card title="DCF MODEL">
@@ -136,19 +136,19 @@ export function ValuationTab({ symbol, name, price }: { symbol: string; name: st
           </div>
           {data.dcf.assumptions && (
             <div className="space-y-1.5 mb-4">
-              <div className="text-[13px] text-white/15 font-mono">ASSUMPTIONS</div>
+              <div className="text-[13px] text-[var(--t-text-dim)] font-mono">ASSUMPTIONS</div>
               {Object.entries(data.dcf.assumptions).map(([k, v]) => (
-                <div key={k} className="flex justify-between text-xs"><span className="text-white/30">{k}</span><span className="text-white/60 font-mono">{v}</span></div>
+                <div key={k} className="flex justify-between text-xs"><span className="text-[var(--t-text-muted)]">{k}</span><span className="text-[var(--t-text-secondary)] font-mono">{v}</span></div>
               ))}
             </div>
           )}
           {data.dcf.sensitivity?.length > 0 && (
             <div>
-              <div className="text-[13px] text-white/15 font-mono mb-2">SENSITIVITY (WACC)</div>
+              <div className="text-[13px] text-[var(--t-text-dim)] font-mono mb-2">SENSITIVITY (WACC)</div>
               <div className="flex gap-2">{data.dcf.sensitivity.map((s, i) => (
-                <div key={i} className="bg-white/[0.03] rounded-lg px-3 py-2 text-center flex-1">
-                  <div className="text-[13px] text-white/20 font-mono">{s.wacc}</div>
-                  <div className="text-sm font-mono font-semibold text-white">${s.value?.toFixed(2)}</div>
+                <div key={i} className="bg-[var(--t-stat-bg)] rounded-lg px-3 py-2 text-center flex-1">
+                  <div className="text-[13px] text-[var(--t-text-muted)] font-mono">{s.wacc}</div>
+                  <div className="text-sm font-mono font-semibold text-[var(--t-text)]">${s.value?.toFixed(2)}</div>
                 </div>
               ))}</div>
             </div>
@@ -159,14 +159,14 @@ export function ValuationTab({ symbol, name, price }: { symbol: string; name: st
         <Card title="COMPARABLE MULTIPLES">
           <div className="space-y-3">
             {Object.entries(data.comparables).map(([metric, vals]) => (
-              <div key={metric} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={metric} className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-mono text-white/60">{metric}</span>
+                  <span className="text-xs font-mono text-[var(--t-text-secondary)]">{metric}</span>
                   <Tag label={vals.verdict} color={vals.verdict?.toLowerCase().includes("cheap") ? "green" : vals.verdict?.toLowerCase().includes("rich") ? "red" : "blue"} />
                 </div>
                 <div className="flex gap-4 text-xs">
-                  <span className="text-white/40">Current: <span className="text-white/70 font-mono">{vals.current?.toFixed(1)}x</span></span>
-                  <span className="text-white/40">Sector: <span className="text-white/70 font-mono">{vals.sectorAvg?.toFixed(1)}x</span></span>
+                  <span className="text-[var(--t-text-secondary)]">Current: <span className="text-[var(--t-text)] font-mono">{vals.current?.toFixed(1)}x</span></span>
+                  <span className="text-[var(--t-text-secondary)]">Sector: <span className="text-[var(--t-text)] font-mono">{vals.sectorAvg?.toFixed(1)}x</span></span>
                 </div>
               </div>
             ))}
@@ -196,18 +196,18 @@ export function MoatTab({ symbol, name, price }: { symbol: string; name: string;
   if (!data) return <EmptyState message="No moat data" />;
   return (
     <div className="space-y-4">
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-6">
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <div className="text-[14px] text-white/25 font-mono tracking-widest mb-1">MOAT RATING</div>
-            <div className="text-3xl font-bold font-mono text-white">{data.moatRating}</div>
+            <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-1">MOAT RATING</div>
+            <div className="text-3xl font-bold font-mono text-[var(--t-text)]">{data.moatRating}</div>
           </div>
           <div className="text-right">
-            <div className="text-[14px] text-white/25 font-mono tracking-widest mb-1">MOAT SCORE</div>
-            <div className="text-3xl font-bold font-mono text-white">{data.moatScore}<span className="text-sm text-white/20">/100</span></div>
+            <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-1">MOAT SCORE</div>
+            <div className="text-3xl font-bold font-mono text-[var(--t-text)]">{data.moatScore}<span className="text-sm text-[var(--t-text-muted)]">/100</span></div>
           </div>
         </div>
-        <div className="w-full h-2 bg-white/[0.06] rounded-full overflow-hidden">
+        <div className="w-full h-2 bg-[var(--t-btn-bg)] rounded-full overflow-hidden">
           <div className={`h-full rounded-full ${data.moatScore >= 70 ? "bg-emerald-400" : data.moatScore >= 40 ? "bg-amber-400" : "bg-red-400"}`} style={{ width: `${data.moatScore}%` }} />
         </div>
         <div className="flex gap-2 mt-3">
@@ -219,15 +219,15 @@ export function MoatTab({ symbol, name, price }: { symbol: string; name: string;
         <Card title="MOAT SOURCES">
           <div className="space-y-3">
             {data.sources.map((s, i) => (
-              <div key={i} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={i} className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-semibold text-white/70">{s.type}</span>
+                  <span className="text-xs font-semibold text-[var(--t-text)]">{s.type}</span>
                   <div className="flex items-center gap-2">
                     <Tag label={s.strength} color={s.strength === "strong" ? "green" : s.strength === "moderate" ? "yellow" : "red"} />
-                    <span className="text-xs font-mono text-white/40">{s.score}/100</span>
+                    <span className="text-xs font-mono text-[var(--t-text-secondary)]">{s.score}/100</span>
                   </div>
                 </div>
-                <p className="text-xs text-white/40 leading-relaxed">{s.evidence}</p>
+                <p className="text-xs text-[var(--t-text-secondary)] leading-relaxed">{s.evidence}</p>
               </div>
             ))}
           </div>
@@ -240,9 +240,9 @@ export function MoatTab({ symbol, name, price }: { symbol: string; name: string;
           ))}</ul>
         </Card>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -260,27 +260,27 @@ export function ManagementTab({ symbol, name }: { symbol: string; name: string }
   if (!data) return <EmptyState message="No management data" />;
   return (
     <div className="space-y-4">
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-6 flex items-center gap-6">
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-6 flex items-center gap-6">
         <GradeDisplay grade={data.overallGrade} label="OVERALL GRADE" />
         {data.ceo && (
           <div className="flex-1">
-            <div className="text-xs font-semibold text-white/70">{data.ceo.name}</div>
-            <div className="text-[14px] text-white/30">CEO · {data.ceo.tenure} · Rating: {data.ceo.rating}</div>
-            <p className="text-xs text-white/40 mt-1">{data.ceo.background}</p>
+            <div className="text-xs font-semibold text-[var(--t-text)]">{data.ceo.name}</div>
+            <div className="text-[14px] text-[var(--t-text-muted)]">CEO · {data.ceo.tenure} · Rating: {data.ceo.rating}</div>
+            <p className="text-xs text-[var(--t-text-secondary)] mt-1">{data.ceo.background}</p>
           </div>
         )}
       </div>
       {data.capitalAllocation && (
         <Card title="CAPITAL ALLOCATION">
           <div className="space-y-1.5">{Object.entries(data.capitalAllocation).map(([k, v]) => (
-            <div key={k} className="flex justify-between text-xs"><span className="text-white/30">{k}</span><span className="text-white/60 font-mono">{v}</span></div>
+            <div key={k} className="flex justify-between text-xs"><span className="text-[var(--t-text-muted)]">{k}</span><span className="text-[var(--t-text-secondary)] font-mono">{v}</span></div>
           ))}</div>
         </Card>
       )}
       {data.execution && (
         <Card title="EXECUTION TRACK RECORD">
           <div className="space-y-1.5">{Object.entries(data.execution).map(([k, v]) => (
-            <div key={k} className="flex justify-between text-xs"><span className="text-white/30">{k}</span><span className="text-white/60 font-mono">{v}</span></div>
+            <div key={k} className="flex justify-between text-xs"><span className="text-[var(--t-text-muted)]">{k}</span><span className="text-[var(--t-text-secondary)] font-mono">{v}</span></div>
           ))}</div>
         </Card>
       )}
@@ -300,9 +300,9 @@ export function ManagementTab({ symbol, name }: { symbol: string; name: string }
           </Card>
         )}
       </div>
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -370,9 +370,9 @@ export function BullBearTab({ symbol, name, price, change }: { symbol: string; n
           </div>
         </div>
       </div>
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">VERDICT</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.verdict}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">VERDICT</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.verdict}</p>
       </div>
       {data.keyQuestion && (
         <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-5">
@@ -404,18 +404,18 @@ export function RevenueTab({ symbol, name }: { symbol: string; name: string }) {
         <Card title="BUSINESS SEGMENTS">
           <div className="space-y-3">
             {data.segments.map((s, i) => (
-              <div key={i} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={i} className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-white/70">{s.name}</span>
+                  <span className="text-xs font-semibold text-[var(--t-text)]">{s.name}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-white/50">{s.revenue}</span>
+                    <span className="text-xs font-mono text-[var(--t-text-secondary)]">{s.revenue}</span>
                     <Tag label={s.growth} color={s.growth?.startsWith("+") ? "green" : s.growth?.startsWith("-") ? "red" : "blue"} />
                   </div>
                 </div>
-                <div className="w-full h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                <div className="w-full h-1.5 bg-[var(--t-btn-bg)] rounded-full overflow-hidden">
                   <div className="h-full bg-blue-400 rounded-full" style={{ width: `${s.percentage}%` }} />
                 </div>
-                <div className="flex justify-between mt-1 text-[13px] font-mono text-white/20">
+                <div className="flex justify-between mt-1 text-[13px] font-mono text-[var(--t-text-muted)]">
                   <span>{s.percentage}% of revenue</span>
                   <TrendBadge trend={s.trend} />
                 </div>
@@ -429,25 +429,25 @@ export function RevenueTab({ symbol, name }: { symbol: string; name: string }) {
           <div className="space-y-2">
             {data.geographicBreakdown.map((g, i) => (
               <div key={i} className="flex items-center gap-3">
-                <span className="w-24 text-xs text-white/40">{g.region}</span>
-                <div className="flex-1 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                <span className="w-24 text-xs text-[var(--t-text-secondary)]">{g.region}</span>
+                <div className="flex-1 h-1.5 bg-[var(--t-btn-bg)] rounded-full overflow-hidden">
                   <div className="h-full bg-purple-400 rounded-full" style={{ width: `${g.percentage}%` }} />
                 </div>
-                <span className="text-xs font-mono text-white/50 w-10 text-right">{g.percentage}%</span>
+                <span className="text-xs font-mono text-[var(--t-text-secondary)] w-10 text-right">{g.percentage}%</span>
               </div>
             ))}
           </div>
         </Card>
       )}
       {data.concentrationRisk && (
-        <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-          <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">CONCENTRATION RISK</div>
-          <p className="text-sm text-white/60">{data.concentrationRisk}</p>
+        <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+          <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">CONCENTRATION RISK</div>
+          <p className="text-sm text-[var(--t-text-secondary)]">{data.concentrationRisk}</p>
         </div>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -474,19 +474,19 @@ export function CompetitiveTab({ symbol, name }: { symbol: string; name: string 
         <Card title="KEY COMPETITORS">
           <div className="space-y-3">
             {data.competitors.map((c, i) => (
-              <div key={i} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={i} className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-white/70">{c.name}</span>
-                    <span className="text-[14px] font-mono text-white/30">{c.ticker}</span>
+                    <span className="text-xs font-semibold text-[var(--t-text)]">{c.name}</span>
+                    <span className="text-[14px] font-mono text-[var(--t-text-muted)]">{c.ticker}</span>
                   </div>
                   <Tag label={`Threat: ${c.threat}`} color={c.threat === "high" ? "red" : c.threat === "medium" ? "yellow" : "green"} />
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div><span className="text-white/25">Share: </span><span className="text-white/50">{c.marketShare}</span></div>
-                  <div><span className="text-white/25">Advantage: </span><span className="text-white/50">{c.advantage}</span></div>
+                  <div><span className="text-[var(--t-text-muted)]">Share: </span><span className="text-[var(--t-text-secondary)]">{c.marketShare}</span></div>
+                  <div><span className="text-[var(--t-text-muted)]">Advantage: </span><span className="text-[var(--t-text-secondary)]">{c.advantage}</span></div>
                 </div>
-                {c.weakness && <p className="text-xs text-white/30 mt-1">Weakness: {c.weakness}</p>}
+                {c.weakness && <p className="text-xs text-[var(--t-text-muted)] mt-1">Weakness: {c.weakness}</p>}
               </div>
             ))}
           </div>
@@ -500,13 +500,13 @@ export function CompetitiveTab({ symbol, name }: { symbol: string; name: string 
       {data.industryTrends?.length > 0 && (
         <Card title="INDUSTRY TRENDS">
           <ul className="space-y-1.5">{data.industryTrends.map((t, i) => (
-            <li key={i} className="flex items-center gap-2 text-xs text-white/50"><span className="w-1.5 h-1.5 rounded-full bg-blue-400" />{t}</li>
+            <li key={i} className="flex items-center gap-2 text-xs text-[var(--t-text-secondary)]"><span className="w-1.5 h-1.5 rounded-full bg-blue-400" />{t}</li>
           ))}</ul>
         </Card>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -524,24 +524,24 @@ export function FinancialHealthTab({ symbol, name, price }: { symbol: string; na
   if (!data) return <EmptyState message="No data" />;
   return (
     <div className="space-y-4">
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-6 flex items-center gap-6">
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-6 flex items-center gap-6">
         <div className="text-center">
-          <div className="text-4xl font-bold font-mono text-white">{data.overallScore}<span className="text-sm text-white/20">/100</span></div>
-          <div className="text-[13px] text-white/20 font-mono mt-1">HEALTH SCORE</div>
+          <div className="text-4xl font-bold font-mono text-[var(--t-text)]">{data.overallScore}<span className="text-sm text-[var(--t-text-muted)]">/100</span></div>
+          <div className="text-[13px] text-[var(--t-text-muted)] font-mono mt-1">HEALTH SCORE</div>
         </div>
         <GradeDisplay grade={data.grade} label="GRADE" />
       </div>
       <div className="grid grid-cols-2 gap-4">
         {data.altmanZScore && (
           <Card title="ALTMAN Z-SCORE">
-            <div className="text-2xl font-bold font-mono text-white mb-1">{data.altmanZScore.score?.toFixed(2)}</div>
-            <p className="text-xs text-white/40">{data.altmanZScore.interpretation}</p>
+            <div className="text-2xl font-bold font-mono text-[var(--t-text)] mb-1">{data.altmanZScore.score?.toFixed(2)}</div>
+            <p className="text-xs text-[var(--t-text-secondary)]">{data.altmanZScore.interpretation}</p>
           </Card>
         )}
         {data.piotroskiFScore && (
           <Card title="PIOTROSKI F-SCORE">
-            <div className="text-2xl font-bold font-mono text-white mb-1">{data.piotroskiFScore.score}/9</div>
-            <p className="text-xs text-white/40">{data.piotroskiFScore.interpretation}</p>
+            <div className="text-2xl font-bold font-mono text-[var(--t-text)] mb-1">{data.piotroskiFScore.score}/9</div>
+            <p className="text-xs text-[var(--t-text-secondary)]">{data.piotroskiFScore.interpretation}</p>
           </Card>
         )}
       </div>
@@ -555,9 +555,9 @@ export function FinancialHealthTab({ symbol, name, price }: { symbol: string; na
           <div className="space-y-2">
             {Object.entries(data.metrics).map(([k, v]) => (
               <div key={k} className="flex items-center justify-between text-xs">
-                <span className="text-white/30">{k}</span>
+                <span className="text-[var(--t-text-muted)]">{k}</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-white/60 font-mono">{String(v.value)}</span>
+                  <span className="text-[var(--t-text-secondary)] font-mono">{String(v.value)}</span>
                   <Tag label={v.status} color={v.status === "strong" || v.status === "good" ? "green" : v.status === "weak" || v.status === "poor" ? "red" : "yellow"} />
                 </div>
               </div>
@@ -565,9 +565,9 @@ export function FinancialHealthTab({ symbol, name, price }: { symbol: string; na
           </div>
         </Card>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -595,15 +595,15 @@ export function CapitalAllocationTab({ symbol, name }: { symbol: string; name: s
         <Card title="ALLOCATION BREAKDOWN">
           <div className="space-y-3">
             {data.allocation.map((a, i) => (
-              <div key={i} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={i} className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-semibold text-white/70">{a.category}</span>
-                  <span className="text-xs font-mono text-white/50">{a.amount}</span>
+                  <span className="text-xs font-semibold text-[var(--t-text)]">{a.category}</span>
+                  <span className="text-xs font-mono text-[var(--t-text-secondary)]">{a.amount}</span>
                 </div>
-                <div className="w-full h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                <div className="w-full h-1.5 bg-[var(--t-btn-bg)] rounded-full overflow-hidden">
                   <div className="h-full bg-blue-400 rounded-full" style={{ width: `${a.percentage}%` }} />
                 </div>
-                <div className="flex justify-between mt-1 text-[13px] font-mono text-white/20">
+                <div className="flex justify-between mt-1 text-[13px] font-mono text-[var(--t-text-muted)]">
                   <span>{a.percentage}%</span>
                   <span>{a.effectiveness}</span>
                 </div>
@@ -613,14 +613,14 @@ export function CapitalAllocationTab({ symbol, name }: { symbol: string; name: s
         </Card>
       )}
       {data.valueCreation && (
-        <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-          <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">VALUE CREATION</div>
-          <p className="text-sm text-white/60">{data.valueCreation}</p>
+        <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+          <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">VALUE CREATION</div>
+          <p className="text-sm text-[var(--t-text-secondary)]">{data.valueCreation}</p>
         </div>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -647,7 +647,7 @@ export function GuidanceTab({ symbol, name }: { symbol: string; name: string }) 
       {data.currentGuidance && (
         <Card title="CURRENT GUIDANCE">
           <div className="space-y-1.5">{Object.entries(data.currentGuidance).map(([k, v]) => (
-            <div key={k} className="flex justify-between text-xs"><span className="text-white/30">{k}</span><span className="text-white/60 font-mono">{v}</span></div>
+            <div key={k} className="flex justify-between text-xs"><span className="text-[var(--t-text-muted)]">{k}</span><span className="text-[var(--t-text-secondary)] font-mono">{v}</span></div>
           ))}</div>
         </Card>
       )}
@@ -655,20 +655,20 @@ export function GuidanceTab({ symbol, name }: { symbol: string; name: string }) 
         <Card title="GUIDANCE HISTORY">
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
-              <thead><tr className="border-b border-white/[0.06]">
-                <th className="text-left py-2 text-[13px] text-white/20 font-mono">QUARTER</th>
-                <th className="text-left py-2 text-[13px] text-white/20 font-mono">METRIC</th>
-                <th className="text-right py-2 text-[13px] text-white/20 font-mono">GUIDED</th>
-                <th className="text-right py-2 text-[13px] text-white/20 font-mono">ACTUAL</th>
-                <th className="text-right py-2 text-[13px] text-white/20 font-mono">RESULT</th>
+              <thead><tr className="border-b border-[var(--t-border)]">
+                <th className="text-left py-2 text-[13px] text-[var(--t-text-muted)] font-mono">QUARTER</th>
+                <th className="text-left py-2 text-[13px] text-[var(--t-text-muted)] font-mono">METRIC</th>
+                <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">GUIDED</th>
+                <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">ACTUAL</th>
+                <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">RESULT</th>
               </tr></thead>
-              <tbody className="divide-y divide-white/[0.04]">
+              <tbody className="divide-y divide-[var(--t-border)]">
                 {data.guidanceHistory.map((g, i) => (
                   <tr key={i}>
-                    <td className="py-2 text-white/50 font-mono">{g.quarter}</td>
-                    <td className="py-2 text-white/40">{g.metricType}</td>
-                    <td className="py-2 text-right text-white/40 font-mono">{g.guided}</td>
-                    <td className="py-2 text-right text-white/60 font-mono">{g.actual}</td>
+                    <td className="py-2 text-[var(--t-text-secondary)] font-mono">{g.quarter}</td>
+                    <td className="py-2 text-[var(--t-text-secondary)]">{g.metricType}</td>
+                    <td className="py-2 text-right text-[var(--t-text-secondary)] font-mono">{g.guided}</td>
+                    <td className="py-2 text-right text-[var(--t-text-secondary)] font-mono">{g.actual}</td>
                     <td className="py-2 text-right">
                       <Tag label={g.result} color={g.result === "beat" ? "green" : g.result === "miss" ? "red" : "yellow"} />
                     </td>
@@ -679,9 +679,9 @@ export function GuidanceTab({ symbol, name }: { symbol: string; name: string }) 
           </div>
         </Card>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );

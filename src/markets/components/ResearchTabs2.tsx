@@ -10,16 +10,16 @@ import {
 
 function GenerateButton({ label, onClick, loading }: { label: string; onClick: () => void; loading: boolean }) {
   if (loading) return (
-    <div className="bg-white/[0.02] border border-white/[0.08] rounded-xl p-12 text-center">
-      <div className="w-8 h-8 border-2 border-white/10 border-t-white/50 rounded-full animate-spin mx-auto mb-4" />
-      <p className="text-sm font-mono text-white/30 animate-pulse">{label}</p>
+    <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-12 text-center">
+      <div className="w-8 h-8 border-2 border-[var(--t-border-hover)] border-t-white/50 rounded-full animate-spin mx-auto mb-4" />
+      <p className="text-sm font-mono text-[var(--t-text-muted)] animate-pulse">{label}</p>
     </div>
   );
   return (
-    <button onClick={onClick} className="w-full group bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden hover:bg-white/[0.04] hover:border-white/[0.1] transition-all duration-200">
+    <button onClick={onClick} className="w-full group bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl overflow-hidden hover:bg-[var(--t-btn-bg)] hover:border-[var(--t-border-hover)] transition-all duration-200">
       <div className="flex items-center justify-between px-5 py-4">
-        <h3 className="text-sm text-white/30 group-hover:text-white/60 transition-colors">{label}</h3>
-        <span className="text-[14px] font-mono text-white/15 bg-white/[0.04] px-2.5 py-1 rounded-md group-hover:text-white/30 group-hover:bg-white/[0.06] transition-all">GENERATE</span>
+        <h3 className="text-sm text-[var(--t-text-muted)] group-hover:text-[var(--t-text-secondary)] transition-colors">{label}</h3>
+        <span className="text-[14px] font-mono text-[var(--t-text-dim)] bg-[var(--t-btn-bg)] px-2.5 py-1 rounded-md group-hover:text-[var(--t-text-muted)] group-hover:bg-[var(--t-btn-bg)] transition-all">GENERATE</span>
       </div>
     </button>
   );
@@ -27,9 +27,9 @@ function GenerateButton({ label, onClick, loading }: { label: string; onClick: (
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
-      <div className="px-5 py-3 border-b border-white/[0.06]">
-        <div className="text-[14px] text-white/25 font-mono tracking-widest">{title}</div>
+    <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl overflow-hidden">
+      <div className="px-5 py-3 border-b border-[var(--t-border)]">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest">{title}</div>
       </div>
       <div className="p-5">{children}</div>
     </div>
@@ -48,9 +48,9 @@ export function IndustryTab({ symbol, name }: { symbol: string; name: string }) 
   if (!data) return <EmptyState message="No industry data" />;
   return (
     <div className="space-y-4">
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-6">
-        <div className="text-[14px] text-white/25 font-mono tracking-widest mb-1">INDUSTRY</div>
-        <div className="text-2xl font-bold font-mono text-white mb-3">{data.industryName}</div>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-6">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-1">INDUSTRY</div>
+        <div className="text-2xl font-bold font-mono text-[var(--t-text)] mb-3">{data.industryName}</div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <StatBox label="MARKET SIZE" value={data.marketSize || "—"} />
           <StatBox label="PROJECTED" value={data.projectedSize || "—"} />
@@ -60,16 +60,16 @@ export function IndustryTab({ symbol, name }: { symbol: string; name: string }) 
       </div>
       {data.keyPlayers?.length > 0 && (
         <Card title="KEY PLAYERS">
-          <div className="divide-y divide-white/[0.04]">
+          <div className="divide-y divide-[var(--t-border)]">
             {data.keyPlayers.map((p, i) => (
               <div key={i} className="py-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-white/70">{p.name}</span>
-                  <span className="text-[14px] font-mono text-white/30">{p.ticker}</span>
+                  <span className="text-xs font-semibold text-[var(--t-text)]">{p.name}</span>
+                  <span className="text-[14px] font-mono text-[var(--t-text-muted)]">{p.ticker}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Tag label={p.role} color="blue" />
-                  <span className="text-xs font-mono text-white/40">{p.share}</span>
+                  <span className="text-xs font-mono text-[var(--t-text-secondary)]">{p.share}</span>
                 </div>
               </div>
             ))}
@@ -80,12 +80,12 @@ export function IndustryTab({ symbol, name }: { symbol: string; name: string }) 
         <Card title="SECULAR TRENDS">
           <div className="space-y-3">
             {data.secularTrends.map((t, i) => (
-              <div key={i} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={i} className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-semibold text-white/70">{t.trend}</span>
-                  <span className="text-[14px] font-mono text-white/30">{t.timeline}</span>
+                  <span className="text-xs font-semibold text-[var(--t-text)]">{t.trend}</span>
+                  <span className="text-[14px] font-mono text-[var(--t-text-muted)]">{t.timeline}</span>
                 </div>
-                <p className="text-xs text-white/40">{t.impact}</p>
+                <p className="text-xs text-[var(--t-text-secondary)]">{t.impact}</p>
               </div>
             ))}
           </div>
@@ -98,17 +98,17 @@ export function IndustryTab({ symbol, name }: { symbol: string; name: string }) 
               <div key={i} className="flex items-start gap-2">
                 <Tag label={r.severity} color={r.severity === "high" ? "red" : r.severity === "medium" ? "yellow" : "green"} />
                 <div>
-                  <span className="text-xs font-semibold text-white/60">{r.risk}</span>
-                  <p className="text-xs text-white/30 mt-0.5">{r.description}</p>
+                  <span className="text-xs font-semibold text-[var(--t-text-secondary)]">{r.risk}</span>
+                  <p className="text-xs text-[var(--t-text-muted)] mt-0.5">{r.description}</p>
                 </div>
               </div>
             ))}
           </div>
         </Card>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">OUTLOOK</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.outlook}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">OUTLOOK</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.outlook}</p>
       </div>
     </div>
   );
@@ -126,30 +126,30 @@ export function SectorRotationTab() {
   if (!data) return <EmptyState message="No data" />;
   return (
     <div className="space-y-4">
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-6">
-        <div className="text-[14px] text-white/25 font-mono tracking-widest mb-1">CURRENT REGIME</div>
-        <div className="text-2xl font-bold font-mono text-white">{data.currentRegime}</div>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-6">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-1">CURRENT REGIME</div>
+        <div className="text-2xl font-bold font-mono text-[var(--t-text)]">{data.currentRegime}</div>
         {data.rotationSignal && <Tag label={data.rotationSignal} color={data.rotationSignal.includes("risk-on") ? "green" : data.rotationSignal.includes("risk-off") ? "red" : "yellow"} />}
       </div>
       {data.sectorRankings?.length > 0 && (
         <Card title="SECTOR RANKINGS">
           <div className="space-y-3">
             {data.sectorRankings.map((s, i) => (
-              <div key={i} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={i} className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-white/20 font-mono w-5">#{i + 1}</span>
-                    <span className="text-xs font-semibold text-white/70">{s.sector}</span>
+                    <span className="text-xs font-bold text-[var(--t-text-muted)] font-mono w-5">#{i + 1}</span>
+                    <span className="text-xs font-semibold text-[var(--t-text)]">{s.sector}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-white/40">{s.flow}</span>
+                    <span className="text-xs font-mono text-[var(--t-text-secondary)]">{s.flow}</span>
                     <TrendBadge trend={s.trend} />
                   </div>
                 </div>
-                <div className="w-full h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                <div className="w-full h-1.5 bg-[var(--t-btn-bg)] rounded-full overflow-hidden">
                   <div className={`h-full rounded-full ${s.strength >= 70 ? "bg-emerald-400" : s.strength >= 40 ? "bg-amber-400" : "bg-red-400"}`} style={{ width: `${s.strength}%` }} />
                 </div>
-                <div className="flex justify-between mt-1 text-[13px] font-mono text-white/20">
+                <div className="flex justify-between mt-1 text-[13px] font-mono text-[var(--t-text-muted)]">
                   <span>Strength: {s.strength}/100</span>
                   <span>{s.etf}</span>
                 </div>
@@ -158,9 +158,9 @@ export function SectorRotationTab() {
           </div>
         </Card>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -186,19 +186,19 @@ export function IPOTab() {
         <Card title="UPCOMING IPOs">
           <div className="space-y-3">
             {data.upcoming.map((ipo, i) => (
-              <div key={i} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={i} className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-white/70">{ipo.company}</span>
-                    {ipo.ticker && <span className="text-[14px] font-mono text-white/30">{ipo.ticker}</span>}
+                    <span className="text-xs font-semibold text-[var(--t-text)]">{ipo.company}</span>
+                    {ipo.ticker && <span className="text-[14px] font-mono text-[var(--t-text-muted)]">{ipo.ticker}</span>}
                   </div>
                   <Tag label={ipo.sector} color="blue" />
                 </div>
-                <div className="flex gap-3 text-[14px] text-white/30 font-mono">
+                <div className="flex gap-3 text-[14px] text-[var(--t-text-muted)] font-mono">
                   {ipo.expectedDate && <span>Expected: {ipo.expectedDate}</span>}
                   {ipo.valuation && <span>Valuation: {ipo.valuation}</span>}
                 </div>
-                {ipo.description && <p className="text-xs text-white/40 mt-1">{ipo.description}</p>}
+                {ipo.description && <p className="text-xs text-[var(--t-text-secondary)] mt-1">{ipo.description}</p>}
               </div>
             ))}
           </div>
@@ -208,15 +208,15 @@ export function IPOTab() {
         <Card title="RECENT IPOs">
           <div className="space-y-3">
             {data.recent.map((ipo, i) => (
-              <div key={i} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={i} className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-white/70">{ipo.company}</span>
-                    <span className="text-[14px] font-mono text-white/30">{ipo.ticker}</span>
+                    <span className="text-xs font-semibold text-[var(--t-text)]">{ipo.company}</span>
+                    <span className="text-[14px] font-mono text-[var(--t-text-muted)]">{ipo.ticker}</span>
                   </div>
-                  <span className={`text-xs font-mono ${ipo.return?.startsWith("+") ? "text-emerald-400" : ipo.return?.startsWith("-") ? "text-red-400" : "text-white/40"}`}>{ipo.return}</span>
+                  <span className={`text-xs font-mono ${ipo.return?.startsWith("+") ? "text-emerald-400" : ipo.return?.startsWith("-") ? "text-red-400" : "text-[var(--t-text-secondary)]"}`}>{ipo.return}</span>
                 </div>
-                <div className="flex gap-3 text-[14px] text-white/30 font-mono">
+                <div className="flex gap-3 text-[14px] text-[var(--t-text-muted)] font-mono">
                   <span>IPO: ${ipo.ipoPrice}</span>
                   <span>Current: ${ipo.currentPrice}</span>
                   <span>{ipo.ipoDate}</span>
@@ -226,9 +226,9 @@ export function IPOTab() {
           </div>
         </Card>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -254,17 +254,17 @@ export function MATab({ symbol, name }: { symbol?: string; name?: string }) {
         <Card title="RECENT DEALS">
           <div className="space-y-3">
             {data.recentDeals.map((d, i) => (
-              <div key={i} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={i} className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-semibold text-white/70">{d.acquirer} → {d.target}</span>
+                  <span className="text-xs font-semibold text-[var(--t-text)]">{d.acquirer} → {d.target}</span>
                   <Tag label={d.status} color={d.status === "completed" ? "green" : d.status === "pending" ? "yellow" : "red"} />
                 </div>
-                <div className="flex gap-3 text-[14px] text-white/30 font-mono">
+                <div className="flex gap-3 text-[14px] text-[var(--t-text-muted)] font-mono">
                   <span>Value: {d.value}</span>
                   <span>Premium: {d.premium}</span>
                   <span>{d.date}</span>
                 </div>
-                <p className="text-xs text-white/40 mt-1">{d.rationale}</p>
+                <p className="text-xs text-[var(--t-text-secondary)] mt-1">{d.rationale}</p>
               </div>
             ))}
           </div>
@@ -274,12 +274,12 @@ export function MATab({ symbol, name }: { symbol?: string; name?: string }) {
         <Card title="POTENTIAL TARGETS">
           <div className="space-y-2">
             {data.potentialTargets.map((t, i) => (
-              <div key={i} className="flex items-center justify-between bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={i} className="flex items-center justify-between bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-white/70">{t.company}</span>
-                  <span className="text-[14px] font-mono text-white/30">{t.ticker}</span>
+                  <span className="text-xs font-semibold text-[var(--t-text)]">{t.company}</span>
+                  <span className="text-[14px] font-mono text-[var(--t-text-muted)]">{t.ticker}</span>
                 </div>
-                <p className="text-xs text-white/40 max-w-[50%] text-right">{t.reason}</p>
+                <p className="text-xs text-[var(--t-text-secondary)] max-w-[50%] text-right">{t.reason}</p>
               </div>
             ))}
           </div>
@@ -288,13 +288,13 @@ export function MATab({ symbol, name }: { symbol?: string; name?: string }) {
       {data.trends?.length > 0 && (
         <Card title="M&A TRENDS">
           <ul className="space-y-1.5">{data.trends.map((t, i) => (
-            <li key={i} className="flex items-center gap-2 text-xs text-white/50"><span className="w-1.5 h-1.5 rounded-full bg-blue-400" />{t}</li>
+            <li key={i} className="flex items-center gap-2 text-xs text-[var(--t-text-secondary)]"><span className="w-1.5 h-1.5 rounded-full bg-blue-400" />{t}</li>
           ))}</ul>
         </Card>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -320,17 +320,17 @@ export function RegulatoryTab({ symbol, name }: { symbol: string; name: string }
         <Card title="ACTIVE ISSUES">
           <div className="space-y-3">
             {data.activeIssues.map((issue, i) => (
-              <div key={i} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={i} className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-semibold text-white/70">{issue.issue}</span>
+                  <span className="text-xs font-semibold text-[var(--t-text)]">{issue.issue}</span>
                   <Tag label={issue.impact} color={issue.impact === "high" ? "red" : issue.impact === "medium" ? "yellow" : "green"} />
                 </div>
-                <div className="flex gap-3 text-[14px] text-white/30 font-mono">
+                <div className="flex gap-3 text-[14px] text-[var(--t-text-muted)] font-mono">
                   <span>Agency: {issue.agency}</span>
                   <span>Status: {issue.status}</span>
                   <span>Timeline: {issue.timeline}</span>
                 </div>
-                <p className="text-xs text-white/40 mt-1">{issue.description}</p>
+                <p className="text-xs text-[var(--t-text-secondary)] mt-1">{issue.description}</p>
               </div>
             ))}
           </div>
@@ -340,10 +340,10 @@ export function RegulatoryTab({ symbol, name }: { symbol: string; name: string }
         <Card title="UPCOMING REGULATIONS">
           <div className="space-y-2">
             {data.upcomingRegulations.map((r, i) => (
-              <div key={i} className="flex items-center justify-between bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={i} className="flex items-center justify-between bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <div>
-                  <span className="text-xs font-semibold text-white/70">{r.regulation}</span>
-                  <span className="text-[14px] text-white/30 ml-2">{r.effectiveDate}</span>
+                  <span className="text-xs font-semibold text-[var(--t-text)]">{r.regulation}</span>
+                  <span className="text-[14px] text-[var(--t-text-muted)] ml-2">{r.effectiveDate}</span>
                 </div>
                 <Tag label={r.impact} color={r.impact === "high" ? "red" : "yellow"} />
               </div>
@@ -358,9 +358,9 @@ export function RegulatoryTab({ symbol, name }: { symbol: string; name: string }
           ))}</ul>
         </Card>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -395,20 +395,20 @@ export function InstitutionalTab({ symbol, name }: { symbol: string; name: strin
         <Card title="TOP HOLDERS">
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
-              <thead><tr className="border-b border-white/[0.06]">
-                <th className="text-left py-2 text-[13px] text-white/20 font-mono">HOLDER</th>
-                <th className="text-right py-2 text-[13px] text-white/20 font-mono">SHARES</th>
-                <th className="text-right py-2 text-[13px] text-white/20 font-mono">%</th>
-                <th className="text-right py-2 text-[13px] text-white/20 font-mono">CHANGE</th>
+              <thead><tr className="border-b border-[var(--t-border)]">
+                <th className="text-left py-2 text-[13px] text-[var(--t-text-muted)] font-mono">HOLDER</th>
+                <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">SHARES</th>
+                <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">%</th>
+                <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">CHANGE</th>
               </tr></thead>
-              <tbody className="divide-y divide-white/[0.04]">
+              <tbody className="divide-y divide-[var(--t-border)]">
                 {data.topHolders.map((h, i) => (
                   <tr key={i}>
-                    <td className="py-2 text-white/60">{h.name}</td>
-                    <td className="py-2 text-right text-white/40 font-mono">{h.shares}</td>
-                    <td className="py-2 text-right text-white/50 font-mono">{h.percentage}</td>
+                    <td className="py-2 text-[var(--t-text-secondary)]">{h.name}</td>
+                    <td className="py-2 text-right text-[var(--t-text-secondary)] font-mono">{h.shares}</td>
+                    <td className="py-2 text-right text-[var(--t-text-secondary)] font-mono">{h.percentage}</td>
                     <td className="py-2 text-right">
-                      <span className={`font-mono ${h.changeType === "increased" ? "text-emerald-400" : h.changeType === "decreased" ? "text-red-400" : "text-white/30"}`}>{h.change}</span>
+                      <span className={`font-mono ${h.changeType === "increased" ? "text-emerald-400" : h.changeType === "decreased" ? "text-red-400" : "text-[var(--t-text-muted)]"}`}>{h.change}</span>
                     </td>
                   </tr>
                 ))}
@@ -417,9 +417,9 @@ export function InstitutionalTab({ symbol, name }: { symbol: string; name: strin
           </div>
         </Card>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -446,19 +446,19 @@ export function ETFExposureTab({ symbol, name }: { symbol: string; name: string 
         <Card title="TOP ETF HOLDERS">
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
-              <thead><tr className="border-b border-white/[0.06]">
-                <th className="text-left py-2 text-[13px] text-white/20 font-mono">ETF</th>
-                <th className="text-right py-2 text-[13px] text-white/20 font-mono">WEIGHT</th>
-                <th className="text-right py-2 text-[13px] text-white/20 font-mono">SHARES</th>
-                <th className="text-right py-2 text-[13px] text-white/20 font-mono">AUM</th>
+              <thead><tr className="border-b border-[var(--t-border)]">
+                <th className="text-left py-2 text-[13px] text-[var(--t-text-muted)] font-mono">ETF</th>
+                <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">WEIGHT</th>
+                <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">SHARES</th>
+                <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">AUM</th>
               </tr></thead>
-              <tbody className="divide-y divide-white/[0.04]">
+              <tbody className="divide-y divide-[var(--t-border)]">
                 {data.topETFs.map((e, i) => (
                   <tr key={i}>
-                    <td className="py-2"><div className="text-white/60">{e.name}</div><div className="text-[14px] text-white/25 font-mono">{e.ticker}</div></td>
-                    <td className="py-2 text-right text-white/50 font-mono">{e.weight}</td>
-                    <td className="py-2 text-right text-white/40 font-mono">{e.shares}</td>
-                    <td className="py-2 text-right text-white/40 font-mono">{e.aum}</td>
+                    <td className="py-2"><div className="text-[var(--t-text-secondary)]">{e.name}</div><div className="text-[14px] text-[var(--t-text-muted)] font-mono">{e.ticker}</div></td>
+                    <td className="py-2 text-right text-[var(--t-text-secondary)] font-mono">{e.weight}</td>
+                    <td className="py-2 text-right text-[var(--t-text-secondary)] font-mono">{e.shares}</td>
+                    <td className="py-2 text-right text-[var(--t-text-secondary)] font-mono">{e.aum}</td>
                   </tr>
                 ))}
               </tbody>
@@ -472,9 +472,9 @@ export function ETFExposureTab({ symbol, name }: { symbol: string; name: string 
           <p className="text-sm text-amber-300/70">{data.rebalanceRisk}</p>
         </div>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -500,18 +500,18 @@ export function ActivistTab({ symbol, name }: { symbol: string; name: string }) 
         <Card title="ACTIVE ACTIVISTS">
           <div className="space-y-3">
             {data.activeActivists.map((a, i) => (
-              <div key={i} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={i} className="bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-white/70">{a.investor}</span>
+                  <span className="text-xs font-semibold text-[var(--t-text)]">{a.investor}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-[14px] font-mono text-white/30">{a.stake}</span>
+                    <span className="text-[14px] font-mono text-[var(--t-text-muted)]">{a.stake}</span>
                     <Tag label={a.position} color={a.position === "new" ? "green" : a.position === "increased" ? "blue" : "yellow"} />
                   </div>
                 </div>
                 {a.demands?.length > 0 && (
                   <div className="flex flex-wrap gap-1 mb-2">{a.demands.map((d, j) => <Tag key={j} label={d} color="red" />)}</div>
                 )}
-                <div className="flex gap-3 text-[14px] text-white/30 font-mono">
+                <div className="flex gap-3 text-[14px] text-[var(--t-text-muted)] font-mono">
                   <span>Filed: {a.filingDate}</span>
                   <span>Outcome: {a.outcome}</span>
                 </div>
@@ -524,10 +524,10 @@ export function ActivistTab({ symbol, name }: { symbol: string; name: string }) 
         <Card title="HISTORICAL ACTIVISM">
           <div className="space-y-2">
             {data.historicalActivism.map((h, i) => (
-              <div key={i} className="flex items-center justify-between text-xs bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
-                <div><span className="text-white/60">{h.investor}</span><span className="text-white/25 ml-2">({h.year})</span></div>
+              <div key={i} className="flex items-center justify-between text-xs bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
+                <div><span className="text-[var(--t-text-secondary)]">{h.investor}</span><span className="text-[var(--t-text-muted)] ml-2">({h.year})</span></div>
                 <div className="flex items-center gap-2">
-                  <span className="text-white/40">{h.outcome}</span>
+                  <span className="text-[var(--t-text-secondary)]">{h.outcome}</span>
                   <span className={`font-mono ${h.stockImpact?.startsWith("+") ? "text-emerald-400" : "text-red-400"}`}>{h.stockImpact}</span>
                 </div>
               </div>
@@ -542,9 +542,9 @@ export function ActivistTab({ symbol, name }: { symbol: string; name: string }) 
           ))}</ul>
         </Card>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -562,8 +562,8 @@ export function InsiderPatternsTab({ symbol, name }: { symbol: string; name: str
   if (!data) return <EmptyState message="No data" />;
   return (
     <div className="space-y-4">
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-6">
-        <div className="text-[14px] text-white/25 font-mono tracking-widest mb-1">OVERALL SIGNAL</div>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-6">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-1">OVERALL SIGNAL</div>
         <div className={`text-2xl font-bold font-mono ${data.overallSignal === "bullish" ? "text-emerald-400" : data.overallSignal === "bearish" ? "text-red-400" : "text-amber-400"}`}>{data.overallSignal?.toUpperCase()}</div>
       </div>
       {data.netActivity && (
@@ -579,14 +579,14 @@ export function InsiderPatternsTab({ symbol, name }: { symbol: string; name: str
         <Card title="DETECTED PATTERNS">
           <div className="space-y-2">
             {data.patterns.map((p, i) => (
-              <div key={i} className="flex items-start gap-3 bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={i} className="flex items-start gap-3 bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <span className={`w-2 h-2 rounded-full mt-1 flex-shrink-0 ${p.detected ? "bg-emerald-400" : "bg-white/10"}`} />
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-white/70">{p.pattern}</span>
+                    <span className="text-xs font-semibold text-[var(--t-text)]">{p.pattern}</span>
                     <Tag label={p.detected ? "DETECTED" : "NOT FOUND"} color={p.detected ? "green" : "gray"} />
                   </div>
-                  <p className="text-xs text-white/40 mt-0.5">{p.description}</p>
+                  <p className="text-xs text-[var(--t-text-secondary)] mt-0.5">{p.description}</p>
                 </div>
               </div>
             ))}
@@ -597,23 +597,23 @@ export function InsiderPatternsTab({ symbol, name }: { symbol: string; name: str
         <Card title="NOTABLE TRANSACTIONS">
           <div className="space-y-2">
             {data.notableTransactions.map((t, i) => (
-              <div key={i} className="flex items-center justify-between bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
+              <div key={i} className="flex items-center justify-between bg-[var(--t-stat-bg)] rounded-lg p-3 border border-[var(--t-border)]">
                 <div>
-                  <div className="text-xs font-semibold text-white/70">{t.insider}</div>
-                  <div className="text-[14px] text-white/25">{t.title} · {t.date}</div>
+                  <div className="text-xs font-semibold text-[var(--t-text)]">{t.insider}</div>
+                  <div className="text-[14px] text-[var(--t-text-muted)]">{t.title} · {t.date}</div>
                 </div>
                 <div className="text-right">
                   <span className={`text-xs font-mono ${t.type === "Buy" || t.type === "buy" ? "text-emerald-400" : "text-red-400"}`}>{t.type} {t.amount}</span>
-                  <div className="text-[14px] text-white/25">{t.significance}</div>
+                  <div className="text-[14px] text-[var(--t-text-muted)]">{t.significance}</div>
                 </div>
               </div>
             ))}
           </div>
         </Card>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
@@ -649,17 +649,17 @@ export function ShortInterestTab({ symbol, name }: { symbol: string; name: strin
         <Card title="SHORT INTEREST HISTORY">
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
-              <thead><tr className="border-b border-white/[0.06]">
-                <th className="text-left py-2 text-[13px] text-white/20 font-mono">DATE</th>
-                <th className="text-right py-2 text-[13px] text-white/20 font-mono">SHARES SHORT</th>
-                <th className="text-right py-2 text-[13px] text-white/20 font-mono">% FLOAT</th>
+              <thead><tr className="border-b border-[var(--t-border)]">
+                <th className="text-left py-2 text-[13px] text-[var(--t-text-muted)] font-mono">DATE</th>
+                <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">SHARES SHORT</th>
+                <th className="text-right py-2 text-[13px] text-[var(--t-text-muted)] font-mono">% FLOAT</th>
               </tr></thead>
-              <tbody className="divide-y divide-white/[0.04]">
+              <tbody className="divide-y divide-[var(--t-border)]">
                 {data.trendData.map((t, i) => (
                   <tr key={i}>
-                    <td className="py-2 text-white/50 font-mono">{t.date}</td>
-                    <td className="py-2 text-right text-white/40 font-mono">{t.sharesShort}</td>
-                    <td className="py-2 text-right text-white/50 font-mono">{t.percentFloat}</td>
+                    <td className="py-2 text-[var(--t-text-secondary)] font-mono">{t.date}</td>
+                    <td className="py-2 text-right text-[var(--t-text-secondary)] font-mono">{t.sharesShort}</td>
+                    <td className="py-2 text-right text-[var(--t-text-secondary)] font-mono">{t.percentFloat}</td>
                   </tr>
                 ))}
               </tbody>
@@ -667,9 +667,9 @@ export function ShortInterestTab({ symbol, name }: { symbol: string; name: strin
           </div>
         </Card>
       )}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
-        <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
+      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
+        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-2">SUMMARY</div>
+        <p className="text-sm text-[var(--t-text-secondary)] leading-relaxed">{data.summary}</p>
       </div>
     </div>
   );
