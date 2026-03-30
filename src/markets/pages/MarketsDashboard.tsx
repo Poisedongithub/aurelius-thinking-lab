@@ -88,12 +88,12 @@ export default function MarketsDashboard() {
       </div>
 
       {/* Header */}
-      <div className="border-b border-[var(--t-border)]">
-        <div className="max-w-5xl mx-auto px-5 pt-8 pb-6">
+      <div className="border-b border-[var(--t-border)]" style={{ background: 'var(--t-header-gradient)' }}>
+        <div className="max-w-5xl mx-auto px-5 pt-10 pb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
               <div className="flex items-center gap-3 mb-1">
-                <h1 className="text-[36px] font-semibold tracking-tight text-[var(--t-text)]" style={{ fontFamily: "'Instrument Serif', serif" }}>
+                <h1 className="text-[40px] font-semibold tracking-tight text-gradient" style={{ fontFamily: "'Instrument Serif', serif" }}>
                   Markets
                 </h1>
                 {!loading && tickers.length > 0 && (
@@ -103,7 +103,7 @@ export default function MarketsDashboard() {
                   </span>
                 )}
               </div>
-              <p className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest">RESEARCH TERMINAL</p>
+              <p className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-[0.2em]">RESEARCH TERMINAL</p>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               <button onClick={() => navigate("/markets/portfolio")} className="text-[14px] text-[var(--t-text-secondary)] hover:text-[var(--t-text)] bg-[var(--t-btn-bg)] hover:bg-[var(--t-btn-hover)] border border-[var(--t-border)] hover:border-[var(--t-border-hover)] font-mono tracking-wide rounded-lg px-3.5 py-2 transition-all">PORTFOLIO</button>
@@ -207,17 +207,17 @@ export default function MarketsDashboard() {
 
         {/* Stats Row */}
         <div className="grid grid-cols-3 gap-3 mb-6">
-          <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl px-4 py-3.5">
-            <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-1">WATCHLIST</div>
-            <div className="text-xl font-semibold text-[var(--t-text)] tabular-nums">{watchlist.length}</div>
+          <div className="stat-card bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl px-5 py-4">
+            <div className="text-[12px] text-[var(--t-text-muted)] font-mono tracking-[0.15em] mb-2">WATCHLIST</div>
+            <div className="text-2xl font-bold text-[var(--t-text)] tabular-nums font-mono">{watchlist.length}</div>
           </div>
-          <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl px-4 py-3.5">
-            <div className="text-[14px] text-emerald-400/60 font-mono tracking-widest mb-1">GAINERS</div>
-            <div className="text-xl font-semibold text-emerald-400 tabular-nums">{gainers}</div>
+          <div className="stat-card bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl px-5 py-4">
+            <div className="text-[12px] text-emerald-400/60 font-mono tracking-[0.15em] mb-2">GAINERS</div>
+            <div className="text-2xl font-bold text-emerald-400 tabular-nums font-mono">{gainers}</div>
           </div>
-          <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl px-4 py-3.5">
-            <div className="text-[14px] text-red-400/60 font-mono tracking-widest mb-1">LOSERS</div>
-            <div className="text-xl font-semibold text-red-400 tabular-nums">{losers}</div>
+          <div className="stat-card bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl px-5 py-4">
+            <div className="text-[12px] text-red-400/60 font-mono tracking-[0.15em] mb-2">LOSERS</div>
+            <div className="text-2xl font-bold text-red-400 tabular-nums font-mono">{losers}</div>
           </div>
         </div>
 
@@ -319,9 +319,10 @@ export default function MarketsDashboard() {
           )}
         </div>
 
-        <div className="text-center mt-12 pb-6">
-          <p className="text-[14px] text-[var(--t-text-dim)] font-mono tracking-wider">
-            Charts by TradingView · Live data via Massive API · Analysis powered by DeepSeek AI
+        <div className="text-center mt-16 pb-8">
+          <div className="section-divider mb-6" />
+          <p className="text-[13px] text-[var(--t-text-dim)] font-mono tracking-[0.1em]">
+            Charts by TradingView <span className="text-[var(--t-border-hover)]">·</span> Live data via Massive API <span className="text-[var(--t-border-hover)]">·</span> Analysis powered by DeepSeek AI
           </p>
         </div>
       </div>
@@ -405,7 +406,7 @@ function TickerRow({ ticker, onClick, onRemove }: { ticker: DashboardTicker; onC
   return (
     <div
       onClick={onClick}
-      className="group bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl px-5 py-4 cursor-pointer hover:bg-[var(--t-btn-bg)] hover:border-[var(--t-border-hover)] transition-all duration-200"
+      className="ticker-row group bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl px-5 py-4 cursor-pointer hover:bg-[var(--t-btn-bg)] hover:border-[var(--t-border-hover)]"
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4 min-w-0">

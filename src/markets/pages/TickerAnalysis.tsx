@@ -307,8 +307,8 @@ export default function TickerAnalysis() {
   return (
     <div className="terminal-page min-h-screen bg-[var(--t-bg)] text-[var(--t-text)]">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-20 bg-[var(--t-bg)]/90 backdrop-blur-xl border-b border-[var(--t-border)]">
-        <div className="max-w-6xl mx-auto px-5 py-3">
+      <div className="sticky top-0 z-20 border-b border-[var(--t-border)]" style={{ background: 'var(--t-header-gradient)', backdropFilter: 'blur(20px) saturate(180%)' }}>
+        <div className="max-w-6xl mx-auto px-5 py-4">
           <div className="flex items-center justify-between mb-2">
             <button onClick={() => navigate("/markets")} className="text-[14px] text-[var(--t-text-muted)] hover:text-[var(--t-text-secondary)] font-mono tracking-wide transition-colors">← DASHBOARD</button>
             <div className="flex items-center gap-3">
@@ -377,23 +377,28 @@ export default function TickerAnalysis() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-4xl font-bold font-mono text-[var(--t-text)] tracking-wide">{quote.symbol}</h1>
+                <h1 className="text-4xl font-bold font-mono tracking-wide text-gradient">{quote.symbol}</h1>
                 {quote.sector && (
                   <span className="text-[13px] font-mono text-[var(--t-text-muted)] bg-[var(--t-btn-bg)] px-2 py-0.5 rounded-md tracking-wider">{quote.sector.toUpperCase()}</span>
                 )}
               </div>
-              <p className="text-[14px] text-[var(--t-text-muted)] mt-0.5">{quote.name} · {quote.exchange}</p>
+              <p className="text-[14px] text-[var(--t-text-muted)] mt-1 tracking-wide">{quote.name} <span className="text-[var(--t-text-dim)]">·</span> {quote.exchange}</p>
             </div>
             <div className="text-right">
-              <div className="text-4xl font-bold font-mono text-[var(--t-text)] tabular-nums">${quote.price.toFixed(2)}</div>
-              <span className={`text-lg font-mono tabular-nums ${isUp ? "text-emerald-400" : "text-red-400"}`}>
-                {isUp ? "+" : ""}{pct.toFixed(2)}%
-              </span>
+              <div className="text-4xl font-bold font-mono text-[var(--t-text)] tabular-nums tracking-tight">${quote.price.toFixed(2)}</div>
+              <div className="flex items-center gap-2 justify-end mt-1">
+                <span className={`inline-flex items-center gap-1 text-lg font-mono font-semibold tabular-nums px-2 py-0.5 rounded-md ${isUp ? "text-emerald-400 bg-emerald-500/10" : "text-red-400 bg-red-500/10"}`}>
+                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none" className={isUp ? "" : "rotate-180"}>
+                    <path d="M6 2L10 7H2L6 2Z" fill="currentColor" />
+                  </svg>
+                  {isUp ? "+" : ""}{pct.toFixed(2)}%
+                </span>
+              </div>
             </div>
           </div>
 
           {/* Group Selector Row */}
-          <div className="flex gap-1 mt-3 overflow-x-auto scrollbar-hide">
+          <div className="flex gap-1.5 mt-4 overflow-x-auto scrollbar-hide pb-0.5">
             {TAB_GROUPS.map(({ group }) => (
               <button
                 key={group}
@@ -402,26 +407,28 @@ export default function TickerAnalysis() {
                   const firstTab = TAB_GROUPS.find(g => g.group === group)?.tabs[0];
                   if (firstTab) setActiveTab(firstTab.key);
                 }}
-                className={`px-4 py-2 text-[13px] font-mono tracking-wider rounded-lg transition-all whitespace-nowrap ${
+                className={`px-4 py-2 text-[13px] font-mono tracking-wider rounded-lg transition-all duration-200 whitespace-nowrap ${
                   activeGroup === group
-                    ? "bg-[var(--t-group-active)] text-[var(--t-text)] font-semibold"
-                    : "text-[var(--t-text-muted)] hover:text-[var(--t-text-secondary)] hover:bg-[var(--t-btn-bg)]"
+                    ? "bg-[var(--t-group-active)] text-[var(--t-text)] font-semibold group-active-pill border border-[var(--t-border-hover)]"
+                    : "text-[var(--t-text-muted)] hover:text-[var(--t-text-secondary)] hover:bg-[var(--t-btn-bg)] border border-transparent"
                 }`}
               >
                 {group}
               </button>
             ))}
           </div>
+          {/* Divider */}
+          <div className="section-divider mt-2" />
           {/* Tab Buttons for Active Group */}
-          <div className="flex gap-1 mt-2 -mb-[1px] overflow-x-auto scrollbar-hide">
+          <div className="flex gap-1 mt-1 -mb-[1px] overflow-x-auto scrollbar-hide">
             {TAB_GROUPS.find(g => g.group === activeGroup)?.tabs.map(({ key, label }) => (
               <button
                 key={key}
                 onClick={() => setActiveTab(key)}
-                className={`px-4 py-2 text-[14px] font-mono tracking-wider rounded-t-lg transition-all whitespace-nowrap ${
+                className={`px-4 py-2.5 text-[14px] font-mono tracking-wider transition-all duration-200 whitespace-nowrap relative ${
                   activeTab === key
-                    ? "bg-[var(--t-btn-hover)] text-[var(--t-text)] border border-[var(--t-border-hover)] border-b-transparent font-semibold"
-                    : "text-[var(--t-text-muted)] hover:text-[var(--t-text-secondary)] hover:bg-[var(--t-stat-bg)]"
+                    ? "text-[var(--t-text)] font-semibold tab-active-underline"
+                    : "text-[var(--t-text-muted)] hover:text-[var(--t-text-secondary)] rounded-lg hover:bg-[var(--t-stat-bg)]"
                 }`}
               >
                 {label}
@@ -433,7 +440,7 @@ export default function TickerAnalysis() {
 
       <div className="max-w-6xl mx-auto px-5 py-6 space-y-4">
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
           <MiniStat label="MARKET CAP" value={quote.marketCap ? formatMarketCap(quote.marketCap) : "—"} />
           <MiniStat label="VOLUME" value={formatVol(quote.volume)} />
           <MiniStat label="52W HIGH" value={quote.fiftyTwoWeekHigh ? `$${quote.fiftyTwoWeekHigh.toFixed(2)}` : "—"} />
@@ -450,14 +457,18 @@ export default function TickerAnalysis() {
               <TradingViewTechnicalAnalysis symbol={tvSymbol} height={425} />
               <div className="space-y-4">
                 {quote.description && (
-                  <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-5">
-                    <h3 className="text-xs font-semibold text-[var(--t-text-secondary)] font-mono tracking-wider mb-2">ABOUT</h3>
-                    <p className="text-[16px] text-[var(--t-text-secondary)] leading-relaxed line-clamp-6">{quote.description}</p>
-                    {quote.ceo && <p className="text-[14px] text-[var(--t-text-dim)] font-mono mt-3">CEO: {quote.ceo}</p>}
+                  <div className="content-card p-5">
+                    <h3 className="text-[12px] font-semibold text-[var(--t-text-muted)] font-mono tracking-[0.15em] mb-3">ABOUT</h3>
+                    <p className="text-[15px] text-[var(--t-text-secondary)] leading-relaxed line-clamp-6">{quote.description}</p>
+                    {quote.ceo && (
+                      <div className="mt-3 pt-3 border-t border-[var(--t-border)]">
+                        <p className="text-[13px] text-[var(--t-text-dim)] font-mono tracking-wide">CEO: <span className="text-[var(--t-text-muted)]">{quote.ceo}</span></p>
+                      </div>
+                    )}
                   </div>
                 )}
-                <div className="bg-[var(--t-bg-elevated)] border border-[var(--t-border)] rounded-xl p-4">
-                  <div className="text-[14px] text-[var(--t-text-muted)] font-mono uppercase tracking-widest mb-3">SHARE</div>
+                <div className="content-card p-5">
+                  <div className="text-[12px] text-[var(--t-text-muted)] font-mono tracking-[0.15em] mb-3">SHARE</div>
                   <ShareCard type="ticker" data={{ symbol: quote.symbol, name: quote.name, price: quote.price, change: quote.change }} />
                 </div>
               </div>
@@ -481,7 +492,7 @@ export default function TickerAnalysis() {
             ) : analystData ? (
               <>
                 {/* Consensus Header */}
-                <div className="bg-gradient-to-r from-[var(--t-btn-bg)] to-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-6">
+                <div className="content-card p-6 bg-gradient-to-br from-[var(--t-bg-card)] to-[var(--t-stat-bg)]">
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest mb-1">WALL STREET CONSENSUS</div>
@@ -1118,9 +1129,10 @@ export default function TickerAnalysis() {
         {activeTab === "activismhistory" && <ActivismHistoryTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
         {activeTab === "corporateevents" && <CorporateEventsTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
 
-        <div className="text-center mt-12 pb-6">
-          <p className="text-[14px] text-[var(--t-text-dim)] font-mono tracking-wider">
-            Charts by TradingView · Live data via Massive API · Analysis powered by DeepSeek AI
+        <div className="text-center mt-16 pb-8">
+          <div className="section-divider mb-6" />
+          <p className="text-[13px] text-[var(--t-text-dim)] font-mono tracking-[0.1em]">
+            Charts by TradingView <span className="text-[var(--t-border-hover)]">·</span> Live data via Massive API <span className="text-[var(--t-border-hover)]">·</span> Analysis powered by DeepSeek AI
           </p>
         </div>
       </div>
@@ -1133,9 +1145,9 @@ export default function TickerAnalysis() {
 // ── Mini Stat Card ──
 function MiniStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl px-4 py-4 text-center">
-      <div className="text-[13px] text-[var(--t-text-muted)] font-mono tracking-widest mb-1.5">{label}</div>
-      <div className="text-lg font-semibold text-[var(--t-text)] tabular-nums font-mono">{value}</div>
+    <div className="stat-card bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl px-4 py-4 text-center">
+      <div className="text-[12px] text-[var(--t-text-muted)] font-mono tracking-[0.15em] mb-2 uppercase">{label}</div>
+      <div className="text-xl font-bold text-[var(--t-text)] tabular-nums font-mono">{value}</div>
     </div>
   );
 }
@@ -1143,9 +1155,9 @@ function MiniStat({ label, value }: { label: string; value: string }) {
 // ── Loading Card ──
 function LoadingCard({ label }: { label: string }) {
   return (
-    <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-12 text-center">
-      <div className="w-8 h-8 border-2 border-[var(--t-border-hover)] border-t-white/50 rounded-full animate-spin mx-auto mb-4" />
-      <p className="text-sm font-mono text-[var(--t-text-muted)] animate-pulse">{label}</p>
+    <div className="content-card p-16 text-center">
+      <div className="w-10 h-10 border-2 border-[var(--t-accent)] border-t-transparent rounded-full animate-spin mx-auto mb-5" />
+      <p className="text-sm font-mono text-[var(--t-text-muted)] animate-pulse tracking-wide">{label}</p>
     </div>
   );
 }
@@ -1162,14 +1174,14 @@ function AnalysisSection({
     return (
       <button
         onClick={onLoad}
-        className="w-full group bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl overflow-hidden hover:bg-[var(--t-btn-bg)] hover:border-[var(--t-border-hover)] transition-all duration-200"
+        className="gen-btn w-full group bg-[var(--t-gen-bg)] border border-[var(--t-border)] rounded-xl overflow-hidden hover:bg-[var(--t-gen-hover)] hover:border-[var(--t-border-hover)] transition-all duration-300"
       >
-        <div className="flex items-center justify-between px-5 py-4">
-          <div className="flex items-center gap-3.5">
-            <span className="w-7 h-7 rounded-lg bg-[var(--t-btn-bg)] text-[var(--t-text-muted)] text-xs flex items-center justify-center font-mono group-hover:bg-[var(--t-group-active)] group-hover:text-[var(--t-text-secondary)] transition-all">{step}</span>
-            <h3 className="text-sm text-[var(--t-text-muted)] group-hover:text-[var(--t-text-secondary)] transition-colors">{title}</h3>
+        <div className="relative z-10 flex items-center justify-between px-5 py-5">
+          <div className="flex items-center gap-4">
+            <span className="w-8 h-8 rounded-lg bg-[var(--t-btn-bg)] text-[var(--t-text-muted)] text-sm flex items-center justify-center font-mono font-bold group-hover:bg-[var(--t-group-active)] group-hover:text-[var(--t-text)] transition-all">{step}</span>
+            <h3 className="text-[15px] font-medium text-[var(--t-text-muted)] group-hover:text-[var(--t-text)] transition-colors tracking-wide">{title}</h3>
           </div>
-          <span className="text-[14px] font-mono text-[var(--t-text-dim)] bg-[var(--t-btn-bg)] px-2.5 py-1 rounded-md group-hover:text-[var(--t-text-muted)] group-hover:bg-[var(--t-btn-bg)] transition-all">GENERATE</span>
+          <span className="text-[13px] font-mono font-semibold text-[var(--t-gen-text)] bg-[var(--t-btn-bg)] px-3.5 py-1.5 rounded-lg group-hover:bg-[var(--t-group-active)] transition-all tracking-wider">GENERATE</span>
         </div>
       </button>
     );
@@ -1177,13 +1189,13 @@ function AnalysisSection({
 
   if (isLoading) {
     return (
-      <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl overflow-hidden">
-        <div className="px-5 py-4 flex items-center gap-3.5">
-          <span className="w-7 h-7 rounded-lg bg-[var(--t-group-active)] text-[var(--t-text-secondary)] text-xs flex items-center justify-center font-mono">{step}</span>
-          <h3 className="text-sm text-[var(--t-text-secondary)]">{title}</h3>
-          <div className="ml-auto flex items-center gap-2">
-            <div className="w-4 h-4 border-2 border-[var(--t-border-hover)] border-t-white/50 rounded-full animate-spin" />
-            <span className="text-[14px] font-mono text-[var(--t-text-muted)] animate-pulse">Analyzing...</span>
+      <div className="content-card overflow-hidden">
+        <div className="px-5 py-5 flex items-center gap-4">
+          <span className="w-8 h-8 rounded-lg bg-[var(--t-group-active)] text-[var(--t-text)] text-sm flex items-center justify-center font-mono font-bold">{step}</span>
+          <h3 className="text-[15px] font-medium text-[var(--t-text-secondary)] tracking-wide">{title}</h3>
+          <div className="ml-auto flex items-center gap-2.5">
+            <div className="w-5 h-5 border-2 border-[var(--t-accent)] border-t-transparent rounded-full animate-spin" />
+            <span className="text-[13px] font-mono text-[var(--t-text-muted)] animate-pulse tracking-wide">Analyzing...</span>
           </div>
         </div>
       </div>

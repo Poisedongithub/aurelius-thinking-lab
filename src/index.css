@@ -427,18 +427,18 @@
   --t-bg-card: #0d0d0d;
   --t-bg-hover: #111111;
   --t-text: #ffffff;
-  --t-text-secondary: rgba(255,255,255,0.50);
-  --t-text-muted: rgba(255,255,255,0.25);
-  --t-text-dim: rgba(255,255,255,0.10);
-  --t-border: rgba(255,255,255,0.06);
-  --t-border-hover: rgba(255,255,255,0.12);
+  --t-text-secondary: rgba(255,255,255,0.55);
+  --t-text-muted: rgba(255,255,255,0.30);
+  --t-text-dim: rgba(255,255,255,0.12);
+  --t-border: rgba(255,255,255,0.07);
+  --t-border-hover: rgba(255,255,255,0.15);
   --t-accent: #ffffff;
   --t-accent-muted: rgba(255,255,255,0.08);
   --t-green: #22c55e;
   --t-red: #ef4444;
   --t-group-bg: rgba(255,255,255,0.04);
-  --t-group-active: rgba(255,255,255,0.10);
-  --t-tab-active: rgba(255,255,255,0.12);
+  --t-group-active: rgba(255,255,255,0.12);
+  --t-tab-active: rgba(255,255,255,0.14);
   --t-btn-bg: rgba(255,255,255,0.06);
   --t-btn-hover: rgba(255,255,255,0.10);
   --t-stat-bg: rgba(255,255,255,0.03);
@@ -446,6 +446,20 @@
   --t-gen-bg: rgba(255,255,255,0.06);
   --t-gen-hover: rgba(255,255,255,0.10);
   --t-gen-text: #ffffff;
+  /* Premium additions */
+  --t-glow: rgba(255,255,255,0.04);
+  --t-glow-accent: rgba(255,255,255,0.06);
+  --t-gradient-start: #060606;
+  --t-gradient-end: #0c0c0c;
+  --t-header-gradient: linear-gradient(180deg, #0a0a0a 0%, #060606 100%);
+  --t-stat-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 1px rgba(255,255,255,0.05);
+  --t-card-shadow: 0 4px 16px rgba(0,0,0,0.4), 0 0 1px rgba(255,255,255,0.05);
+  --t-active-glow: 0 0 12px rgba(255,255,255,0.06);
+  --t-ticker-gradient: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.7) 100%);
+  --t-price-up: #22c55e;
+  --t-price-down: #ef4444;
+  --t-divider: rgba(255,255,255,0.04);
+  --t-shimmer: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%);
 }
 
 /* Cherry Blossom — pink & warm terminal */
@@ -455,18 +469,18 @@
   --t-bg-card: #2a1018;
   --t-bg-hover: #35141e;
   --t-text: #fce4ec;
-  --t-text-secondary: rgba(252,228,236,0.60);
-  --t-text-muted: rgba(252,228,236,0.30);
-  --t-text-dim: rgba(252,228,236,0.12);
-  --t-border: rgba(214,39,90,0.15);
-  --t-border-hover: rgba(214,39,90,0.30);
+  --t-text-secondary: rgba(252,228,236,0.65);
+  --t-text-muted: rgba(252,228,236,0.35);
+  --t-text-dim: rgba(252,228,236,0.14);
+  --t-border: rgba(214,39,90,0.18);
+  --t-border-hover: rgba(214,39,90,0.35);
   --t-accent: #D6275A;
   --t-accent-muted: rgba(214,39,90,0.12);
   --t-green: #4ade80;
   --t-red: #f87171;
   --t-group-bg: rgba(214,39,90,0.08);
-  --t-group-active: rgba(214,39,90,0.20);
-  --t-tab-active: rgba(214,39,90,0.18);
+  --t-group-active: rgba(214,39,90,0.22);
+  --t-tab-active: rgba(214,39,90,0.20);
   --t-btn-bg: rgba(214,39,90,0.10);
   --t-btn-hover: rgba(214,39,90,0.18);
   --t-stat-bg: rgba(214,39,90,0.06);
@@ -474,6 +488,20 @@
   --t-gen-bg: rgba(214,39,90,0.15);
   --t-gen-hover: rgba(214,39,90,0.25);
   --t-gen-text: #fce4ec;
+  /* Premium additions */
+  --t-glow: rgba(214,39,90,0.06);
+  --t-glow-accent: rgba(214,39,90,0.10);
+  --t-gradient-start: #1a0a10;
+  --t-gradient-end: #220e16;
+  --t-header-gradient: linear-gradient(180deg, #220e16 0%, #1a0a10 100%);
+  --t-stat-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 1px rgba(214,39,90,0.15);
+  --t-card-shadow: 0 4px 16px rgba(0,0,0,0.4), 0 0 1px rgba(214,39,90,0.15);
+  --t-active-glow: 0 0 12px rgba(214,39,90,0.15);
+  --t-ticker-gradient: linear-gradient(135deg, #fce4ec 0%, #D6275A 100%);
+  --t-price-up: #4ade80;
+  --t-price-down: #f87171;
+  --t-divider: rgba(214,39,90,0.08);
+  --t-shimmer: linear-gradient(90deg, transparent 0%, rgba(214,39,90,0.06) 50%, transparent 100%);
 }
 
 /* Ocean — teal & deep blue terminal */
@@ -483,18 +511,18 @@
   --t-bg-card: #082c3a;
   --t-bg-hover: #0a3648;
   --t-text: #e0f2f7;
-  --t-text-secondary: rgba(224,242,247,0.60);
-  --t-text-muted: rgba(224,242,247,0.30);
-  --t-text-dim: rgba(224,242,247,0.12);
-  --t-border: rgba(6,153,186,0.15);
-  --t-border-hover: rgba(6,153,186,0.30);
+  --t-text-secondary: rgba(224,242,247,0.65);
+  --t-text-muted: rgba(224,242,247,0.35);
+  --t-text-dim: rgba(224,242,247,0.14);
+  --t-border: rgba(6,153,186,0.18);
+  --t-border-hover: rgba(6,153,186,0.35);
   --t-accent: #0699ba;
   --t-accent-muted: rgba(6,153,186,0.12);
   --t-green: #34d399;
   --t-red: #fb7185;
   --t-group-bg: rgba(6,153,186,0.08);
-  --t-group-active: rgba(6,153,186,0.20);
-  --t-tab-active: rgba(6,153,186,0.18);
+  --t-group-active: rgba(6,153,186,0.22);
+  --t-tab-active: rgba(6,153,186,0.20);
   --t-btn-bg: rgba(6,153,186,0.10);
   --t-btn-hover: rgba(6,153,186,0.18);
   --t-stat-bg: rgba(6,153,186,0.06);
@@ -502,4 +530,126 @@
   --t-gen-bg: rgba(6,153,186,0.15);
   --t-gen-hover: rgba(6,153,186,0.25);
   --t-gen-text: #e0f2f7;
+  /* Premium additions */
+  --t-glow: rgba(6,153,186,0.06);
+  --t-glow-accent: rgba(6,153,186,0.10);
+  --t-gradient-start: #041a22;
+  --t-gradient-end: #062430;
+  --t-header-gradient: linear-gradient(180deg, #062430 0%, #041a22 100%);
+  --t-stat-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 1px rgba(6,153,186,0.15);
+  --t-card-shadow: 0 4px 16px rgba(0,0,0,0.4), 0 0 1px rgba(6,153,186,0.15);
+  --t-active-glow: 0 0 12px rgba(6,153,186,0.15);
+  --t-ticker-gradient: linear-gradient(135deg, #e0f2f7 0%, #0699ba 100%);
+  --t-price-up: #34d399;
+  --t-price-down: #fb7185;
+  --t-divider: rgba(6,153,186,0.08);
+  --t-shimmer: linear-gradient(90deg, transparent 0%, rgba(6,153,186,0.06) 50%, transparent 100%);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Terminal Premium Utility Classes
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Scrollbar hide */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Smooth tab underline glow */
+.tab-active-underline {
+  position: relative;
+}
+.tab-active-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: var(--t-accent);
+  border-radius: 1px;
+  box-shadow: var(--t-active-glow);
+}
+
+/* Group pill active glow */
+.group-active-pill {
+  box-shadow: var(--t-active-glow);
+}
+
+/* Stat card hover lift */
+.stat-card {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--t-stat-shadow);
+}
+.stat-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--t-card-shadow);
+  border-color: var(--t-border-hover);
+}
+
+/* Ticker row hover */
+.ticker-row {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ticker-row:hover {
+  transform: translateX(2px);
+  box-shadow: var(--t-card-shadow);
+}
+
+/* Generate button pulse */
+.gen-btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.gen-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--t-shimmer);
+  animation: shimmer 3s ease-in-out infinite;
+}
+.gen-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--t-active-glow);
+}
+
+@keyframes shimmer {
+  0%, 100% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+}
+
+/* Gradient text utility */
+.text-gradient {
+  background: var(--t-ticker-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Section divider */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--t-border-hover), transparent);
+  margin: 1rem 0;
+}
+
+/* Content card */
+.content-card {
+  background: var(--t-stat-bg);
+  border: 1px solid var(--t-border);
+  border-radius: 0.75rem;
+  box-shadow: var(--t-stat-shadow);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.content-card:hover {
+  border-color: var(--t-border-hover);
+  box-shadow: var(--t-card-shadow);
+}
+
+/* Subtle background pattern */
+.terminal-page {
+  background-image: 
+    radial-gradient(ellipse at 50% 0%, var(--t-glow) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, var(--t-glow-accent) 0%, transparent 40%);
+  background-attachment: fixed;
 }

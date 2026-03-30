@@ -13,16 +13,16 @@ import {
 /* ─── Shared loading / generate button ─── */
 function GenerateButton({ label, onClick, loading }: { label: string; onClick: () => void; loading: boolean }) {
   if (loading) return (
-    <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-12 text-center">
-      <div className="w-8 h-8 border-2 border-[var(--t-border-hover)] border-t-white/50 rounded-full animate-spin mx-auto mb-4" />
-      <p className="text-sm font-mono text-[var(--t-text-muted)] animate-pulse">{label}</p>
+    <div className="content-card p-14 text-center">
+      <div className="w-10 h-10 border-2 border-[var(--t-accent)] border-t-transparent rounded-full animate-spin mx-auto mb-5" />
+      <p className="text-sm font-mono text-[var(--t-text-muted)] animate-pulse tracking-wide">{label}</p>
     </div>
   );
   return (
-    <button onClick={onClick} className="w-full group bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl overflow-hidden hover:bg-[var(--t-btn-bg)] hover:border-[var(--t-border-hover)] transition-all duration-200">
-      <div className="flex items-center justify-between px-5 py-4">
-        <h3 className="text-sm text-[var(--t-text-muted)] group-hover:text-[var(--t-text-secondary)] transition-colors">{label}</h3>
-        <span className="text-[14px] font-mono text-[var(--t-text-dim)] bg-[var(--t-btn-bg)] px-2.5 py-1 rounded-md group-hover:text-[var(--t-text-muted)] group-hover:bg-[var(--t-btn-bg)] transition-all">GENERATE</span>
+    <button onClick={onClick} className="gen-btn w-full group bg-[var(--t-gen-bg)] border border-[var(--t-border)] rounded-xl overflow-hidden hover:bg-[var(--t-gen-hover)] hover:border-[var(--t-border-hover)] transition-all duration-300">
+      <div className="relative z-10 flex items-center justify-between px-5 py-5">
+        <h3 className="text-[15px] font-medium text-[var(--t-text-muted)] group-hover:text-[var(--t-text)] transition-colors tracking-wide">{label}</h3>
+        <span className="text-[13px] font-mono font-semibold text-[var(--t-gen-text)] bg-[var(--t-btn-bg)] px-3.5 py-1.5 rounded-lg group-hover:bg-[var(--t-group-active)] transition-all tracking-wider">GENERATE</span>
       </div>
     </button>
   );
@@ -30,9 +30,9 @@ function GenerateButton({ label, onClick, loading }: { label: string; onClick: (
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl overflow-hidden">
-      <div className="px-5 py-3 border-b border-[var(--t-border)]">
-        <div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest">{title}</div>
+    <div className="content-card overflow-hidden">
+      <div className="px-5 py-3.5 border-b border-[var(--t-border)] bg-[var(--t-bg-card)]">
+        <div className="text-[12px] text-[var(--t-text-muted)] font-mono tracking-[0.15em] uppercase">{title}</div>
       </div>
       <div className="p-5">{children}</div>
     </div>

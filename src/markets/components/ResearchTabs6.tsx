@@ -11,9 +11,9 @@ import {
 
 function GenBtn({ label, onClick, loading }: { label: string; onClick: () => void; loading: boolean }) {
   if (loading) return (
-    <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl p-12 text-center">
-      <div className="w-8 h-8 border-2 border-[var(--t-border-hover)] border-t-white/50 rounded-full animate-spin mx-auto mb-4" />
-      <p className="text-sm font-mono text-[var(--t-text-muted)] animate-pulse">{label}</p>
+    <div className="content-card p-14 text-center">
+      <div className="w-10 h-10 border-2 border-[var(--t-accent)] border-t-transparent rounded-full animate-spin mx-auto mb-5" />
+      <p className="text-sm font-mono text-[var(--t-text-muted)] animate-pulse tracking-wide">{label}</p>
     </div>
   );
   return (
@@ -28,7 +28,7 @@ function GenBtn({ label, onClick, loading }: { label: string; onClick: () => voi
 function Crd({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="bg-[var(--t-stat-bg)] border border-[var(--t-border)] rounded-xl overflow-hidden">
-      <div className="px-5 py-3 border-b border-[var(--t-border)]"><div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-widest">{title}</div></div>
+      <div className="px-5 py-3 border-b border-[var(--t-border)]"><div className="text-[14px] text-[var(--t-text-muted)] font-mono tracking-[0.15em] uppercase">{title}</div></div>
       <div className="p-5">{children}</div>
     </div>
   );
