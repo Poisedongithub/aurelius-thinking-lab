@@ -20,7 +20,7 @@ export default function EarningsView({ symbol }: EarningsViewProps) {
   if (loading) {
     return (
       <div className="bg-[#0a0a0a] border border-white/[0.06] rounded-xl p-4">
-        <div className="text-[10px] text-white/20 font-mono uppercase tracking-widest mb-4">EARNINGS & FINANCIALS</div>
+        <div className="text-[14px] text-white/20 font-mono uppercase tracking-widest mb-4">EARNINGS & FINANCIALS</div>
         <div className="animate-pulse space-y-3">
           {[1, 2, 3].map((i) => <div key={i} className="h-12 bg-white/5 rounded" />)}
         </div>
@@ -31,7 +31,7 @@ export default function EarningsView({ symbol }: EarningsViewProps) {
   if (data.length === 0) {
     return (
       <div className="bg-[#0a0a0a] border border-white/[0.06] rounded-xl p-4">
-        <div className="text-[10px] text-white/20 font-mono uppercase tracking-widest mb-4">EARNINGS & FINANCIALS</div>
+        <div className="text-[14px] text-white/20 font-mono uppercase tracking-widest mb-4">EARNINGS & FINANCIALS</div>
         <div className="text-white/20 text-xs font-mono text-center py-6">No earnings data available</div>
       </div>
     );
@@ -48,24 +48,24 @@ export default function EarningsView({ symbol }: EarningsViewProps) {
 
   return (
     <div className="bg-[#0a0a0a] border border-white/[0.06] rounded-xl p-4">
-      <div className="text-[10px] text-white/20 font-mono uppercase tracking-widest mb-4">EARNINGS & FINANCIALS</div>
+      <div className="text-[14px] text-white/20 font-mono uppercase tracking-widest mb-4">EARNINGS & FINANCIALS</div>
 
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-2 mb-4">
         <div className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.04]">
-          <div className="text-[9px] text-white/30 font-mono uppercase">Latest EPS</div>
+          <div className="text-[13px] text-white/30 font-mono uppercase">Latest EPS</div>
           <div className="text-sm font-bold text-white font-mono mt-1">
             {data[0].eps !== null ? `$${data[0].eps.toFixed(2)}` : "N/A"}
           </div>
         </div>
         <div className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.04]">
-          <div className="text-[9px] text-white/30 font-mono uppercase">Rev Growth</div>
+          <div className="text-[13px] text-white/30 font-mono uppercase">Rev Growth</div>
           <div className={`text-sm font-bold font-mono mt-1 ${revenueGrowth && parseFloat(revenueGrowth) >= 0 ? "text-green-400" : "text-red-400"}`}>
             {revenueGrowth ? `${parseFloat(revenueGrowth) >= 0 ? "+" : ""}${revenueGrowth}%` : "N/A"}
           </div>
         </div>
         <div className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.04]">
-          <div className="text-[9px] text-white/30 font-mono uppercase">Gross Margin</div>
+          <div className="text-[13px] text-white/30 font-mono uppercase">Gross Margin</div>
           <div className="text-sm font-bold text-white font-mono mt-1">
             {latestMargin ? `${latestMargin}%` : "N/A"}
           </div>
@@ -74,7 +74,7 @@ export default function EarningsView({ symbol }: EarningsViewProps) {
 
       {/* Revenue bar chart */}
       <div className="mb-4">
-        <div className="text-[9px] text-white/30 font-mono uppercase mb-2">QUARTERLY REVENUE</div>
+        <div className="text-[13px] text-white/30 font-mono uppercase mb-2">QUARTERLY REVENUE</div>
         <div className="flex items-end gap-1 h-24">
           {[...data].reverse().map((q, i) => {
             const maxRev = Math.max(...data.filter(d => d.revenue).map(d => d.revenue!));
@@ -86,7 +86,7 @@ export default function EarningsView({ symbol }: EarningsViewProps) {
                   className={`w-full rounded-t transition-all ${isLatest ? "bg-white" : "bg-white/20"}`}
                   style={{ height: `${height}%`, minHeight: height > 0 ? "4px" : "0" }}
                 />
-                <div className="text-[8px] text-white/25 font-mono">
+                <div className="text-[12px] text-white/25 font-mono">
                   {q.period}{String(q.year).slice(-2)}
                 </div>
               </div>
@@ -97,7 +97,7 @@ export default function EarningsView({ symbol }: EarningsViewProps) {
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full text-[10px] font-mono">
+        <table className="w-full text-[14px] font-mono">
           <thead>
             <tr className="text-white/30 border-b border-white/[0.06]">
               <th className="text-left py-2 font-normal">PERIOD</th>

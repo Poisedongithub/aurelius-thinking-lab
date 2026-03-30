@@ -182,7 +182,7 @@ export default function PriceChart({ symbol, currentPrice, change }: PriceChartP
             )}
           </div>
           {hoveredBar && (
-            <div className="text-[10px] text-white/30 font-mono mt-1">
+            <div className="text-[14px] text-white/30 font-mono mt-1">
               O: ${hoveredBar.o.toFixed(2)} H: ${hoveredBar.h.toFixed(2)} L: ${hoveredBar.l.toFixed(2)} V: {(hoveredBar.v / 1e6).toFixed(1)}M
             </div>
           )}
@@ -192,7 +192,7 @@ export default function PriceChart({ symbol, currentPrice, change }: PriceChartP
             <button
               key={r}
               onClick={() => setRange(r)}
-              className={`px-2.5 py-1 text-[10px] font-mono rounded transition-all ${
+              className={`px-2.5 py-1 text-[14px] font-mono rounded transition-all ${
                 range === r
                   ? "bg-white text-black font-bold"
                   : "text-white/40 hover:text-white/70 hover:bg-white/5"

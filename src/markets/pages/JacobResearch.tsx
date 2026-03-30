@@ -58,13 +58,13 @@ export default function JacobResearch() {
           </button>
           <div>
             <h1 className="text-lg font-bold font-mono tracking-tight">JACOB</h1>
-            <div className="text-[10px] text-white/30 font-mono">STOCK RESEARCH ASSISTANT</div>
+            <div className="text-[14px] text-white/30 font-mono">STOCK RESEARCH ASSISTANT</div>
           </div>
         </div>
 
         {/* Ticker selector */}
         <div className="bg-[#0a0a0a] border border-white/[0.06] rounded-xl p-4 mb-4">
-          <div className="text-[10px] text-white/30 font-mono uppercase mb-2">WHAT TICKER DO YOU WANT ME TO LOOK AT?</div>
+          <div className="text-[14px] text-white/30 font-mono uppercase mb-2">WHAT TICKER DO YOU WANT ME TO LOOK AT?</div>
           <div className="relative">
             <input
               type="text"
@@ -90,7 +90,7 @@ export default function JacobResearch() {
           </div>
           {selectedSymbol && (
             <div className="mt-3 flex items-center gap-2">
-              <span className="text-[10px] text-white/30 font-mono">SELECTED:</span>
+              <span className="text-[14px] text-white/30 font-mono">SELECTED:</span>
               <span className="text-xs font-mono font-bold text-white bg-white/10 px-2 py-1 rounded">{selectedSymbol}</span>
               <span className="text-xs font-mono text-white/40">{selectedName}</span>
             </div>
@@ -100,13 +100,13 @@ export default function JacobResearch() {
         {/* Quick prompts */}
         {selectedSymbol && !loading && !response && (
           <div className="mb-4">
-            <div className="text-[10px] text-white/30 font-mono uppercase mb-2">QUICK RESEARCH</div>
+            <div className="text-[14px] text-white/30 font-mono uppercase mb-2">QUICK RESEARCH</div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {quickPrompts.map((p) => (
                 <button
                   key={p}
                   onClick={() => askJacob(p)}
-                  className="text-left px-3 py-2.5 bg-[#0a0a0a] border border-white/[0.06] rounded-lg text-[11px] font-mono text-white/50 hover:text-white hover:border-white/20 transition-all"
+                  className="text-left px-3 py-2.5 bg-[#0a0a0a] border border-white/[0.06] rounded-lg text-[14px] font-mono text-white/50 hover:text-white hover:border-white/20 transition-all"
                 >
                   "{p}"
                 </button>
@@ -130,7 +130,7 @@ export default function JacobResearch() {
               <button
                 onClick={() => askJacob()}
                 disabled={!question || loading}
-                className="px-4 py-2.5 bg-white text-black text-[10px] font-mono font-bold rounded-lg hover:bg-white/90 disabled:bg-white/10 disabled:text-white/20 transition-all"
+                className="px-4 py-2.5 bg-white text-black text-[14px] font-mono font-bold rounded-lg hover:bg-white/90 disabled:bg-white/10 disabled:text-white/20 transition-all"
               >
                 ASK
               </button>
@@ -157,9 +157,9 @@ export default function JacobResearch() {
           <div className="bg-[#0a0a0a] border border-white/[0.06] rounded-xl p-6 mb-4">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
-                <span className="text-[10px] font-bold text-black">J</span>
+                <span className="text-[14px] font-bold text-black">J</span>
               </div>
-              <span className="text-[10px] font-mono text-white/40">JACOB on {selectedSymbol}</span>
+              <span className="text-[14px] font-mono text-white/40">JACOB on {selectedSymbol}</span>
             </div>
             <div className="text-sm text-white/80 leading-relaxed whitespace-pre-wrap font-mono">
               {response}
@@ -167,13 +167,13 @@ export default function JacobResearch() {
             <div className="mt-4 flex gap-2">
               <button
                 onClick={() => { navigator.clipboard.writeText(response); }}
-                className="px-3 py-1.5 text-[10px] font-mono text-white/30 border border-white/10 rounded-lg hover:text-white/60 hover:border-white/20 transition-all"
+                className="px-3 py-1.5 text-[14px] font-mono text-white/30 border border-white/10 rounded-lg hover:text-white/60 hover:border-white/20 transition-all"
               >
                 COPY
               </button>
               <button
                 onClick={() => setResponse("")}
-                className="px-3 py-1.5 text-[10px] font-mono text-white/30 border border-white/10 rounded-lg hover:text-white/60 hover:border-white/20 transition-all"
+                className="px-3 py-1.5 text-[14px] font-mono text-white/30 border border-white/10 rounded-lg hover:text-white/60 hover:border-white/20 transition-all"
               >
                 NEW QUESTION
               </button>
@@ -184,15 +184,15 @@ export default function JacobResearch() {
         {/* History */}
         {history.length > 1 && (
           <div className="mt-6">
-            <div className="text-[10px] text-white/20 font-mono uppercase tracking-widest mb-3">PREVIOUS RESEARCH</div>
+            <div className="text-[14px] text-white/20 font-mono uppercase tracking-widest mb-3">PREVIOUS RESEARCH</div>
             <div className="space-y-2">
               {history.slice(0, -1).reverse().map((h, i) => (
                 <div key={i} className="bg-[#0a0a0a] border border-white/[0.04] rounded-lg p-3">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[9px] font-mono font-bold text-white/50">{h.sym}</span>
-                    <span className="text-[9px] font-mono text-white/30">"{h.q}"</span>
+                    <span className="text-[13px] font-mono font-bold text-white/50">{h.sym}</span>
+                    <span className="text-[13px] font-mono text-white/30">"{h.q}"</span>
                   </div>
-                  <div className="text-[11px] text-white/40 font-mono line-clamp-2">{h.a}</div>
+                  <div className="text-[14px] text-white/40 font-mono line-clamp-2">{h.a}</div>
                 </div>
               ))}
             </div>
@@ -204,7 +204,7 @@ export default function JacobResearch() {
           <div className="text-center py-16">
             <div className="text-5xl mb-4 opacity-10">🧠</div>
             <div className="text-white/20 text-xs font-mono mb-1">Search for any ticker above</div>
-            <div className="text-white/10 text-[10px] font-mono">Jacob will give you the real breakdown — no corporate polish</div>
+            <div className="text-white/10 text-[14px] font-mono">Jacob will give you the real breakdown — no corporate polish</div>
           </div>
         )}
       </div>

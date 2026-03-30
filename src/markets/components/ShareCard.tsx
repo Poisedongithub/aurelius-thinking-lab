@@ -37,7 +37,7 @@ export default function ShareCard({ type, data }: ShareCardProps) {
     <div className="space-y-3">
       {/* Preview card */}
       <div ref={cardRef} className="bg-gradient-to-br from-[#0a0a0a] to-[#111] border border-white/[0.08] rounded-xl p-5">
-        <div className="text-[9px] text-white/20 font-mono uppercase tracking-widest mb-3">THINKING LAB</div>
+        <div className="text-[13px] text-white/20 font-mono uppercase tracking-widest mb-3">THINKING LAB</div>
         {type === "ticker" ? (
           <>
             <div className="flex items-baseline gap-3">
@@ -58,7 +58,7 @@ export default function ShareCard({ type, data }: ShareCardProps) {
             <div className={`text-sm font-mono font-bold mt-1 ${(data.totalPnlPct || 0) >= 0 ? "text-green-400" : "text-red-400"}`}>
               {(data.totalPnlPct || 0) >= 0 ? "+" : ""}{data.totalPnlPct?.toFixed(1)}% (${data.totalPnl?.toLocaleString()})
             </div>
-            <div className="text-[10px] text-white/30 font-mono mt-2">{data.positionCount} positions</div>
+            <div className="text-[14px] text-white/30 font-mono mt-2">{data.positionCount} positions</div>
           </>
         )}
       </div>
@@ -67,13 +67,13 @@ export default function ShareCard({ type, data }: ShareCardProps) {
       <div className="flex gap-2">
         <button
           onClick={handleCopy}
-          className="flex-1 px-3 py-2 text-[10px] font-mono font-bold rounded-lg border border-white/10 text-white/60 hover:text-white hover:border-white/20 transition-all"
+          className="flex-1 px-3 py-2 text-[14px] font-mono font-bold rounded-lg border border-white/10 text-white/60 hover:text-white hover:border-white/20 transition-all"
         >
           {copied ? "COPIED!" : "COPY TEXT"}
         </button>
         <button
           onClick={handleTweet}
-          className="flex-1 px-3 py-2 text-[10px] font-mono font-bold rounded-lg bg-white text-black hover:bg-white/90 transition-all"
+          className="flex-1 px-3 py-2 text-[14px] font-mono font-bold rounded-lg bg-white text-black hover:bg-white/90 transition-all"
         >
           SHARE ON X
         </button>

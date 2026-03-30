@@ -22,7 +22,7 @@ function GenerateButton({ label, onClick, loading }: { label: string; onClick: (
     <button onClick={onClick} className="w-full group bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden hover:bg-white/[0.04] hover:border-white/[0.1] transition-all duration-200">
       <div className="flex items-center justify-between px-5 py-4">
         <h3 className="text-sm text-white/30 group-hover:text-white/60 transition-colors">{label}</h3>
-        <span className="text-[10px] font-mono text-white/15 bg-white/[0.04] px-2.5 py-1 rounded-md group-hover:text-white/30 group-hover:bg-white/[0.06] transition-all">GENERATE</span>
+        <span className="text-[14px] font-mono text-white/15 bg-white/[0.04] px-2.5 py-1 rounded-md group-hover:text-white/30 group-hover:bg-white/[0.06] transition-all">GENERATE</span>
       </div>
     </button>
   );
@@ -32,7 +32,7 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
   return (
     <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
       <div className="px-5 py-3 border-b border-white/[0.06]">
-        <div className="text-[10px] text-white/25 font-mono tracking-widest">{title}</div>
+        <div className="text-[14px] text-white/25 font-mono tracking-widest">{title}</div>
       </div>
       <div className="p-5">{children}</div>
     </div>
@@ -46,7 +46,7 @@ function GradeDisplay({ grade, label }: { grade: string; label: string }) {
   return (
     <div className="text-center">
       <div className={`text-4xl font-bold font-mono ${color}`}>{grade}</div>
-      <div className="text-[9px] text-white/20 font-mono tracking-widest mt-1">{label}</div>
+      <div className="text-[13px] text-white/20 font-mono tracking-widest mt-1">{label}</div>
     </div>
   );
 }
@@ -69,16 +69,16 @@ export function ThesisTab({ symbol, name, price, change }: { symbol: string; nam
         <StatBox label="PRICE TARGET" value={`$${data.priceTarget}`} />
       </div>
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">THESIS SUMMARY</div>
+        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">THESIS SUMMARY</div>
         <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-5">
-          <div className="text-[10px] text-emerald-400 font-mono tracking-widest mb-2">BULL CASE</div>
+          <div className="text-[14px] text-emerald-400 font-mono tracking-widest mb-2">BULL CASE</div>
           <p className="text-sm text-emerald-300/70 leading-relaxed">{data.bullCase}</p>
         </div>
         <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-5">
-          <div className="text-[10px] text-red-400 font-mono tracking-widest mb-2">BEAR CASE</div>
+          <div className="text-[14px] text-red-400 font-mono tracking-widest mb-2">BEAR CASE</div>
           <p className="text-sm text-red-300/70 leading-relaxed">{data.bearCase}</p>
         </div>
       </div>
@@ -101,7 +101,7 @@ export function ThesisTab({ symbol, name, price, change }: { symbol: string; nam
       )}
       {data.whatChangesThesis && (
         <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-5">
-          <div className="text-[10px] text-amber-400 font-mono tracking-widest mb-2">WHAT CHANGES THE THESIS</div>
+          <div className="text-[14px] text-amber-400 font-mono tracking-widest mb-2">WHAT CHANGES THE THESIS</div>
           <p className="text-sm text-amber-300/70 leading-relaxed">{data.whatChangesThesis}</p>
         </div>
       )}
@@ -123,7 +123,7 @@ export function ValuationTab({ symbol, name, price }: { symbol: string; name: st
     <div className="space-y-4">
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
         <div className="flex items-center justify-between mb-3">
-          <div className="text-[10px] text-white/20 font-mono tracking-widest">OVERALL VERDICT</div>
+          <div className="text-[14px] text-white/20 font-mono tracking-widest">OVERALL VERDICT</div>
           <Tag label={data.verdict} color={data.verdict?.toLowerCase().includes("under") ? "green" : data.verdict?.toLowerCase().includes("over") ? "red" : "blue"} />
         </div>
         <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
@@ -136,7 +136,7 @@ export function ValuationTab({ symbol, name, price }: { symbol: string; name: st
           </div>
           {data.dcf.assumptions && (
             <div className="space-y-1.5 mb-4">
-              <div className="text-[9px] text-white/15 font-mono">ASSUMPTIONS</div>
+              <div className="text-[13px] text-white/15 font-mono">ASSUMPTIONS</div>
               {Object.entries(data.dcf.assumptions).map(([k, v]) => (
                 <div key={k} className="flex justify-between text-xs"><span className="text-white/30">{k}</span><span className="text-white/60 font-mono">{v}</span></div>
               ))}
@@ -144,10 +144,10 @@ export function ValuationTab({ symbol, name, price }: { symbol: string; name: st
           )}
           {data.dcf.sensitivity?.length > 0 && (
             <div>
-              <div className="text-[9px] text-white/15 font-mono mb-2">SENSITIVITY (WACC)</div>
+              <div className="text-[13px] text-white/15 font-mono mb-2">SENSITIVITY (WACC)</div>
               <div className="flex gap-2">{data.dcf.sensitivity.map((s, i) => (
                 <div key={i} className="bg-white/[0.03] rounded-lg px-3 py-2 text-center flex-1">
-                  <div className="text-[9px] text-white/20 font-mono">{s.wacc}</div>
+                  <div className="text-[13px] text-white/20 font-mono">{s.wacc}</div>
                   <div className="text-sm font-mono font-semibold text-white">${s.value?.toFixed(2)}</div>
                 </div>
               ))}</div>
@@ -199,11 +199,11 @@ export function MoatTab({ symbol, name, price }: { symbol: string; name: string;
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <div className="text-[10px] text-white/25 font-mono tracking-widest mb-1">MOAT RATING</div>
+            <div className="text-[14px] text-white/25 font-mono tracking-widest mb-1">MOAT RATING</div>
             <div className="text-3xl font-bold font-mono text-white">{data.moatRating}</div>
           </div>
           <div className="text-right">
-            <div className="text-[10px] text-white/25 font-mono tracking-widest mb-1">MOAT SCORE</div>
+            <div className="text-[14px] text-white/25 font-mono tracking-widest mb-1">MOAT SCORE</div>
             <div className="text-3xl font-bold font-mono text-white">{data.moatScore}<span className="text-sm text-white/20">/100</span></div>
           </div>
         </div>
@@ -241,7 +241,7 @@ export function MoatTab({ symbol, name, price }: { symbol: string; name: string;
         </Card>
       )}
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
+        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
         <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
       </div>
     </div>
@@ -265,7 +265,7 @@ export function ManagementTab({ symbol, name }: { symbol: string; name: string }
         {data.ceo && (
           <div className="flex-1">
             <div className="text-xs font-semibold text-white/70">{data.ceo.name}</div>
-            <div className="text-[10px] text-white/30">CEO · {data.ceo.tenure} · Rating: {data.ceo.rating}</div>
+            <div className="text-[14px] text-white/30">CEO · {data.ceo.tenure} · Rating: {data.ceo.rating}</div>
             <p className="text-xs text-white/40 mt-1">{data.ceo.background}</p>
           </div>
         )}
@@ -301,7 +301,7 @@ export function ManagementTab({ symbol, name }: { symbol: string; name: string }
         )}
       </div>
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
+        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
         <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
       </div>
     </div>
@@ -324,7 +324,7 @@ export function BullBearTab({ symbol, name, price, change }: { symbol: string; n
         {/* Bull */}
         <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-5">
           <div className="flex items-center justify-between mb-3">
-            <div className="text-[10px] text-emerald-400 font-mono tracking-widest">BULL CASE</div>
+            <div className="text-[14px] text-emerald-400 font-mono tracking-widest">BULL CASE</div>
             <span className="text-xs font-mono text-emerald-400">${data.bullCase.priceTarget} PT</span>
           </div>
           <h3 className="text-sm font-semibold text-emerald-300 mb-3">{data.bullCase.headline}</h3>
@@ -339,7 +339,7 @@ export function BullBearTab({ symbol, name, price, change }: { symbol: string; n
               </div>
             ))}
           </div>
-          <div className="mt-3 flex gap-2 text-[10px] font-mono text-emerald-400/60">
+          <div className="mt-3 flex gap-2 text-[14px] font-mono text-emerald-400/60">
             <span>{data.bullCase.timeframe}</span>
             <span>·</span>
             <span>Confidence: {data.bullCase.confidence}%</span>
@@ -348,7 +348,7 @@ export function BullBearTab({ symbol, name, price, change }: { symbol: string; n
         {/* Bear */}
         <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-5">
           <div className="flex items-center justify-between mb-3">
-            <div className="text-[10px] text-red-400 font-mono tracking-widest">BEAR CASE</div>
+            <div className="text-[14px] text-red-400 font-mono tracking-widest">BEAR CASE</div>
             <span className="text-xs font-mono text-red-400">${data.bearCase.priceTarget} PT</span>
           </div>
           <h3 className="text-sm font-semibold text-red-300 mb-3">{data.bearCase.headline}</h3>
@@ -363,7 +363,7 @@ export function BullBearTab({ symbol, name, price, change }: { symbol: string; n
               </div>
             ))}
           </div>
-          <div className="mt-3 flex gap-2 text-[10px] font-mono text-red-400/60">
+          <div className="mt-3 flex gap-2 text-[14px] font-mono text-red-400/60">
             <span>{data.bearCase.timeframe}</span>
             <span>·</span>
             <span>Confidence: {data.bearCase.confidence}%</span>
@@ -371,12 +371,12 @@ export function BullBearTab({ symbol, name, price, change }: { symbol: string; n
         </div>
       </div>
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">VERDICT</div>
+        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">VERDICT</div>
         <p className="text-sm text-white/60 leading-relaxed">{data.verdict}</p>
       </div>
       {data.keyQuestion && (
         <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-5">
-          <div className="text-[10px] text-amber-400 font-mono tracking-widest mb-2">KEY QUESTION</div>
+          <div className="text-[14px] text-amber-400 font-mono tracking-widest mb-2">KEY QUESTION</div>
           <p className="text-sm text-amber-300/70">{data.keyQuestion}</p>
         </div>
       )}
@@ -415,7 +415,7 @@ export function RevenueTab({ symbol, name }: { symbol: string; name: string }) {
                 <div className="w-full h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
                   <div className="h-full bg-blue-400 rounded-full" style={{ width: `${s.percentage}%` }} />
                 </div>
-                <div className="flex justify-between mt-1 text-[9px] font-mono text-white/20">
+                <div className="flex justify-between mt-1 text-[13px] font-mono text-white/20">
                   <span>{s.percentage}% of revenue</span>
                   <TrendBadge trend={s.trend} />
                 </div>
@@ -441,12 +441,12 @@ export function RevenueTab({ symbol, name }: { symbol: string; name: string }) {
       )}
       {data.concentrationRisk && (
         <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-          <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">CONCENTRATION RISK</div>
+          <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">CONCENTRATION RISK</div>
           <p className="text-sm text-white/60">{data.concentrationRisk}</p>
         </div>
       )}
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
+        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
         <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
       </div>
     </div>
@@ -478,7 +478,7 @@ export function CompetitiveTab({ symbol, name }: { symbol: string; name: string 
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-semibold text-white/70">{c.name}</span>
-                    <span className="text-[10px] font-mono text-white/30">{c.ticker}</span>
+                    <span className="text-[14px] font-mono text-white/30">{c.ticker}</span>
                   </div>
                   <Tag label={`Threat: ${c.threat}`} color={c.threat === "high" ? "red" : c.threat === "medium" ? "yellow" : "green"} />
                 </div>
@@ -505,7 +505,7 @@ export function CompetitiveTab({ symbol, name }: { symbol: string; name: string 
         </Card>
       )}
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
+        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
         <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
       </div>
     </div>
@@ -527,7 +527,7 @@ export function FinancialHealthTab({ symbol, name, price }: { symbol: string; na
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-6 flex items-center gap-6">
         <div className="text-center">
           <div className="text-4xl font-bold font-mono text-white">{data.overallScore}<span className="text-sm text-white/20">/100</span></div>
-          <div className="text-[9px] text-white/20 font-mono mt-1">HEALTH SCORE</div>
+          <div className="text-[13px] text-white/20 font-mono mt-1">HEALTH SCORE</div>
         </div>
         <GradeDisplay grade={data.grade} label="GRADE" />
       </div>
@@ -566,7 +566,7 @@ export function FinancialHealthTab({ symbol, name, price }: { symbol: string; na
         </Card>
       )}
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
+        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
         <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
       </div>
     </div>
@@ -603,7 +603,7 @@ export function CapitalAllocationTab({ symbol, name }: { symbol: string; name: s
                 <div className="w-full h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
                   <div className="h-full bg-blue-400 rounded-full" style={{ width: `${a.percentage}%` }} />
                 </div>
-                <div className="flex justify-between mt-1 text-[9px] font-mono text-white/20">
+                <div className="flex justify-between mt-1 text-[13px] font-mono text-white/20">
                   <span>{a.percentage}%</span>
                   <span>{a.effectiveness}</span>
                 </div>
@@ -614,12 +614,12 @@ export function CapitalAllocationTab({ symbol, name }: { symbol: string; name: s
       )}
       {data.valueCreation && (
         <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-          <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">VALUE CREATION</div>
+          <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">VALUE CREATION</div>
           <p className="text-sm text-white/60">{data.valueCreation}</p>
         </div>
       )}
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
+        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
         <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
       </div>
     </div>
@@ -656,11 +656,11 @@ export function GuidanceTab({ symbol, name }: { symbol: string; name: string }) 
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead><tr className="border-b border-white/[0.06]">
-                <th className="text-left py-2 text-[9px] text-white/20 font-mono">QUARTER</th>
-                <th className="text-left py-2 text-[9px] text-white/20 font-mono">METRIC</th>
-                <th className="text-right py-2 text-[9px] text-white/20 font-mono">GUIDED</th>
-                <th className="text-right py-2 text-[9px] text-white/20 font-mono">ACTUAL</th>
-                <th className="text-right py-2 text-[9px] text-white/20 font-mono">RESULT</th>
+                <th className="text-left py-2 text-[13px] text-white/20 font-mono">QUARTER</th>
+                <th className="text-left py-2 text-[13px] text-white/20 font-mono">METRIC</th>
+                <th className="text-right py-2 text-[13px] text-white/20 font-mono">GUIDED</th>
+                <th className="text-right py-2 text-[13px] text-white/20 font-mono">ACTUAL</th>
+                <th className="text-right py-2 text-[13px] text-white/20 font-mono">RESULT</th>
               </tr></thead>
               <tbody className="divide-y divide-white/[0.04]">
                 {data.guidanceHistory.map((g, i) => (
@@ -680,7 +680,7 @@ export function GuidanceTab({ symbol, name }: { symbol: string; name: string }) 
         </Card>
       )}
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
+        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
         <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
       </div>
     </div>

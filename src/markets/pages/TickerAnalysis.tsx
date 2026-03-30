@@ -31,6 +31,18 @@ import {
   EarningsReplayTab, EarningsCalendarTab, EstimateRevisionsTab, CashFlowTab, MarginsTab,
   ScenarioTab, QualityTab, AlertsTab, ResearchNotesTab, DeepCompareTab,
 } from "../components/ResearchTabs3";
+import {
+  PatternScannerTab, SupportResistanceTab, MomentumTab, FibonacciTab, VolumeProfileTab,
+  FedImpactTab, InflationTab, CurrencyTab, YieldCurveTab, GeopoliticalTab,
+} from "../components/ResearchTabs4";
+import {
+  SocialBuzzTab, NewsSentimentTab, AnalystSentimentTab, OptionsSentimentTab, EarningsToneTab,
+  EntryExitTab, PositionSizingTab, HedgeTab, TaxOptimizerTab, PairsTradeTab,
+} from "../components/ResearchTabs5";
+import {
+  RegressionTab, SeasonalityTab, CorrelationTab, VolatilityTab, MonteCarloTab,
+  ESGTab, ExecCompTab, BoardTab, ActivismHistoryTab, CorporateEventsTab,
+} from "../components/ResearchTabs6";
 
 type SectionKey =
   | "attention-trigger" | "what-moved" | "industry-chain" | "leverage-point"
@@ -60,7 +72,13 @@ type TabKey = "chart" | "fundamentals" | "news" | "options" | "analysis" | "insi
   | "industry" | "sectors" | "ipo" | "ma" | "regulatory"
   | "institutional" | "etf" | "activist" | "insiderpatterns" | "shortinterest"
   | "earningsreplay" | "earningscalendar" | "estimates" | "cashflow" | "margins"
-  | "deepcompare" | "notes" | "scenario" | "quality" | "alerts";
+  | "deepcompare" | "notes" | "scenario" | "quality" | "alerts"
+  | "patternscanner" | "supportresistance" | "momentum" | "fibonacci" | "volumeprofile"
+  | "fedimpact" | "inflation" | "currency" | "yieldcurve" | "geopolitical"
+  | "socialbuzz" | "newssentiment" | "analystsentiment" | "optionssentiment" | "earningstone"
+  | "entryexit" | "positionsizing" | "hedge" | "taxoptimizer" | "pairstrade"
+  | "regression" | "seasonality" | "correlation" | "volatility" | "montecarlo"
+  | "esg" | "execcomp" | "board" | "activismhistory" | "corporateevents";
 
 export default function TickerAnalysis() {
   const { symbol } = useParams<{ symbol: string }>();
@@ -70,6 +88,7 @@ export default function TickerAnalysis() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<TabKey>("chart");
+  const [activeGroup, setActiveGroup] = useState("OVERVIEW");
   const [sectionData, setSectionData] = useState<Record<string, Record<string, unknown> | null>>({});
   const [loadingSections, setLoadingSections] = useState<Set<string>>(new Set());
   const [loadedSections, setLoadedSections] = useState<Set<string>>(new Set());
@@ -171,7 +190,7 @@ export default function TickerAnalysis() {
     return (
       <div className="min-h-screen bg-[#060606]">
         <div className="max-w-6xl mx-auto px-5 py-8">
-          <button onClick={() => navigate("/markets")} className="text-[11px] text-white/30 hover:text-white/60 font-mono mb-6 transition-colors">← DASHBOARD</button>
+          <button onClick={() => navigate("/markets")} className="text-[14px] text-white/30 hover:text-white/60 font-mono mb-6 transition-colors">← DASHBOARD</button>
           <EmptyState message={error || `Ticker ${symbol} not found`} />
         </div>
       </div>
@@ -234,6 +253,48 @@ export default function TickerAnalysis() {
       { key: "alerts", label: "ALERTS" },
       { key: "notes", label: "NOTES" },
     ]},
+    { group: "TECHNICALS", tabs: [
+      { key: "patternscanner", label: "PATTERNS" },
+      { key: "supportresistance", label: "S/R LEVELS" },
+      { key: "momentum", label: "MOMENTUM" },
+      { key: "fibonacci", label: "FIBONACCI" },
+      { key: "volumeprofile", label: "VOLUME" },
+    ]},
+    { group: "MACRO", tabs: [
+      { key: "fedimpact", label: "FED IMPACT" },
+      { key: "inflation", label: "INFLATION" },
+      { key: "currency", label: "CURRENCY" },
+      { key: "yieldcurve", label: "YIELD CURVE" },
+      { key: "geopolitical", label: "GEO RISK" },
+    ]},
+    { group: "SENTIMENT", tabs: [
+      { key: "socialbuzz", label: "SOCIAL BUZZ" },
+      { key: "newssentiment", label: "NEWS SENT." },
+      { key: "analystsentiment", label: "ANALYST SENT." },
+      { key: "optionssentiment", label: "OPTIONS FLOW" },
+      { key: "earningstone", label: "CALL TONE" },
+    ]},
+    { group: "STRATEGY", tabs: [
+      { key: "entryexit", label: "ENTRY/EXIT" },
+      { key: "positionsizing", label: "SIZING" },
+      { key: "hedge", label: "HEDGE" },
+      { key: "taxoptimizer", label: "TAX" },
+      { key: "pairstrade", label: "PAIRS" },
+    ]},
+    { group: "ANALYTICS", tabs: [
+      { key: "regression", label: "REGRESSION" },
+      { key: "seasonality", label: "SEASONALITY" },
+      { key: "correlation", label: "CORRELATION" },
+      { key: "volatility", label: "VOLATILITY" },
+      { key: "montecarlo", label: "MONTE CARLO" },
+    ]},
+    { group: "ESG", tabs: [
+      { key: "esg", label: "ESG SCORE" },
+      { key: "execcomp", label: "EXEC PAY" },
+      { key: "board", label: "BOARD" },
+      { key: "activismhistory", label: "ACTIVISM" },
+      { key: "corporateevents", label: "EVENTS" },
+    ]},
     { group: "AI", tabs: [
       { key: "analysis", label: "AI PIPELINE" },
     ]},
@@ -246,12 +307,12 @@ export default function TickerAnalysis() {
       <div className="sticky top-0 z-20 bg-[#060606]/90 backdrop-blur-xl border-b border-white/[0.06]">
         <div className="max-w-6xl mx-auto px-5 py-3">
           <div className="flex items-center justify-between mb-2">
-            <button onClick={() => navigate("/markets")} className="text-[11px] text-white/30 hover:text-white/60 font-mono tracking-wide transition-colors">← DASHBOARD</button>
+            <button onClick={() => navigate("/markets")} className="text-[14px] text-white/30 hover:text-white/60 font-mono tracking-wide transition-colors">← DASHBOARD</button>
             <div className="flex items-center gap-3">
               {quote && (
                 <button
                   onClick={() => toggleTicker(quote.symbol)}
-                  className={`flex items-center gap-1.5 text-[10px] font-mono px-2.5 py-1 rounded-full transition-all ${
+                  className={`flex items-center gap-1.5 text-[14px] font-mono px-2.5 py-1 rounded-full transition-all ${
                     isInWatchlist(quote.symbol)
                       ? "text-amber-400 bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20"
                       : "text-white/30 bg-white/[0.04] border border-white/[0.08] hover:text-white/60 hover:bg-white/[0.08]"
@@ -263,7 +324,7 @@ export default function TickerAnalysis() {
                   {isInWatchlist(quote.symbol) ? "WATCHING" : "WATCH"}
                 </button>
               )}
-              <span className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+              <span className="flex items-center gap-1.5 text-[14px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 LIVE
               </span>
@@ -272,41 +333,55 @@ export default function TickerAnalysis() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold font-mono text-white tracking-wide">{quote.symbol}</h1>
+                <h1 className="text-4xl font-bold font-mono text-white tracking-wide">{quote.symbol}</h1>
                 {quote.sector && (
-                  <span className="text-[9px] font-mono text-white/25 bg-white/[0.04] px-2 py-0.5 rounded-md tracking-wider">{quote.sector.toUpperCase()}</span>
+                  <span className="text-[13px] font-mono text-white/25 bg-white/[0.04] px-2 py-0.5 rounded-md tracking-wider">{quote.sector.toUpperCase()}</span>
                 )}
               </div>
-              <p className="text-[11px] text-white/25 mt-0.5">{quote.name} · {quote.exchange}</p>
+              <p className="text-[14px] text-white/25 mt-0.5">{quote.name} · {quote.exchange}</p>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold font-mono text-white tabular-nums">${quote.price.toFixed(2)}</div>
-              <span className={`text-sm font-mono tabular-nums ${isUp ? "text-emerald-400" : "text-red-400"}`}>
+              <div className="text-4xl font-bold font-mono text-white tabular-nums">${quote.price.toFixed(2)}</div>
+              <span className={`text-lg font-mono tabular-nums ${isUp ? "text-emerald-400" : "text-red-400"}`}>
                 {isUp ? "+" : ""}{pct.toFixed(2)}%
               </span>
             </div>
           </div>
 
-          {/* Tab Navigation */}
-          <div className="flex gap-0.5 mt-3 -mb-[1px] overflow-x-auto scrollbar-hide items-end">
-            {TAB_GROUPS.map(({ group, tabs }) => (
-              <div key={group} className="flex items-end gap-0.5">
-                <span className="text-[8px] font-mono text-white/10 tracking-widest px-1 pb-2 select-none">{group}</span>
-                {tabs.map(({ key, label }) => (
-                  <button
-                    key={key}
-                    onClick={() => setActiveTab(key)}
-                    className={`px-2.5 py-1.5 text-[9px] font-mono tracking-wider rounded-t-lg transition-all whitespace-nowrap ${
-                      activeTab === key
-                        ? "bg-white/[0.06] text-white border border-white/[0.1] border-b-transparent"
-                        : "text-white/25 hover:text-white/50 hover:bg-white/[0.02]"
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-                <div className="w-px h-4 bg-white/[0.06] mx-1 mb-1" />
-              </div>
+          {/* Group Selector Row */}
+          <div className="flex gap-1 mt-3 overflow-x-auto scrollbar-hide">
+            {TAB_GROUPS.map(({ group }) => (
+              <button
+                key={group}
+                onClick={() => {
+                  setActiveGroup(group);
+                  const firstTab = TAB_GROUPS.find(g => g.group === group)?.tabs[0];
+                  if (firstTab) setActiveTab(firstTab.key);
+                }}
+                className={`px-4 py-2 text-[13px] font-mono tracking-wider rounded-lg transition-all whitespace-nowrap ${
+                  activeGroup === group
+                    ? "bg-white/[0.1] text-white font-semibold"
+                    : "text-white/30 hover:text-white/60 hover:bg-white/[0.04]"
+                }`}
+              >
+                {group}
+              </button>
+            ))}
+          </div>
+          {/* Tab Buttons for Active Group */}
+          <div className="flex gap-1 mt-2 -mb-[1px] overflow-x-auto scrollbar-hide">
+            {TAB_GROUPS.find(g => g.group === activeGroup)?.tabs.map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => setActiveTab(key)}
+                className={`px-4 py-2 text-[14px] font-mono tracking-wider rounded-t-lg transition-all whitespace-nowrap ${
+                  activeTab === key
+                    ? "bg-white/[0.08] text-white border border-white/[0.12] border-b-transparent font-semibold"
+                    : "text-white/30 hover:text-white/60 hover:bg-white/[0.03]"
+                }`}
+              >
+                {label}
+              </button>
             ))}
           </div>
         </div>
@@ -333,12 +408,12 @@ export default function TickerAnalysis() {
                 {quote.description && (
                   <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
                     <h3 className="text-xs font-semibold text-white/60 font-mono tracking-wider mb-2">ABOUT</h3>
-                    <p className="text-[13px] text-white/40 leading-relaxed line-clamp-6">{quote.description}</p>
-                    {quote.ceo && <p className="text-[10px] text-white/15 font-mono mt-3">CEO: {quote.ceo}</p>}
+                    <p className="text-[16px] text-white/40 leading-relaxed line-clamp-6">{quote.description}</p>
+                    {quote.ceo && <p className="text-[14px] text-white/15 font-mono mt-3">CEO: {quote.ceo}</p>}
                   </div>
                 )}
                 <div className="bg-[#0a0a0a] border border-white/[0.06] rounded-xl p-4">
-                  <div className="text-[10px] text-white/20 font-mono uppercase tracking-widest mb-3">SHARE</div>
+                  <div className="text-[14px] text-white/20 font-mono uppercase tracking-widest mb-3">SHARE</div>
                   <ShareCard type="ticker" data={{ symbol: quote.symbol, name: quote.name, price: quote.price, change: quote.change }} />
                 </div>
               </div>
@@ -365,14 +440,14 @@ export default function TickerAnalysis() {
                 <div className="bg-gradient-to-r from-white/[0.04] to-white/[0.01] border border-white/[0.08] rounded-xl p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <div className="text-[10px] text-white/25 font-mono tracking-widest mb-1">WALL STREET CONSENSUS</div>
+                      <div className="text-[14px] text-white/25 font-mono tracking-widest mb-1">WALL STREET CONSENSUS</div>
                       <div className={`text-3xl font-bold font-mono ${
                         analystData.consensus?.includes("Buy") ? "text-emerald-400" :
                         analystData.consensus?.includes("Sell") ? "text-red-400" : "text-amber-400"
                       }`}>{analystData.consensus}</div>
                     </div>
                     <div className="text-right">
-                      <div className="text-[10px] text-white/25 font-mono tracking-widest mb-1">ANALYSTS</div>
+                      <div className="text-[14px] text-white/25 font-mono tracking-widest mb-1">ANALYSTS</div>
                       <div className="text-2xl font-bold font-mono text-white">{analystData.numberOfAnalysts || "—"}</div>
                     </div>
                   </div>
@@ -394,7 +469,7 @@ export default function TickerAnalysis() {
                           return pct > 0 ? <div key={key} className={`${color}`} style={{ width: `${pct}%` }} /> : null;
                         })}
                       </div>
-                      <div className="flex justify-between text-[9px] font-mono text-white/30">
+                      <div className="flex justify-between text-[13px] font-mono text-white/30">
                         <span>Strong Buy: {analystData.ratingBreakdown.strongBuy}</span>
                         <span>Buy: {analystData.ratingBreakdown.buy}</span>
                         <span>Hold: {analystData.ratingBreakdown.hold}</span>
@@ -408,16 +483,16 @@ export default function TickerAnalysis() {
                 {/* Price Target */}
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 text-center">
-                    <div className="text-[9px] text-white/20 font-mono tracking-widest mb-1">LOW TARGET</div>
+                    <div className="text-[13px] text-white/20 font-mono tracking-widest mb-1">LOW TARGET</div>
                     <div className="text-lg font-bold font-mono text-red-400">${analystData.lowPriceTarget?.toFixed(2) || "—"}</div>
                   </div>
                   <div className="bg-white/[0.03] border border-emerald-500/20 rounded-xl p-4 text-center">
-                    <div className="text-[9px] text-emerald-400/60 font-mono tracking-widest mb-1">AVG TARGET</div>
+                    <div className="text-[13px] text-emerald-400/60 font-mono tracking-widest mb-1">AVG TARGET</div>
                     <div className="text-lg font-bold font-mono text-emerald-400">${analystData.averagePriceTarget?.toFixed(2) || "—"}</div>
-                    {analystData.upside && <div className="text-[10px] font-mono text-emerald-400/60 mt-0.5">{analystData.upside} upside</div>}
+                    {analystData.upside && <div className="text-[14px] font-mono text-emerald-400/60 mt-0.5">{analystData.upside} upside</div>}
                   </div>
                   <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 text-center">
-                    <div className="text-[9px] text-white/20 font-mono tracking-widest mb-1">HIGH TARGET</div>
+                    <div className="text-[13px] text-white/20 font-mono tracking-widest mb-1">HIGH TARGET</div>
                     <div className="text-lg font-bold font-mono text-blue-400">${analystData.highPriceTarget?.toFixed(2) || "—"}</div>
                   </div>
                 </div>
@@ -425,7 +500,7 @@ export default function TickerAnalysis() {
                 {/* Summary */}
                 {analystData.summary && (
                   <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-                    <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
+                    <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
                     <p className="text-sm text-white/50 leading-relaxed">{analystData.summary}</p>
                   </div>
                 )}
@@ -434,16 +509,16 @@ export default function TickerAnalysis() {
                 {analystData.recentRatings && analystData.recentRatings.length > 0 && (
                   <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
                     <div className="px-5 py-3 border-b border-white/[0.06]">
-                      <div className="text-[10px] text-white/25 font-mono tracking-widest">RECENT ANALYST ACTIONS</div>
+                      <div className="text-[14px] text-white/25 font-mono tracking-widest">RECENT ANALYST ACTIONS</div>
                     </div>
                     <div className="divide-y divide-white/[0.04]">
                       {analystData.recentRatings.map((r, i) => (
                         <div key={i} className="px-5 py-3 flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-white/[0.06] flex items-center justify-center text-[10px] font-mono text-white/40">{r.analyst?.slice(0, 2)}</div>
+                            <div className="w-8 h-8 rounded-lg bg-white/[0.06] flex items-center justify-center text-[14px] font-mono text-white/40">{r.analyst?.slice(0, 2)}</div>
                             <div>
                               <div className="text-xs font-semibold text-white/70">{r.analyst}</div>
-                              <div className="text-[10px] text-white/25">{r.date} · {r.action}</div>
+                              <div className="text-[14px] text-white/25">{r.date} · {r.action}</div>
                             </div>
                           </div>
                           <div className="text-right">
@@ -451,7 +526,7 @@ export default function TickerAnalysis() {
                               r.rating?.toLowerCase().includes("buy") || r.rating?.toLowerCase().includes("overweight") ? "text-emerald-400" :
                               r.rating?.toLowerCase().includes("sell") || r.rating?.toLowerCase().includes("underweight") ? "text-red-400" : "text-amber-400"
                             }`}>{r.rating}</div>
-                            <div className="text-[10px] text-white/30 font-mono">PT: ${r.priceTarget?.toFixed(2)}</div>
+                            <div className="text-[14px] text-white/30 font-mono">PT: ${r.priceTarget?.toFixed(2)}</div>
                           </div>
                         </div>
                       ))}
@@ -480,7 +555,7 @@ export default function TickerAnalysis() {
                 }`}>
                   <div className="flex items-center justify-between mb-3">
                     <div>
-                      <div className="text-[10px] text-white/25 font-mono tracking-widest mb-1">INSIDER SENTIMENT</div>
+                      <div className="text-[14px] text-white/25 font-mono tracking-widest mb-1">INSIDER SENTIMENT</div>
                       <div className={`text-2xl font-bold font-mono uppercase ${
                         insiderData.sentiment === "bullish" ? "text-emerald-400" :
                         insiderData.sentiment === "bearish" ? "text-red-400" : "text-amber-400"
@@ -488,11 +563,11 @@ export default function TickerAnalysis() {
                     </div>
                     <div className="grid grid-cols-2 gap-4 text-right">
                       <div>
-                        <div className="text-[9px] text-white/20 font-mono">INSTITUTIONAL</div>
+                        <div className="text-[13px] text-white/20 font-mono">INSTITUTIONAL</div>
                         <div className="text-sm font-bold text-white/70 font-mono">{insiderData.institutionalOwnership || "—"}</div>
                       </div>
                       <div>
-                        <div className="text-[9px] text-white/20 font-mono">INSIDER</div>
+                        <div className="text-[13px] text-white/20 font-mono">INSIDER</div>
                         <div className="text-sm font-bold text-white/70 font-mono">{insiderData.insiderOwnership || "—"}</div>
                       </div>
                     </div>
@@ -513,25 +588,25 @@ export default function TickerAnalysis() {
                 {insiderData.recentTransactions && insiderData.recentTransactions.length > 0 && (
                   <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
                     <div className="px-5 py-3 border-b border-white/[0.06]">
-                      <div className="text-[10px] text-white/25 font-mono tracking-widest">RECENT INSIDER TRANSACTIONS</div>
+                      <div className="text-[14px] text-white/25 font-mono tracking-widest">RECENT INSIDER TRANSACTIONS</div>
                     </div>
                     <div className="divide-y divide-white/[0.04]">
                       {insiderData.recentTransactions.map((t, i) => (
                         <div key={i} className="px-5 py-3 flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold ${
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[14px] font-bold ${
                               t.type === "Buy" ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"
                             }`}>{t.type === "Buy" ? "B" : "S"}</div>
                             <div>
                               <div className="text-xs font-semibold text-white/70">{t.name}</div>
-                              <div className="text-[10px] text-white/25">{t.title} · {t.date}</div>
+                              <div className="text-[14px] text-white/25">{t.title} · {t.date}</div>
                             </div>
                           </div>
                           <div className="text-right">
                             <div className={`text-xs font-mono font-semibold ${t.type === "Buy" ? "text-emerald-400" : "text-red-400"}`}>
                               {t.totalValue}
                             </div>
-                            <div className="text-[10px] text-white/25 font-mono">{t.shares?.toLocaleString()} shares @ ${t.pricePerShare?.toFixed(2)}</div>
+                            <div className="text-[14px] text-white/25 font-mono">{t.shares?.toLocaleString()} shares @ ${t.pricePerShare?.toFixed(2)}</div>
                           </div>
                         </div>
                       ))}
@@ -542,7 +617,7 @@ export default function TickerAnalysis() {
                 {/* Key Insights */}
                 {insiderData.keyInsights && insiderData.keyInsights.length > 0 && (
                   <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-                    <div className="text-[10px] text-white/20 font-mono tracking-widest mb-3">KEY INSIGHTS</div>
+                    <div className="text-[14px] text-white/20 font-mono tracking-widest mb-3">KEY INSIGHTS</div>
                     <ul className="space-y-2">
                       {insiderData.keyInsights.map((insight, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm text-white/50">
@@ -575,14 +650,14 @@ export default function TickerAnalysis() {
                 }`}>
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <div className="text-[10px] text-white/25 font-mono tracking-widest mb-1">OVERALL RISK</div>
+                      <div className="text-[14px] text-white/25 font-mono tracking-widest mb-1">OVERALL RISK</div>
                       <div className={`text-3xl font-bold font-mono ${
                         riskData.overallRisk === "Low" ? "text-emerald-400" :
                         riskData.overallRisk === "Medium" ? "text-amber-400" : "text-red-400"
                       }`}>{riskData.overallRisk}</div>
                     </div>
                     <div className="text-right">
-                      <div className="text-[10px] text-white/25 font-mono tracking-widest mb-1">RISK SCORE</div>
+                      <div className="text-[14px] text-white/25 font-mono tracking-widest mb-1">RISK SCORE</div>
                       <div className="text-3xl font-bold font-mono text-white">{riskData.riskScore || "—"}<span className="text-sm text-white/20">/100</span></div>
                     </div>
                   </div>
@@ -596,7 +671,7 @@ export default function TickerAnalysis() {
                       style={{ width: `${riskData.riskScore || 0}%` }}
                     />
                   </div>
-                  <div className="flex justify-between text-[9px] font-mono text-white/20 mt-1">
+                  <div className="flex justify-between text-[13px] font-mono text-white/20 mt-1">
                     <span>Low Risk</span><span>High Risk</span>
                   </div>
                 </div>
@@ -615,11 +690,11 @@ export default function TickerAnalysis() {
                 <div className="grid grid-cols-2 gap-3">
                   {riskData.supportLevels && riskData.supportLevels.length > 0 && (
                     <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-4">
-                      <div className="text-[10px] text-emerald-400/60 font-mono tracking-widest mb-3">SUPPORT LEVELS</div>
+                      <div className="text-[14px] text-emerald-400/60 font-mono tracking-widest mb-3">SUPPORT LEVELS</div>
                       <div className="space-y-2">
                         {riskData.supportLevels.map((level, i) => (
                           <div key={i} className="flex items-center justify-between">
-                            <span className="text-[10px] text-white/25 font-mono">S{i + 1}</span>
+                            <span className="text-[14px] text-white/25 font-mono">S{i + 1}</span>
                             <span className="text-sm font-mono font-semibold text-emerald-400">${level.toFixed(2)}</span>
                           </div>
                         ))}
@@ -628,11 +703,11 @@ export default function TickerAnalysis() {
                   )}
                   {riskData.resistanceLevels && riskData.resistanceLevels.length > 0 && (
                     <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-4">
-                      <div className="text-[10px] text-red-400/60 font-mono tracking-widest mb-3">RESISTANCE LEVELS</div>
+                      <div className="text-[14px] text-red-400/60 font-mono tracking-widest mb-3">RESISTANCE LEVELS</div>
                       <div className="space-y-2">
                         {riskData.resistanceLevels.map((level, i) => (
                           <div key={i} className="flex items-center justify-between">
-                            <span className="text-[10px] text-white/25 font-mono">R{i + 1}</span>
+                            <span className="text-[14px] text-white/25 font-mono">R{i + 1}</span>
                             <span className="text-sm font-mono font-semibold text-red-400">${level.toFixed(2)}</span>
                           </div>
                         ))}
@@ -645,7 +720,7 @@ export default function TickerAnalysis() {
                 {riskData.risks && riskData.risks.length > 0 && (
                   <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
                     <div className="px-5 py-3 border-b border-white/[0.06]">
-                      <div className="text-[10px] text-white/25 font-mono tracking-widest">RISK FACTORS</div>
+                      <div className="text-[14px] text-white/25 font-mono tracking-widest">RISK FACTORS</div>
                     </div>
                     <div className="divide-y divide-white/[0.04]">
                       {riskData.risks.map((risk, i) => (
@@ -656,7 +731,7 @@ export default function TickerAnalysis() {
                               risk.severity === "Medium" ? "bg-amber-400" : "bg-emerald-400"
                             }`} />
                             <span className="text-xs font-semibold text-white/70">{risk.category}</span>
-                            <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded ${
+                            <span className={`text-[13px] font-mono px-1.5 py-0.5 rounded ${
                               risk.severity === "High" || risk.severity === "Very High" ? "text-red-400 bg-red-500/10" :
                               risk.severity === "Medium" ? "text-amber-400 bg-amber-500/10" : "text-emerald-400 bg-emerald-500/10"
                             }`}>{risk.severity}</span>
@@ -671,7 +746,7 @@ export default function TickerAnalysis() {
                 {/* Summary */}
                 {riskData.summary && (
                   <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-                    <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">RISK ASSESSMENT</div>
+                    <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">RISK ASSESSMENT</div>
                     <p className="text-sm text-white/50 leading-relaxed">{riskData.summary}</p>
                   </div>
                 )}
@@ -702,16 +777,16 @@ export default function TickerAnalysis() {
                     {/* Dividend History Table */}
                     <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
                       <div className="px-5 py-3 border-b border-white/[0.06]">
-                        <div className="text-[10px] text-white/25 font-mono tracking-widest">DIVIDEND HISTORY</div>
+                        <div className="text-[14px] text-white/25 font-mono tracking-widest">DIVIDEND HISTORY</div>
                       </div>
                       <div className="overflow-x-auto">
                         <table className="w-full text-xs">
                           <thead>
                             <tr className="border-b border-white/[0.06]">
-                              <th className="text-left px-5 py-2 text-[9px] text-white/20 font-mono">EX-DATE</th>
-                              <th className="text-left px-3 py-2 text-[9px] text-white/20 font-mono">PAY DATE</th>
-                              <th className="text-right px-3 py-2 text-[9px] text-white/20 font-mono">AMOUNT</th>
-                              <th className="text-right px-5 py-2 text-[9px] text-white/20 font-mono">TYPE</th>
+                              <th className="text-left px-5 py-2 text-[13px] text-white/20 font-mono">EX-DATE</th>
+                              <th className="text-left px-3 py-2 text-[13px] text-white/20 font-mono">PAY DATE</th>
+                              <th className="text-right px-3 py-2 text-[13px] text-white/20 font-mono">AMOUNT</th>
+                              <th className="text-right px-5 py-2 text-[13px] text-white/20 font-mono">TYPE</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-white/[0.04]">
@@ -739,7 +814,7 @@ export default function TickerAnalysis() {
                 {splitsData.length > 0 && (
                   <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
                     <div className="px-5 py-3 border-b border-white/[0.06]">
-                      <div className="text-[10px] text-white/25 font-mono tracking-widest">STOCK SPLIT HISTORY</div>
+                      <div className="text-[14px] text-white/25 font-mono tracking-widest">STOCK SPLIT HISTORY</div>
                     </div>
                     <div className="divide-y divide-white/[0.04]">
                       {splitsData.map((s, i) => (
@@ -747,7 +822,7 @@ export default function TickerAnalysis() {
                           <div className="text-xs text-white/50 font-mono">{s.executionDate}</div>
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-mono font-semibold text-blue-400">{s.ratio}</span>
-                            <span className="text-[9px] text-white/20 font-mono">split</span>
+                            <span className="text-[13px] text-white/20 font-mono">split</span>
                           </div>
                         </div>
                       ))}
@@ -769,14 +844,14 @@ export default function TickerAnalysis() {
                 {/* Company Details Card */}
                 {detailsData && (
                   <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-                    <div className="text-[10px] text-white/20 font-mono tracking-widest mb-3">COMPANY DETAILS</div>
+                    <div className="text-[14px] text-white/20 font-mono tracking-widest mb-3">COMPANY DETAILS</div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                      <div><div className="text-[9px] text-white/15 font-mono mb-0.5">INDUSTRY</div><div className="text-xs text-white/60">{detailsData.industry || detailsData.sicDescription || "—"}</div></div>
-                      <div><div className="text-[9px] text-white/15 font-mono mb-0.5">EMPLOYEES</div><div className="text-xs text-white/60">{detailsData.totalEmployees?.toLocaleString() || "—"}</div></div>
-                      <div><div className="text-[9px] text-white/15 font-mono mb-0.5">IPO DATE</div><div className="text-xs text-white/60">{detailsData.listDate || "—"}</div></div>
-                      <div><div className="text-[9px] text-white/15 font-mono mb-0.5">EXCHANGE</div><div className="text-xs text-white/60">{detailsData.exchange || "—"}</div></div>
-                      <div><div className="text-[9px] text-white/15 font-mono mb-0.5">WEBSITE</div><div className="text-xs text-blue-400/60 truncate">{detailsData.homepageUrl ? <a href={detailsData.homepageUrl} target="_blank" rel="noopener noreferrer">{detailsData.homepageUrl.replace(/https?:\/\//, "")}</a> : "—"}</div></div>
-                      <div><div className="text-[9px] text-white/15 font-mono mb-0.5">SHARES OUT</div><div className="text-xs text-white/60">{detailsData.weightedSharesOutstanding ? formatVol(detailsData.weightedSharesOutstanding) : "—"}</div></div>
+                      <div><div className="text-[13px] text-white/15 font-mono mb-0.5">INDUSTRY</div><div className="text-xs text-white/60">{detailsData.industry || detailsData.sicDescription || "—"}</div></div>
+                      <div><div className="text-[13px] text-white/15 font-mono mb-0.5">EMPLOYEES</div><div className="text-xs text-white/60">{detailsData.totalEmployees?.toLocaleString() || "—"}</div></div>
+                      <div><div className="text-[13px] text-white/15 font-mono mb-0.5">IPO DATE</div><div className="text-xs text-white/60">{detailsData.listDate || "—"}</div></div>
+                      <div><div className="text-[13px] text-white/15 font-mono mb-0.5">EXCHANGE</div><div className="text-xs text-white/60">{detailsData.exchange || "—"}</div></div>
+                      <div><div className="text-[13px] text-white/15 font-mono mb-0.5">WEBSITE</div><div className="text-xs text-blue-400/60 truncate">{detailsData.homepageUrl ? <a href={detailsData.homepageUrl} target="_blank" rel="noopener noreferrer">{detailsData.homepageUrl.replace(/https?:\/\//, "")}</a> : "—"}</div></div>
+                      <div><div className="text-[13px] text-white/15 font-mono mb-0.5">SHARES OUT</div><div className="text-xs text-white/60">{detailsData.weightedSharesOutstanding ? formatVol(detailsData.weightedSharesOutstanding) : "—"}</div></div>
                     </div>
                     {detailsData.description && (
                       <div className="mt-4 pt-4 border-t border-white/[0.06]">
@@ -790,7 +865,7 @@ export default function TickerAnalysis() {
                 {relatedData.length > 0 ? (
                   <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
                     <div className="px-5 py-3 border-b border-white/[0.06]">
-                      <div className="text-[10px] text-white/25 font-mono tracking-widest">RELATED COMPANIES</div>
+                      <div className="text-[14px] text-white/25 font-mono tracking-widest">RELATED COMPANIES</div>
                     </div>
                     <div className="divide-y divide-white/[0.04]">
                       {relatedData.map((r, i) => (
@@ -800,16 +875,16 @@ export default function TickerAnalysis() {
                           className="px-5 py-3 flex items-center justify-between hover:bg-white/[0.03] transition-colors block"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-white/[0.06] flex items-center justify-center text-[10px] font-mono text-white/40 font-bold">{r.symbol.slice(0, 2)}</div>
+                            <div className="w-8 h-8 rounded-lg bg-white/[0.06] flex items-center justify-center text-[14px] font-mono text-white/40 font-bold">{r.symbol.slice(0, 2)}</div>
                             <div>
                               <div className="text-xs font-semibold text-white/70 font-mono">{r.symbol}</div>
-                              <div className="text-[10px] text-white/25">{r.name}</div>
+                              <div className="text-[14px] text-white/25">{r.name}</div>
                             </div>
                           </div>
                           <div className="text-right">
                             <div className="text-xs font-mono text-white/60">{r.price ? `$${r.price.toFixed(2)}` : "—"}</div>
                             {r.change !== null && (
-                              <div className={`text-[10px] font-mono ${r.change >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                              <div className={`text-[14px] font-mono ${r.change >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                                 {r.change >= 0 ? "+" : ""}{r.change.toFixed(2)}%
                               </div>
                             )}
@@ -843,9 +918,9 @@ export default function TickerAnalysis() {
               <div className="relative z-10">
                 <div className="flex items-center gap-2.5 mb-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-[11px] font-mono text-white/70 tracking-widest">AI RESEARCH PIPELINE</span>
+                  <span className="text-[14px] font-mono text-white/70 tracking-widest">AI RESEARCH PIPELINE</span>
                 </div>
-                <p className="text-[12px] text-white/25 max-w-lg">
+                <p className="text-[14px] text-white/25 max-w-lg">
                   Click any section below to generate institutional-grade AI analysis for {quote.symbol}. Each section is generated on demand.
                 </p>
               </div>
@@ -957,8 +1032,50 @@ export default function TickerAnalysis() {
         {/* ═══ RESEARCH NOTES TAB ═══ */}
         {activeTab === "notes" && <ResearchNotesTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
 
+        {/* ── Wave 2: Technicals ── */}
+        {activeTab === "patternscanner" && <PatternScannerTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+        {activeTab === "supportresistance" && <SupportResistanceTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+        {activeTab === "momentum" && <MomentumTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+        {activeTab === "fibonacci" && <FibonacciTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+        {activeTab === "volumeprofile" && <VolumeProfileTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+
+        {/* ── Wave 2: Macro ── */}
+        {activeTab === "fedimpact" && <FedImpactTab symbol={quote.symbol} name={quote.name} price={quote.price} sector={quote.sector} />}
+        {activeTab === "inflation" && <InflationTab symbol={quote.symbol} name={quote.name} price={quote.price} sector={quote.sector} />}
+        {activeTab === "currency" && <CurrencyTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+        {activeTab === "yieldcurve" && <YieldCurveTab symbol={quote.symbol} name={quote.name} price={quote.price} sector={quote.sector} />}
+        {activeTab === "geopolitical" && <GeopoliticalTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+
+        {/* ── Wave 2: Sentiment ── */}
+        {activeTab === "socialbuzz" && <SocialBuzzTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+        {activeTab === "newssentiment" && <NewsSentimentTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+        {activeTab === "analystsentiment" && <AnalystSentimentTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+        {activeTab === "optionssentiment" && <OptionsSentimentTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+        {activeTab === "earningstone" && <EarningsToneTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+
+        {/* ── Wave 2: Strategy ── */}
+        {activeTab === "entryexit" && <EntryExitTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+        {activeTab === "positionsizing" && <PositionSizingTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+        {activeTab === "hedge" && <HedgeTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+        {activeTab === "taxoptimizer" && <TaxOptimizerTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+        {activeTab === "pairstrade" && <PairsTradeTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+
+        {/* ── Wave 2: Advanced Analytics ── */}
+        {activeTab === "regression" && <RegressionTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+        {activeTab === "seasonality" && <SeasonalityTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+        {activeTab === "correlation" && <CorrelationTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+        {activeTab === "volatility" && <VolatilityTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+        {activeTab === "montecarlo" && <MonteCarloTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+
+        {/* ── Wave 2: ESG & Governance ── */}
+        {activeTab === "esg" && <ESGTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+        {activeTab === "execcomp" && <ExecCompTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+        {activeTab === "board" && <BoardTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+        {activeTab === "activismhistory" && <ActivismHistoryTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+        {activeTab === "corporateevents" && <CorporateEventsTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
+
         <div className="text-center mt-12 pb-6">
-          <p className="text-[10px] text-white/10 font-mono tracking-wider">
+          <p className="text-[14px] text-white/10 font-mono tracking-wider">
             Charts by TradingView · Live data via Massive API · Analysis powered by DeepSeek AI
           </p>
         </div>
@@ -972,9 +1089,9 @@ export default function TickerAnalysis() {
 // ── Mini Stat Card ──
 function MiniStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-3 text-center">
-      <div className="text-[9px] text-white/20 font-mono tracking-widest mb-1">{label}</div>
-      <div className="text-sm font-semibold text-white tabular-nums font-mono">{value}</div>
+    <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-4 text-center">
+      <div className="text-[13px] text-white/25 font-mono tracking-widest mb-1.5">{label}</div>
+      <div className="text-lg font-semibold text-white tabular-nums font-mono">{value}</div>
     </div>
   );
 }
@@ -1008,7 +1125,7 @@ function AnalysisSection({
             <span className="w-7 h-7 rounded-lg bg-white/[0.06] text-white/30 text-xs flex items-center justify-center font-mono group-hover:bg-white/[0.1] group-hover:text-white/50 transition-all">{step}</span>
             <h3 className="text-sm text-white/30 group-hover:text-white/60 transition-colors">{title}</h3>
           </div>
-          <span className="text-[10px] font-mono text-white/15 bg-white/[0.04] px-2.5 py-1 rounded-md group-hover:text-white/30 group-hover:bg-white/[0.06] transition-all">GENERATE</span>
+          <span className="text-[14px] font-mono text-white/15 bg-white/[0.04] px-2.5 py-1 rounded-md group-hover:text-white/30 group-hover:bg-white/[0.06] transition-all">GENERATE</span>
         </div>
       </button>
     );
@@ -1022,7 +1139,7 @@ function AnalysisSection({
           <h3 className="text-sm text-white/60">{title}</h3>
           <div className="ml-auto flex items-center gap-2">
             <div className="w-4 h-4 border-2 border-white/10 border-t-white/50 rounded-full animate-spin" />
-            <span className="text-[10px] font-mono text-white/25 animate-pulse">Analyzing...</span>
+            <span className="text-[14px] font-mono text-white/25 animate-pulse">Analyzing...</span>
           </div>
         </div>
       </div>
@@ -1063,7 +1180,7 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
           {d.summary && <p className="text-sm text-white/60 leading-relaxed">{String(d.summary)}</p>}
           {d.whyNow && (
             <div className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
-              <p className="text-[10px] text-white/25 font-mono mb-1">WHY THIS NAME NOW</p>
+              <p className="text-[14px] text-white/25 font-mono mb-1">WHY THIS NAME NOW</p>
               <p className="text-sm text-white/50 leading-relaxed">{String(d.whyNow)}</p>
             </div>
           )}
@@ -1100,7 +1217,7 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
                 </div>
                 {node.tickers && (
                   <div className="flex gap-1 mt-1">
-                    {node.tickers.map((t) => <span key={t} className="text-[10px] font-mono text-white/25 bg-white/[0.04] px-1.5 py-0.5 rounded border border-white/[0.06]">{t}</span>)}
+                    {node.tickers.map((t) => <span key={t} className="text-[14px] font-mono text-white/25 bg-white/[0.04] px-1.5 py-0.5 rounded border border-white/[0.06]">{t}</span>)}
                   </div>
                 )}
               </div>
@@ -1108,7 +1225,7 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
           ))}
           {d.bottlenecks && Array.isArray(d.bottlenecks) && (d.bottlenecks as string[]).length > 0 && (
             <div className="bg-red-500/10 rounded-lg p-3 border border-red-500/20">
-              <p className="text-[10px] text-red-400 font-mono mb-1">BOTTLENECKS</p>
+              <p className="text-[14px] text-red-400 font-mono mb-1">BOTTLENECKS</p>
               <ul className="text-xs text-red-300/70 space-y-1">
                 {(d.bottlenecks as string[]).map((b, i) => <li key={i}>- {b}</li>)}
               </ul>
@@ -1148,7 +1265,7 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
               </div>
               <blockquote className="text-xs text-white/40 italic border-l-2 border-white/10 pl-3 mb-2">"{pr.quote}"</blockquote>
               <p className="text-xs text-white/50">{pr.implication}</p>
-              <p className="text-[10px] text-white/15 font-mono mt-1">{pr.date}</p>
+              <p className="text-[14px] text-white/15 font-mono mt-1">{pr.date}</p>
             </div>
           ))}
         </>
@@ -1242,13 +1359,13 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
           <div className="grid grid-cols-2 gap-2">
             {d.vsHistory && (
               <div className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
-                <p className="text-[10px] text-white/20 font-mono mb-1">VS HISTORY</p>
+                <p className="text-[14px] text-white/20 font-mono mb-1">VS HISTORY</p>
                 <p className="text-xs text-white/50">{String(d.vsHistory)}</p>
               </div>
             )}
             {d.vsPeers && (
               <div className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
-                <p className="text-[10px] text-white/20 font-mono mb-1">VS PEERS</p>
+                <p className="text-[14px] text-white/20 font-mono mb-1">VS PEERS</p>
                 <p className="text-xs text-white/50">{String(d.vsPeers)}</p>
               </div>
             )}
@@ -1278,26 +1395,26 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
           <div className="grid grid-cols-1 gap-3">
             {d.bullCase && (
               <div className="bg-emerald-500/10 rounded-lg p-3 border border-emerald-500/20">
-                <p className="text-[10px] text-emerald-400 font-mono mb-1">BULL CASE</p>
+                <p className="text-[14px] text-emerald-400 font-mono mb-1">BULL CASE</p>
                 <p className="text-xs text-emerald-300/70 leading-relaxed">{String(d.bullCase)}</p>
               </div>
             )}
             {d.bearCase && (
               <div className="bg-red-500/10 rounded-lg p-3 border border-red-500/20">
-                <p className="text-[10px] text-red-400 font-mono mb-1">BEAR CASE</p>
+                <p className="text-[14px] text-red-400 font-mono mb-1">BEAR CASE</p>
                 <p className="text-xs text-red-300/70 leading-relaxed">{String(d.bearCase)}</p>
               </div>
             )}
             {d.whatChangesIt && (
               <div className="bg-amber-500/10 rounded-lg p-3 border border-amber-500/20">
-                <p className="text-[10px] text-amber-400 font-mono mb-1">WHAT CHANGES IT</p>
+                <p className="text-[14px] text-amber-400 font-mono mb-1">WHAT CHANGES IT</p>
                 <p className="text-xs text-amber-300/70 leading-relaxed">{String(d.whatChangesIt)}</p>
               </div>
             )}
           </div>
           {d.watchItems && Array.isArray(d.watchItems) && (
             <div className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
-              <p className="text-[10px] text-white/20 font-mono mb-2">WATCH ITEMS</p>
+              <p className="text-[14px] text-white/20 font-mono mb-2">WATCH ITEMS</p>
               <ul className="space-y-1">
                 {(d.watchItems as string[]).map((item, i) => (
                   <li key={i} className="text-xs text-white/50 flex items-center gap-2">
@@ -1339,7 +1456,7 @@ function RenderSectionData({ sectionKey, data }: { sectionKey: SectionKey; data:
               <Tag label={s.type.replace(/_/g, " ")} color="blue" />
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-semibold text-white/80 truncate">{s.title}</p>
-                <p className="text-[10px] text-white/25 mt-0.5">{s.source} · {s.date}</p>
+                <p className="text-[14px] text-white/25 mt-0.5">{s.source} · {s.date}</p>
                 <p className="text-xs text-white/40 mt-1 line-clamp-2">{s.summary}</p>
               </div>
             </div>
@@ -1357,7 +1474,7 @@ function GenericDataRenderer({ data }: { data: Record<string, unknown> }) {
     <div className="space-y-2">
       {Object.entries(data).map(([key, value]) => (
         <div key={key} className="bg-white/[0.03] rounded-lg p-3 border border-white/[0.06]">
-          <p className="text-[10px] text-white/20 font-mono mb-1">{key.toUpperCase()}</p>
+          <p className="text-[14px] text-white/20 font-mono mb-1">{key.toUpperCase()}</p>
           <p className="text-xs text-white/50">{typeof value === "object" ? JSON.stringify(value, null, 2) : String(value)}</p>
         </div>
       ))}

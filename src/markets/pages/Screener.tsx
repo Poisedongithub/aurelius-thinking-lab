@@ -65,11 +65,11 @@ export default function Screener() {
                   Screener
                 </h1>
               </div>
-              <p className="text-[11px] text-white/30 font-mono tracking-widest">FIND YOUR NEXT TRADE</p>
+              <p className="text-[14px] text-white/30 font-mono tracking-widest">FIND YOUR NEXT TRADE</p>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={() => navigate("/markets")} className="text-[10px] text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] font-mono tracking-wide rounded-lg px-2.5 py-1.5 transition-all">DASHBOARD</button>
-              <button onClick={() => navigate("/markets/macro")} className="text-[10px] text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] font-mono tracking-wide rounded-lg px-2.5 py-1.5 transition-all">MACRO</button>
+              <button onClick={() => navigate("/markets")} className="text-[14px] text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] font-mono tracking-wide rounded-lg px-2.5 py-1.5 transition-all">DASHBOARD</button>
+              <button onClick={() => navigate("/markets/macro")} className="text-[14px] text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] font-mono tracking-wide rounded-lg px-2.5 py-1.5 transition-all">MACRO</button>
             </div>
           </div>
         </div>
@@ -80,7 +80,7 @@ export default function Screener() {
         <div className="flex gap-2 mb-6">
           <button
             onClick={() => setView("tradingview")}
-            className={`px-4 py-2 text-[11px] font-mono tracking-wider rounded-lg transition-all ${
+            className={`px-4 py-2 text-[14px] font-mono tracking-wider rounded-lg transition-all ${
               view === "tradingview" ? "bg-white text-black font-medium" : "text-white/30 hover:text-white/60 hover:bg-white/[0.04]"
             }`}
           >
@@ -88,7 +88,7 @@ export default function Screener() {
           </button>
           <button
             onClick={() => setView("custom")}
-            className={`px-4 py-2 text-[11px] font-mono tracking-wider rounded-lg transition-all ${
+            className={`px-4 py-2 text-[14px] font-mono tracking-wider rounded-lg transition-all ${
               view === "custom" ? "bg-white text-black font-medium" : "text-white/30 hover:text-white/60 hover:bg-white/[0.04]"
             }`}
           >
@@ -103,13 +103,13 @@ export default function Screener() {
             {/* Filters */}
             <div className="flex flex-wrap gap-4 mb-6">
               <div>
-                <div className="text-[9px] text-white/30 font-mono uppercase mb-2">SECTOR</div>
+                <div className="text-[13px] text-white/30 font-mono uppercase mb-2">SECTOR</div>
                 <div className="flex gap-1 flex-wrap">
                   {SECTORS.map((s) => (
                     <button
                       key={s}
                       onClick={() => setSector(s)}
-                      className={`px-3 py-1.5 text-[10px] font-mono rounded-lg border transition-all ${
+                      className={`px-3 py-1.5 text-[14px] font-mono rounded-lg border transition-all ${
                         sector === s
                           ? "bg-white text-black border-white font-bold"
                           : "border-white/10 text-white/40 hover:text-white/70 hover:border-white/20"
@@ -121,13 +121,13 @@ export default function Screener() {
                 </div>
               </div>
               <div>
-                <div className="text-[9px] text-white/30 font-mono uppercase mb-2">MARKET CAP</div>
+                <div className="text-[13px] text-white/30 font-mono uppercase mb-2">MARKET CAP</div>
                 <div className="flex gap-1 flex-wrap">
                   {MARKET_CAP_FILTERS.map((f, i) => (
                     <button
                       key={i}
                       onClick={() => setCapFilter(i)}
-                      className={`px-3 py-1.5 text-[10px] font-mono rounded-lg border transition-all ${
+                      className={`px-3 py-1.5 text-[14px] font-mono rounded-lg border transition-all ${
                         capFilter === i
                           ? "bg-white text-black border-white font-bold"
                           : "border-white/10 text-white/40 hover:text-white/70 hover:border-white/20"
@@ -140,7 +140,7 @@ export default function Screener() {
               </div>
             </div>
 
-            <div className="text-[10px] text-white/30 font-mono mb-3">
+            <div className="text-[14px] text-white/30 font-mono mb-3">
               {loading ? "SCANNING..." : `${sorted.length} RESULTS`}
             </div>
 
@@ -191,7 +191,7 @@ export default function Screener() {
                         <td className="py-3 text-right text-white/50">{stock.marketCap ? formatMarketCap(stock.marketCap) : "—"}</td>
                         <td className="py-3 text-right">
                           {stock.sector && (
-                            <span className="text-[9px] px-2 py-0.5 rounded bg-white/5 text-white/40">{stock.sector.toUpperCase()}</span>
+                            <span className="text-[13px] px-2 py-0.5 rounded bg-white/5 text-white/40">{stock.sector.toUpperCase()}</span>
                           )}
                         </td>
                       </tr>
@@ -204,7 +204,7 @@ export default function Screener() {
         )}
 
         <div className="text-center mt-12 pb-6">
-          <p className="text-[10px] text-white/15 font-mono tracking-wider">
+          <p className="text-[14px] text-white/15 font-mono tracking-wider">
             Powered by TradingView · Live data via Massive API
           </p>
         </div>

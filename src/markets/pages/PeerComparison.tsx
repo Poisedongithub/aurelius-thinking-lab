@@ -53,7 +53,7 @@ export default function PeerComparison() {
 
         {/* Add tickers */}
         <div className="bg-[#0a0a0a] border border-white/[0.06] rounded-xl p-4 mb-6">
-          <div className="text-[10px] text-white/30 font-mono uppercase mb-3">ADD TICKERS TO COMPARE (2-4)</div>
+          <div className="text-[14px] text-white/30 font-mono uppercase mb-3">ADD TICKERS TO COMPARE (2-4)</div>
           <div className="flex gap-2 flex-wrap mb-3">
             {symbols.map((sym) => (
               <span key={sym} className="flex items-center gap-2 px-3 py-1.5 bg-white/10 rounded-lg text-xs font-mono font-bold">
@@ -90,7 +90,7 @@ export default function PeerComparison() {
           <button
             onClick={runComparison}
             disabled={symbols.length < 2 || loading}
-            className={`px-4 py-2 text-[10px] font-mono font-bold rounded-lg transition-all ${
+            className={`px-4 py-2 text-[14px] font-mono font-bold rounded-lg transition-all ${
               symbols.length >= 2
                 ? "bg-white text-black hover:bg-white/90"
                 : "bg-white/5 text-white/20 cursor-not-allowed"
@@ -114,21 +114,21 @@ export default function PeerComparison() {
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-bold font-mono">{c.symbol}</span>
                     {c.sector && (
-                      <span className="text-[8px] px-1.5 py-0.5 rounded bg-white/5 text-white/30 font-mono">{c.sector}</span>
+                      <span className="text-[12px] px-1.5 py-0.5 rounded bg-white/5 text-white/30 font-mono">{c.sector}</span>
                     )}
                   </div>
                   <div className="text-lg font-bold font-mono">${c.price?.toFixed(2)}</div>
                   <div className={`text-xs font-mono ${c.change >= 0 ? "text-green-400" : "text-red-400"}`}>
                     {c.change >= 0 ? "+" : ""}{c.change?.toFixed(2)}%
                   </div>
-                  <div className="text-[10px] text-white/30 font-mono mt-1 truncate">{c.name}</div>
+                  <div className="text-[14px] text-white/30 font-mono mt-1 truncate">{c.name}</div>
                 </div>
               ))}
             </div>
 
             {/* Comparison table */}
             <div className="bg-[#0a0a0a] border border-white/[0.06] rounded-xl p-4">
-              <div className="text-[10px] text-white/20 font-mono uppercase tracking-widest mb-4">SIDE-BY-SIDE</div>
+              <div className="text-[14px] text-white/20 font-mono uppercase tracking-widest mb-4">SIDE-BY-SIDE</div>
               <div className="overflow-x-auto">
                 <table className="w-full text-xs font-mono">
                   <thead>
@@ -203,18 +203,18 @@ export default function PeerComparison() {
 
             {/* Visual bars */}
             <div className="bg-[#0a0a0a] border border-white/[0.06] rounded-xl p-4">
-              <div className="text-[10px] text-white/20 font-mono uppercase tracking-widest mb-4">MARKET CAP COMPARISON</div>
+              <div className="text-[14px] text-white/20 font-mono uppercase tracking-widest mb-4">MARKET CAP COMPARISON</div>
               <div className="space-y-2">
                 {comparisons.map((c) => (
                   <div key={c.symbol} className="flex items-center gap-3">
-                    <span className="text-[10px] font-mono font-bold w-12">{c.symbol}</span>
+                    <span className="text-[14px] font-mono font-bold w-12">{c.symbol}</span>
                     <div className="flex-1 h-6 bg-white/5 rounded overflow-hidden">
                       <div
                         className="h-full bg-white/20 rounded transition-all"
                         style={{ width: `${((c.marketCap || 0) / maxMcap) * 100}%` }}
                       />
                     </div>
-                    <span className="text-[10px] font-mono text-white/50 w-16 text-right">
+                    <span className="text-[14px] font-mono text-white/50 w-16 text-right">
                       {c.marketCap ? formatMarketCap(c.marketCap) : "—"}
                     </span>
                   </div>

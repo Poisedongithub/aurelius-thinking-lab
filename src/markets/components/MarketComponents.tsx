@@ -40,7 +40,7 @@ export const Tag = ({ label, color = "gray" }: { label: string; color?: string }
     gray: "bg-white/[0.04] text-white/40 border-white/[0.08]",
     purple: "bg-purple-500/10 text-purple-400 border-purple-500/20",
   };
-  return <span className={`inline-block px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider border rounded-md ${colors[color] || colors.gray}`}>{label}</span>;
+  return <span className={`inline-block px-2 py-0.5 text-[14px] font-mono uppercase tracking-wider border rounded-md ${colors[color] || colors.gray}`}>{label}</span>;
 };
 
 // ── Direction Arrow ──
@@ -110,9 +110,9 @@ export const SourceBadge = ({ type }: { type: string }) => {
 // ── Stat Box ──
 export const StatBox = ({ label, value, sub }: { label: string; value: string; sub?: string }) => (
   <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-3 text-center">
-    <div className="text-[9px] text-white/20 font-mono tracking-widest mb-1">{label.toUpperCase()}</div>
+    <div className="text-[13px] text-white/20 font-mono tracking-widest mb-1">{label.toUpperCase()}</div>
     <div className="text-sm font-semibold text-white tabular-nums">{value}</div>
-    {sub && <div className="text-[10px] text-white/15 mt-0.5">{sub}</div>}
+    {sub && <div className="text-[14px] text-white/15 mt-0.5">{sub}</div>}
   </div>
 );
 

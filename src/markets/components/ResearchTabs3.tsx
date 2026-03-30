@@ -19,7 +19,7 @@ function GenerateButton({ label, onClick, loading }: { label: string; onClick: (
     <button onClick={onClick} className="w-full group bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden hover:bg-white/[0.04] hover:border-white/[0.1] transition-all duration-200">
       <div className="flex items-center justify-between px-5 py-4">
         <h3 className="text-sm text-white/30 group-hover:text-white/60 transition-colors">{label}</h3>
-        <span className="text-[10px] font-mono text-white/15 bg-white/[0.04] px-2.5 py-1 rounded-md group-hover:text-white/30 group-hover:bg-white/[0.06] transition-all">GENERATE</span>
+        <span className="text-[14px] font-mono text-white/15 bg-white/[0.04] px-2.5 py-1 rounded-md group-hover:text-white/30 group-hover:bg-white/[0.06] transition-all">GENERATE</span>
       </div>
     </button>
   );
@@ -29,7 +29,7 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
   return (
     <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
       <div className="px-5 py-3 border-b border-white/[0.06]">
-        <div className="text-[10px] text-white/25 font-mono tracking-widest">{title}</div>
+        <div className="text-[14px] text-white/25 font-mono tracking-widest">{title}</div>
       </div>
       <div className="p-5">{children}</div>
     </div>
@@ -51,7 +51,7 @@ export function EarningsReplayTab({ symbol, name }: { symbol: string; name: stri
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-6">
         <div className="flex items-center justify-between mb-2">
           <div>
-            <div className="text-[10px] text-white/25 font-mono tracking-widest">{data.quarter} · {data.date}</div>
+            <div className="text-[14px] text-white/25 font-mono tracking-widest">{data.quarter} · {data.date}</div>
             <h3 className="text-lg font-bold text-white mt-1">{data.headline}</h3>
           </div>
         </div>
@@ -135,7 +135,7 @@ export function EarningsReplayTab({ symbol, name }: { symbol: string; name: stri
         </Card>
       )}
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
+        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
         <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
       </div>
     </div>
@@ -157,17 +157,17 @@ export function EarningsCalendarTab({ watchlistSymbols }: { watchlistSymbols?: s
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead><tr className="border-b border-white/[0.06]">
-            <th className="text-left py-2 text-[9px] text-white/20 font-mono">SYMBOL</th>
-            <th className="text-left py-2 text-[9px] text-white/20 font-mono">DATE</th>
-            <th className="text-right py-2 text-[9px] text-white/20 font-mono">EPS EST</th>
-            <th className="text-right py-2 text-[9px] text-white/20 font-mono">REV EST</th>
-            <th className="text-right py-2 text-[9px] text-white/20 font-mono">BEAT STREAK</th>
-            <th className="text-right py-2 text-[9px] text-white/20 font-mono">AVG MOVE</th>
+            <th className="text-left py-2 text-[13px] text-white/20 font-mono">SYMBOL</th>
+            <th className="text-left py-2 text-[13px] text-white/20 font-mono">DATE</th>
+            <th className="text-right py-2 text-[13px] text-white/20 font-mono">EPS EST</th>
+            <th className="text-right py-2 text-[13px] text-white/20 font-mono">REV EST</th>
+            <th className="text-right py-2 text-[13px] text-white/20 font-mono">BEAT STREAK</th>
+            <th className="text-right py-2 text-[13px] text-white/20 font-mono">AVG MOVE</th>
           </tr></thead>
           <tbody className="divide-y divide-white/[0.04]">
             {entries.map((e, i) => (
               <tr key={i}>
-                <td className="py-2"><span className="text-white/60 font-mono font-semibold">{e.symbol}</span><span className="text-white/25 ml-1 text-[10px]">{e.name}</span></td>
+                <td className="py-2"><span className="text-white/60 font-mono font-semibold">{e.symbol}</span><span className="text-white/25 ml-1 text-[14px]">{e.name}</span></td>
                 <td className="py-2 text-white/40 font-mono">{e.date} {e.time}</td>
                 <td className="py-2 text-right text-white/50 font-mono">{e.epsEstimate}</td>
                 <td className="py-2 text-right text-white/50 font-mono">{e.revenueEstimate}</td>
@@ -186,7 +186,7 @@ export function EarningsCalendarTab({ watchlistSymbols }: { watchlistSymbols?: s
       {renderTable(data.nextWeek, "NEXT WEEK")}
       {renderTable(data.upcoming, "UPCOMING")}
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
+        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
         <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
       </div>
     </div>
@@ -229,11 +229,11 @@ export function EstimateRevisionsTab({ symbol, name }: { symbol: string; name: s
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead><tr className="border-b border-white/[0.06]">
-                <th className="text-left py-2 text-[9px] text-white/20 font-mono">PERIOD</th>
-                <th className="text-left py-2 text-[9px] text-white/20 font-mono">METRIC</th>
-                <th className="text-right py-2 text-[9px] text-white/20 font-mono">30D AGO</th>
-                <th className="text-right py-2 text-[9px] text-white/20 font-mono">CURRENT</th>
-                <th className="text-right py-2 text-[9px] text-white/20 font-mono">CHANGE</th>
+                <th className="text-left py-2 text-[13px] text-white/20 font-mono">PERIOD</th>
+                <th className="text-left py-2 text-[13px] text-white/20 font-mono">METRIC</th>
+                <th className="text-right py-2 text-[13px] text-white/20 font-mono">30D AGO</th>
+                <th className="text-right py-2 text-[13px] text-white/20 font-mono">CURRENT</th>
+                <th className="text-right py-2 text-[13px] text-white/20 font-mono">CHANGE</th>
               </tr></thead>
               <tbody className="divide-y divide-white/[0.04]">
                 {data.revisions.map((r, i) => (
@@ -253,7 +253,7 @@ export function EstimateRevisionsTab({ symbol, name }: { symbol: string; name: s
         </Card>
       )}
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
+        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
         <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
       </div>
     </div>
@@ -313,7 +313,7 @@ export function CashFlowTab({ symbol, name }: { symbol: string; name: string }) 
         </Card>
       )}
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
+        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
         <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
       </div>
     </div>
@@ -346,10 +346,10 @@ export function MarginsTab({ symbol, name }: { symbol: string; name: string }) {
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead><tr className="border-b border-white/[0.06]">
-                <th className="text-left py-2 text-[9px] text-white/20 font-mono">QUARTER</th>
-                <th className="text-right py-2 text-[9px] text-white/20 font-mono">GROSS</th>
-                <th className="text-right py-2 text-[9px] text-white/20 font-mono">OPERATING</th>
-                <th className="text-right py-2 text-[9px] text-white/20 font-mono">NET</th>
+                <th className="text-left py-2 text-[13px] text-white/20 font-mono">QUARTER</th>
+                <th className="text-right py-2 text-[13px] text-white/20 font-mono">GROSS</th>
+                <th className="text-right py-2 text-[13px] text-white/20 font-mono">OPERATING</th>
+                <th className="text-right py-2 text-[13px] text-white/20 font-mono">NET</th>
               </tr></thead>
               <tbody className="divide-y divide-white/[0.04]">
                 {data.history.map((h, i) => (
@@ -370,10 +370,10 @@ export function MarginsTab({ symbol, name }: { symbol: string; name: string }) {
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead><tr className="border-b border-white/[0.06]">
-                <th className="text-left py-2 text-[9px] text-white/20 font-mono">COMPANY</th>
-                <th className="text-right py-2 text-[9px] text-white/20 font-mono">GROSS</th>
-                <th className="text-right py-2 text-[9px] text-white/20 font-mono">OPERATING</th>
-                <th className="text-right py-2 text-[9px] text-white/20 font-mono">NET</th>
+                <th className="text-left py-2 text-[13px] text-white/20 font-mono">COMPANY</th>
+                <th className="text-right py-2 text-[13px] text-white/20 font-mono">GROSS</th>
+                <th className="text-right py-2 text-[13px] text-white/20 font-mono">OPERATING</th>
+                <th className="text-right py-2 text-[13px] text-white/20 font-mono">NET</th>
               </tr></thead>
               <tbody className="divide-y divide-white/[0.04]">
                 {data.peerComparison.map((p, i) => (
@@ -406,7 +406,7 @@ export function MarginsTab({ symbol, name }: { symbol: string; name: string }) {
         )}
       </div>
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
+        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
         <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
       </div>
     </div>
@@ -426,7 +426,7 @@ export function ScenarioTab({ symbol, name, price }: { symbol: string; name: str
   const renderCase = (c: typeof data.baseCase, label: string, color: string, borderColor: string) => (
     <div className={`${color} border ${borderColor} rounded-xl p-5`}>
       <div className="flex items-center justify-between mb-3">
-        <div className="text-[10px] font-mono tracking-widest">{label}</div>
+        <div className="text-[14px] font-mono tracking-widest">{label}</div>
         <span className="text-xs font-mono">{c.probability}% probability</span>
       </div>
       <div className="text-2xl font-bold font-mono mb-3">${c.priceTarget}</div>
@@ -452,7 +452,7 @@ export function ScenarioTab({ symbol, name, price }: { symbol: string; name: str
         {renderCase(data.bullCase, "BULL CASE", "bg-emerald-500/5", "border-emerald-500/20")}
       </div>
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
+        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
         <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
       </div>
     </div>
@@ -474,15 +474,15 @@ export function QualityTab({ symbol, name, price }: { symbol: string; name: stri
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-6 flex items-center gap-6">
         <div className="text-center">
           <div className="text-4xl font-bold font-mono text-white">{data.qualityScore}<span className="text-sm text-white/20">/100</span></div>
-          <div className="text-[9px] text-white/20 font-mono mt-1">QUALITY SCORE</div>
+          <div className="text-[13px] text-white/20 font-mono mt-1">QUALITY SCORE</div>
         </div>
         <div className="text-center">
           <div className={`text-4xl font-bold font-mono ${data.grade?.startsWith("A") ? "text-emerald-400" : data.grade?.startsWith("B") ? "text-blue-400" : data.grade?.startsWith("C") ? "text-amber-400" : "text-red-400"}`}>{data.grade}</div>
-          <div className="text-[9px] text-white/20 font-mono mt-1">GRADE</div>
+          <div className="text-[13px] text-white/20 font-mono mt-1">GRADE</div>
         </div>
         <div className="text-center flex-1">
           <div className="text-sm font-mono text-white/50">{data.percentileRank}</div>
-          <div className="text-[9px] text-white/20 font-mono mt-1">PERCENTILE</div>
+          <div className="text-[13px] text-white/20 font-mono mt-1">PERCENTILE</div>
         </div>
       </div>
       {data.components?.length > 0 && (
@@ -497,7 +497,7 @@ export function QualityTab({ symbol, name, price }: { symbol: string; name: stri
                 <ScoreBar label="" value={c.score} max={100} color={c.score >= 70 ? "#34d399" : c.score >= 40 ? "#fbbf24" : "#f87171"} />
                 {c.metrics && (
                   <div className="mt-2 space-y-1">{Object.entries(c.metrics).map(([k, v]) => (
-                    <div key={k} className="flex justify-between text-[10px]"><span className="text-white/25">{k}</span><span className="text-white/50 font-mono">{v}</span></div>
+                    <div key={k} className="flex justify-between text-[14px]"><span className="text-white/25">{k}</span><span className="text-white/50 font-mono">{v}</span></div>
                   ))}</div>
                 )}
                 <p className="text-xs text-white/40 mt-1">{c.assessment}</p>
@@ -524,7 +524,7 @@ export function QualityTab({ symbol, name, price }: { symbol: string; name: stri
         </Card>
       )}
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
+        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
         <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
       </div>
     </div>
@@ -570,7 +570,7 @@ export function AlertsTab({ symbol, name, price }: { symbol: string; name: strin
                   </div>
                 </div>
                 <p className="text-xs text-white/60 mb-1">{a.condition}</p>
-                <div className="flex gap-3 text-[10px] text-white/30 font-mono">
+                <div className="flex gap-3 text-[14px] text-white/30 font-mono">
                   <span>Current: {a.currentValue}</span>
                   <span>Threshold: {a.threshold}</span>
                 </div>
@@ -581,7 +581,7 @@ export function AlertsTab({ symbol, name, price }: { symbol: string; name: strin
         </Card>
       )}
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
+        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
         <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
       </div>
     </div>
@@ -640,7 +640,7 @@ export function ResearchNotesTab({ symbol, name, price }: { symbol: string; name
                   <span className="text-xs font-semibold text-white/70">{s.title}</span>
                   <div className="flex items-center gap-2">
                     <Tag label={s.priority} color={s.priority === "high" ? "red" : s.priority === "medium" ? "yellow" : "green"} />
-                    <button onClick={() => addSuggested(s)} className="text-[10px] font-mono text-blue-400 hover:text-blue-300">+ ADD</button>
+                    <button onClick={() => addSuggested(s)} className="text-[14px] font-mono text-blue-400 hover:text-blue-300">+ ADD</button>
                   </div>
                 </div>
                 <p className="text-xs text-white/40">{s.content}</p>
@@ -665,8 +665,8 @@ export function ResearchNotesTab({ symbol, name, price }: { symbol: string; name
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs font-semibold text-white/70">{n.title}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-white/20 font-mono">{n.date}</span>
-                    <button onClick={() => deleteNote(n.id)} className="text-[10px] text-red-400 hover:text-red-300 font-mono">DEL</button>
+                    <span className="text-[14px] text-white/20 font-mono">{n.date}</span>
+                    <button onClick={() => deleteNote(n.id)} className="text-[14px] text-red-400 hover:text-red-300 font-mono">DEL</button>
                   </div>
                 </div>
                 <p className="text-xs text-white/40 whitespace-pre-wrap">{n.content}</p>
@@ -719,7 +719,7 @@ export function DeepCompareTab({ symbol, name }: { symbol: string; name: string 
     <div className="space-y-4">
       {data.winner && (
         <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-6">
-          <div className="text-[10px] text-emerald-400/60 font-mono tracking-widest mb-1">WINNER</div>
+          <div className="text-[14px] text-emerald-400/60 font-mono tracking-widest mb-1">WINNER</div>
           <div className="text-2xl font-bold font-mono text-emerald-400">{data.winner}</div>
           <p className="text-sm text-emerald-300/60 mt-1">{data.winnerReason}</p>
         </div>
@@ -733,7 +733,7 @@ export function DeepCompareTab({ symbol, name }: { symbol: string; name: string 
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-white/20 font-mono w-5">#{i + 1}</span>
                     <span className="text-xs font-semibold text-white/70">{c.symbol}</span>
-                    <span className="text-[10px] text-white/30">{c.name}</span>
+                    <span className="text-[14px] text-white/30">{c.name}</span>
                   </div>
                   <span className="text-sm font-mono font-bold text-white">{c.score}/100</span>
                 </div>
@@ -751,7 +751,7 @@ export function DeepCompareTab({ symbol, name }: { symbol: string; name: string 
                 <span className="text-xs text-white/50">{c.category}</span>
                 <div className="text-right">
                   <span className="text-xs font-mono font-semibold text-emerald-400">{c.winner}</span>
-                  <p className="text-[10px] text-white/30 max-w-[200px]">{c.reason}</p>
+                  <p className="text-[14px] text-white/30 max-w-[200px]">{c.reason}</p>
                 </div>
               </div>
             ))}
@@ -759,7 +759,7 @@ export function DeepCompareTab({ symbol, name }: { symbol: string; name: string 
         </Card>
       )}
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
-        <div className="text-[10px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
+        <div className="text-[14px] text-white/20 font-mono tracking-widest mb-2">SUMMARY</div>
         <p className="text-sm text-white/60 leading-relaxed">{data.summary}</p>
       </div>
     </div>

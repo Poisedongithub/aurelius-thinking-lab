@@ -36,7 +36,7 @@ export default function ThemeAnalysis() {
                   {node.tickers && (
                     <div className="flex gap-1 mt-1">
                       {node.tickers.map((t) => (
-                        <button key={t} onClick={() => navigate(`/markets/ticker/${t}`)} className="text-[10px] font-mono text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200 hover:bg-blue-100 transition-colors">{t}</button>
+                        <button key={t} onClick={() => navigate(`/markets/ticker/${t}`)} className="text-[14px] font-mono text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200 hover:bg-blue-100 transition-colors">{t}</button>
                       ))}
                     </div>
                   )}

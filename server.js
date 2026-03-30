@@ -2304,6 +2304,412 @@ app.post("/api/markets/ai-alerts", async (req, res) => {
   } catch (err) { console.error("Alerts err:", err.message); res.json({ analysis: { suggestedAlerts: [] } }); }
 });
 
+// ══════════════════════════════════════════════════════════════
+// ══  WAVE 2: 30 NEW RESEARCH FEATURES                       ══
+// ══════════════════════════════════════════════════════════════
+
+// ── TECHNICALS GROUP ──
+
+// 1. Pattern Scanner
+app.post("/api/markets/ai-pattern-scanner", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a technical analysis expert specializing in chart pattern recognition. Analyze the stock and identify chart patterns. Return ONLY valid JSON:{"patterns":[{"name":"Head and Shoulders","type":"Bearish","reliability":"High","status":"Forming|Confirmed|Failed","priceTarget":180,"description":"2-3 sentences"},{"name":"Double Bottom","type":"Bullish","reliability":"Medium","status":"Confirmed","priceTarget":220,"description":"2-3 sentences"}],"dominantTrend":"Bullish|Bearish|Neutral","trendStrength":"Strong|Moderate|Weak","keyLevels":{"resistance":[250,260,275],"support":[230,220,210]},"volumeConfirmation":"Yes|No|Mixed","timeframe":"Short-term|Medium-term|Long-term","summary":"3-4 sentence pattern analysis"}`,
+      `Identify chart patterns for ${symbol} (${name}) at $${price}. Consider common patterns like head and shoulders, double tops/bottoms, triangles, flags, wedges, cup and handle.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Pattern err:", err.message); res.json({ analysis: { patterns: [], summary: "Unable to analyze" } }); }
+});
+
+// 2. Support/Resistance Map
+app.post("/api/markets/ai-support-resistance", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a technical analyst specializing in support and resistance levels. Return ONLY valid JSON:{"resistanceLevels":[{"price":260,"strength":"Strong|Moderate|Weak","type":"Historical High|Moving Average|Fibonacci|Volume Node","significance":"Major psychological level"},{"price":275,"strength":"Strong","type":"All-Time High","significance":"Key breakout level"}],"supportLevels":[{"price":230,"strength":"Strong","type":"50-day MA","significance":"Key moving average support"},{"price":220,"strength":"Moderate","type":"Volume Node","significance":"High volume area"}],"pivotPoints":{"daily":{"pivot":245,"r1":255,"r2":265,"s1":235,"s2":225},"weekly":{"pivot":240,"r1":260,"s1":220}},"nearestResistance":260,"nearestSupport":230,"tradingRange":{"low":230,"high":260,"bias":"Bullish|Bearish|Neutral"},"breakoutProbability":"High|Medium|Low","summary":"3-4 sentence analysis of key levels"}`,
+      `Identify support and resistance levels for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("S/R err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 3. Momentum Dashboard
+app.post("/api/markets/ai-momentum", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a momentum and technical indicators expert. Return ONLY valid JSON:{"indicators":{"rsi":{"value":65,"signal":"Neutral|Overbought|Oversold","trend":"Rising|Falling|Flat"},"macd":{"value":2.5,"signal":1.8,"histogram":0.7,"crossover":"Bullish|Bearish|None"},"stochastic":{"k":72,"d":68,"signal":"Neutral|Overbought|Oversold"},"adx":{"value":28,"trend":"Strong|Moderate|Weak|No Trend"},"bollingerBands":{"upper":265,"middle":248,"lower":231,"position":"Upper|Middle|Lower|Outside","squeeze":true}},"movingAverages":{"sma20":245,"sma50":240,"sma200":220,"ema12":247,"ema26":243,"goldenCross":false,"deathCross":false,"priceVsSma200":"Above|Below"},"overallMomentum":"Bullish|Bearish|Neutral","momentumScore":72,"divergences":[{"indicator":"RSI","type":"Bullish|Bearish","description":"Price making lower lows but RSI making higher lows"}],"summary":"3-4 sentence momentum analysis"}`,
+      `Full momentum and technical indicator analysis for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Momentum err:", err.message); res.json({ analysis: { overallMomentum: "N/A" } }); }
+});
+
+// 4. Fibonacci Analysis
+app.post("/api/markets/ai-fibonacci", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a Fibonacci analysis specialist. Return ONLY valid JSON:{"retracement":{"swingHigh":288,"swingLow":169,"levels":[{"level":"23.6%","price":197,"status":"Above|Below|At"},{"level":"38.2%","price":214,"status":"Above"},{"level":"50.0%","price":228,"status":"Above"},{"level":"61.8%","price":242,"status":"At"},{"level":"78.6%","price":262,"status":"Below"}],"currentPosition":"Between 61.8% and 78.6%"},"extension":{"levels":[{"level":"100%","price":288},{"level":"127.2%","price":320},{"level":"161.8%","price":361}]},"keyLevel":{"price":242,"level":"61.8%","significance":"Golden ratio - strongest Fibonacci level"},"tradingImplication":"Bullish|Bearish|Neutral","nearestFibSupport":242,"nearestFibResistance":262,"summary":"3-4 sentence Fibonacci analysis"}`,
+      `Fibonacci retracement and extension analysis for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Fib err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 5. Volume Profile
+app.post("/api/markets/ai-volume-profile", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a volume profile analysis expert. Return ONLY valid JSON:{"pointOfControl":{"price":245,"description":"Highest volume traded price level"},"valueArea":{"high":260,"low":235,"percentage":"70%"},"volumeNodes":[{"price":245,"type":"High Volume Node","significance":"Strong support/resistance"},{"price":220,"type":"High Volume Node","significance":"Previous accumulation zone"},{"price":270,"type":"Low Volume Node","significance":"Fast move expected through this level"}],"volumeTrend":"Increasing|Decreasing|Stable","relativeVolume":1.3,"accumulation":"Accumulation|Distribution|Neutral","smartMoneyFlow":"Inflow|Outflow|Neutral","unusualVolume":false,"summary":"3-4 sentence volume profile analysis"}`,
+      `Volume profile analysis for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Volume err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// ── MACRO GROUP ──
+
+// 6. Fed Impact Analysis
+app.post("/api/markets/ai-fed-impact", async (req, res) => {
+  try {
+    const { symbol, name, price, sector } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a macro strategist analyzing Federal Reserve policy impact. Return ONLY valid JSON:{"rateImpact":{"sensitivity":"High|Medium|Low","direction":"Positive|Negative|Neutral","mechanism":"How rate changes affect this company"},"currentPolicy":{"fedFundsRate":"5.25-5.50%","stance":"Hawkish|Dovish|Neutral","nextMeeting":"2026-05-07","marketExpectation":"Hold|Cut 25bp|Cut 50bp"},"scenarioAnalysis":[{"scenario":"Rate Cut 25bp","stockImpact":"+3-5%","rationale":"Lower discount rate, cheaper borrowing"},{"scenario":"Rate Hold","stockImpact":"Neutral","rationale":"Already priced in"},{"scenario":"Rate Hike 25bp","stockImpact":"-5-8%","rationale":"Higher cost of capital"}],"qtImpact":{"effect":"Negative|Neutral|Positive","description":"How QT affects liquidity for this stock"},"historicalCorrelation":"Strong|Moderate|Weak","summary":"3-4 sentence Fed impact analysis"}`,
+      `Analyze Federal Reserve policy impact on ${symbol} (${name}) in the ${sector || ""} sector at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Fed err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 7. Inflation Sensitivity
+app.post("/api/markets/ai-inflation", async (req, res) => {
+  try {
+    const { symbol, name, price, sector } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a macro economist analyzing inflation impact on companies. Return ONLY valid JSON:{"inflationSensitivity":"High|Medium|Low","pricingPower":"Strong|Moderate|Weak","costPressure":{"inputCosts":"Rising|Stable|Falling","laborCosts":"Rising|Stable|Falling","rawMaterials":"Rising|Stable|Falling","overallImpact":"Margin Compression|Neutral|Margin Expansion"},"passThrough":{"ability":"Full|Partial|None","lagTime":"Immediate|1-2 quarters|3+ quarters","evidence":"Historical pricing actions"},"inflationBeneficiary":true,"realRevenueGrowth":"Above inflation|At inflation|Below inflation","hedges":["Natural hedge 1","Strategy 2"],"cpiCorrelation":"Positive|Negative|None","summary":"3-4 sentence inflation impact analysis"}`,
+      `Analyze inflation sensitivity for ${symbol} (${name}) in ${sector || ""} at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Inflation err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 8. Currency Exposure
+app.post("/api/markets/ai-currency", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are an FX risk analyst. Return ONLY valid JSON:{"internationalRevenue":"65%","currencyBreakdown":[{"currency":"USD","revenueShare":"35%","trend":"Stable"},{"currency":"EUR","revenueShare":"25%","trend":"Weakening"},{"currency":"CNY","revenueShare":"20%","trend":"Weakening"},{"currency":"JPY","revenueShare":"10%","trend":"Weakening"},{"currency":"Other","revenueShare":"10%","trend":"Mixed"}],"dollarImpact":{"strongDollar":"Negative - reduces international revenue","weakDollar":"Positive - boosts translated earnings","sensitivity":"1% USD move = ~$X impact on EPS"},"hedgingStrategy":{"isHedged":true,"instruments":"Forward contracts, options","effectiveness":"Partial"},"fxRiskLevel":"High|Medium|Low","summary":"3-4 sentence currency exposure analysis"}`,
+      `Analyze currency/FX exposure for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Currency err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 9. Yield Curve Signal
+app.post("/api/markets/ai-yield-curve", async (req, res) => {
+  try {
+    const { symbol, name, price, sector } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a fixed income strategist analyzing yield curve implications. Return ONLY valid JSON:{"yieldCurveShape":"Normal|Flat|Inverted|Steepening|Flattening","currentSpreads":{"twoTen":"0.15%","threeMonthTen":"-0.20%","direction":"Steepening|Flattening"},"sectorImplication":{"impact":"Positive|Negative|Neutral","mechanism":"How yield curve shape affects this sector","historicalPattern":"What happened to this sector in similar yield curve environments"},"stockSpecificImpact":{"debtProfile":"Mostly fixed|Mostly floating|Mixed","refinancingRisk":"High|Medium|Low","interestExpenseSensitivity":"High|Medium|Low"},"recessionSignal":{"probability":"High|Medium|Low","timeframe":"6-12 months|12-18 months|18+ months"},"tradingImplication":"Bullish|Bearish|Neutral","summary":"3-4 sentence yield curve analysis"}`,
+      `Analyze yield curve implications for ${symbol} (${name}) in ${sector || ""} at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Yield err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 10. Geopolitical Risk
+app.post("/api/markets/ai-geopolitical", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a geopolitical risk analyst. Return ONLY valid JSON:{"overallRisk":"High|Medium|Low","riskScore":65,"exposures":[{"region":"China","type":"Supply Chain|Revenue|Manufacturing","exposure":"High|Medium|Low","riskLevel":"Elevated","description":"2 sentences"},{"region":"Europe","type":"Revenue","exposure":"Medium","riskLevel":"Moderate","description":"2 sentences"}],"tariffRisk":{"level":"High|Medium|Low","currentTariffs":"Description of current tariff exposure","potentialImpact":"EPS impact estimate"},"sanctionsRisk":"High|Medium|Low","supplyChainVulnerability":{"singlePointsOfFailure":["Taiwan semiconductors"],"diversificationLevel":"Good|Moderate|Poor"},"currentHotspots":[{"issue":"US-China tensions","impact":"Medium","probability":"High"}],"summary":"3-4 sentence geopolitical risk assessment"}`,
+      `Analyze geopolitical risks for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Geo err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// ── SENTIMENT GROUP ──
+
+// 11. Social Buzz Tracker
+app.post("/api/markets/ai-social-buzz", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a social media sentiment analyst for stocks. Return ONLY valid JSON:{"overallSentiment":"Bullish|Bearish|Neutral|Mixed","sentimentScore":72,"platforms":{"reddit":{"sentiment":"Bullish","volume":"High|Medium|Low","trending":true,"topSubreddits":["wallstreetbets","stocks"],"keyThemes":["AI growth","Earnings beat"]},"twitter":{"sentiment":"Neutral","volume":"Medium","trending":false,"keyInfluencers":["@analyst1"],"keyThemes":["Valuation concerns"]},"stocktwits":{"sentiment":"Bullish","volume":"High","bullBearRatio":"3.2:1"}},"sentimentTrend":"Improving|Declining|Stable","retailVsInstitutional":"Retail bullish, institutional cautious","contrarian":false,"memeStockRisk":"High|Medium|Low|None","summary":"3-4 sentence social sentiment analysis"}`,
+      `Analyze social media sentiment for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Social err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 12. News Sentiment Score
+app.post("/api/markets/ai-news-sentiment", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a news sentiment NLP analyst. Return ONLY valid JSON:{"overallScore":72,"sentiment":"Positive|Negative|Neutral|Mixed","recentArticles":[{"headline":"Article headline","source":"Reuters","sentiment":"Positive|Negative|Neutral","score":85,"keyTopics":["earnings","growth"]},{"headline":"Another headline","source":"Bloomberg","sentiment":"Negative","score":35,"keyTopics":["regulation","competition"]}],"sentimentTrend":{"oneWeek":"Improving|Declining|Stable","oneMonth":"Improving|Declining|Stable","threeMonth":"Improving|Declining|Stable"},"topThemes":[{"theme":"AI Integration","frequency":"High","sentiment":"Positive"},{"theme":"Regulatory Risk","frequency":"Medium","sentiment":"Negative"}],"mediaAttention":"High|Medium|Low","summary":"3-4 sentence news sentiment analysis"}`,
+      `Analyze news sentiment for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("News sent err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 13. Analyst Sentiment Shift
+app.post("/api/markets/ai-analyst-sentiment", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are an analyst sentiment tracker. Return ONLY valid JSON:{"currentConsensus":"Strong Buy|Buy|Hold|Sell|Strong Sell","consensusShift":"Upgrading|Downgrading|Stable","recentChanges":[{"firm":"Goldman Sachs","analyst":"John Smith","action":"Upgrade|Downgrade|Initiate|Reiterate","from":"Hold","to":"Buy","priceTarget":280,"date":"2026-03-15"},{"firm":"Morgan Stanley","analyst":"Jane Doe","action":"Reiterate","from":"Overweight","to":"Overweight","priceTarget":290,"date":"2026-03-10"}],"toneAnalysis":{"confidence":"Increasing|Decreasing|Stable","keyPhraseShifts":["More cautious on China","Increasingly bullish on AI"],"hedgingLanguage":"More|Less|Same"},"priceTargetTrend":{"threeMonthAgo":260,"current":275,"direction":"Rising|Falling|Flat"},"contrarians":[{"firm":"Bear Capital","view":"Sell","rationale":"Overvalued"}],"summary":"3-4 sentence analyst sentiment analysis"}`,
+      `Analyze how analyst sentiment has shifted for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Analyst sent err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 14. Options Sentiment
+app.post("/api/markets/ai-options-sentiment", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are an options flow analyst. Return ONLY valid JSON:{"putCallRatio":{"current":0.65,"average":0.85,"signal":"Bullish|Bearish|Neutral"},"unusualActivity":[{"type":"Call Sweep","strike":280,"expiry":"2026-06-20","premium":"$2.5M","sentiment":"Bullish","significance":"Large institutional bet"},{"type":"Put Purchase","strike":220,"expiry":"2026-04-17","premium":"$800K","sentiment":"Bearish","significance":"Possible hedge"}],"maxPain":250,"impliedMove":{"nextEarnings":"+/-5.2%","nextWeek":"+/-2.1%"},"skew":{"direction":"Put skew|Call skew|Neutral","implication":"Demand for downside protection"},"openInterestTrend":"Increasing|Decreasing|Stable","smartMoneySignal":"Bullish|Bearish|Mixed","summary":"3-4 sentence options sentiment analysis"}`,
+      `Analyze options flow and sentiment for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Options sent err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 15. Earnings Call Tone
+app.post("/api/markets/ai-earnings-tone", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are an NLP expert analyzing earnings call transcripts. Return ONLY valid JSON:{"overallTone":"Confident|Cautious|Defensive|Optimistic|Neutral","toneScore":75,"managementConfidence":{"level":"High|Medium|Low","vsLastQuarter":"Higher|Lower|Same","evidence":["Used strong language about pipeline","Avoided specific guidance"]},"keyPhrases":{"bullish":["Accelerating growth","Record pipeline","Strong demand"],"bearish":["Macro uncertainty","Cautious outlook","Challenging environment"],"hedging":["Subject to market conditions","Depending on macro"]},"qaSentiment":{"managementDefensiveness":"Low|Medium|High","analystSkepticism":"Low|Medium|High","tenseMoments":["Question about China revenue"]},"guidanceLanguage":{"specificity":"Specific|Vague|No guidance","confidence":"High|Medium|Low"},"comparedToLastQuarter":"More positive|More negative|Similar","redFlags":["CFO departure not addressed"],"summary":"3-4 sentence earnings call tone analysis"}`,
+      `Analyze the latest earnings call tone for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Tone err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// ── STRATEGY GROUP ──
+
+// 16. Entry/Exit Planner
+app.post("/api/markets/ai-entry-exit", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a trading strategist. Return ONLY valid JSON:{"entryStrategy":{"idealEntry":235,"aggressiveEntry":245,"conservativeEntry":225,"entryTrigger":"Pullback to 50-day MA with volume confirmation","timeframe":"1-3 months"},"exitStrategy":{"profitTarget1":270,"profitTarget2":290,"profitTarget3":310,"trailingStop":"8% trailing"},"stopLoss":{"tight":220,"standard":210,"wide":195,"rationale":"Below key support and 200-day MA"},"riskReward":{"ratio":"2.8:1","riskPercent":"6.5%","rewardPercent":"18%"},"currentSetup":"Buy|Wait|Sell|Hold","setupQuality":"A+|A|B|C","catalystTiming":[{"event":"Earnings","date":"2026-04-25","strategy":"Buy before|Wait after"}],"summary":"3-4 sentence entry/exit plan"}`,
+      `Create entry/exit plan for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Entry err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 17. Position Sizing
+app.post("/api/markets/ai-position-sizing", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a portfolio risk manager. Return ONLY valid JSON:{"kellyCriterion":{"optimalSize":"8.5%","halfKelly":"4.25%","quarterKelly":"2.1%","recommendation":"Half Kelly for most investors"},"riskBased":{"portfolioRisk2pct":{"positionSize":"$10,000","shares":40,"stopLoss":215,"maxLoss":"$2,000"},"portfolioRisk1pct":{"positionSize":"$5,000","shares":20,"stopLoss":215,"maxLoss":"$1,000"}},"volatilityAdjusted":{"atr":8.5,"atrBasedStop":231,"volatilityRank":"Medium","suggestedSize":"3-5% of portfolio"},"convictionBased":{"highConviction":"5-8%","mediumConviction":"2-4%","lowConviction":"1-2%"},"correlationWarning":"Check correlation with existing tech holdings","summary":"3-4 sentence position sizing recommendation"}`,
+      `Position sizing recommendation for ${symbol} (${name}) at $${price} for a $100,000 portfolio.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Sizing err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 18. Hedge Suggestions
+app.post("/api/markets/ai-hedge", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a hedging strategist. Return ONLY valid JSON:{"hedgeStrategies":[{"strategy":"Protective Put","type":"Options","cost":"2.5% of position","protection":"Full downside below $230","details":"Buy $230 put expiring in 3 months","complexity":"Simple"},{"strategy":"Collar","type":"Options","cost":"Near zero","protection":"Downside below $230, capped upside at $280","details":"Buy $230 put, sell $280 call","complexity":"Moderate"},{"strategy":"Inverse ETF","type":"ETF","cost":"Tracking error + fees","protection":"Sector-level hedge","details":"Short sector ETF proportional to position","complexity":"Simple"},{"strategy":"Pairs Trade","type":"Equity","cost":"Margin requirement","protection":"Market-neutral exposure","details":"Short correlated competitor","complexity":"Advanced"}],"recommendedHedge":"Protective Put","hedgeRatio":"50-70% of position","currentRiskLevel":"Medium","summary":"3-4 sentence hedging recommendation"}`,
+      `Suggest hedging strategies for a long position in ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Hedge err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 19. Tax Lot Optimizer
+app.post("/api/markets/ai-tax-optimizer", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a tax-efficient investing advisor. Return ONLY valid JSON:{"taxLossHarvesting":{"opportunity":true,"potentialSavings":"Depends on cost basis","washSaleWarning":"Avoid repurchasing within 30 days","substitutes":[{"ticker":"QQQ","correlation":"0.92","reason":"Similar tech exposure"},{"ticker":"VGT","correlation":"0.88","reason":"Tech sector ETF"}]},"holdingPeriod":{"shortTermRate":"37%","longTermRate":"20%","recommendation":"Hold for long-term capital gains if possible"},"lotSelection":{"fifo":"First In First Out - default","specificId":"Choose highest cost basis lots to minimize gain","recommendation":"Specific identification for tax efficiency"},"yearEndStrategies":["Harvest losses before Dec 31","Defer gains to next tax year","Consider qualified dividends timing"],"estimatedTaxImpact":{"shortTermGain":"Taxed at ordinary income rate","longTermGain":"Taxed at preferential rate"},"summary":"3-4 sentence tax optimization analysis"}`,
+      `Tax optimization analysis for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Tax err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 20. Pairs Trade Finder
+app.post("/api/markets/ai-pairs-trade", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a quantitative pairs trading analyst. Return ONLY valid JSON:{"pairs":[{"ticker":"MSFT","correlation":0.85,"cointegration":"Strong","currentSpread":"1.2 std dev wide","signal":"Long ${symbol}/Short MSFT","expectedReturn":"3-5%","timeframe":"2-4 weeks"},{"ticker":"GOOGL","correlation":0.78,"cointegration":"Moderate","currentSpread":"0.8 std dev narrow","signal":"No trade","expectedReturn":"N/A","timeframe":"N/A"},{"ticker":"AMZN","correlation":0.72,"cointegration":"Moderate","currentSpread":"1.5 std dev wide","signal":"Long ${symbol}/Short AMZN","expectedReturn":"4-6%","timeframe":"3-6 weeks"}],"bestPair":{"ticker":"MSFT","rationale":"Highest cointegration and spread deviation"},"marketNeutral":true,"riskFactors":["Correlation breakdown","Sector rotation","Earnings divergence"],"summary":"3-4 sentence pairs trade analysis"}`,
+      `Find pairs trading opportunities for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Pairs err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// ── ADVANCED ANALYTICS GROUP ──
+
+// 21. Regression Analysis
+app.post("/api/markets/ai-regression", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a quantitative analyst performing factor regression. Return ONLY valid JSON:{"rSquared":0.82,"adjustedRSquared":0.79,"factors":[{"factor":"S&P 500 (SPY)","beta":1.15,"pValue":0.001,"significance":"Highly Significant","interpretation":"Moves 1.15x the market"},{"factor":"10Y Treasury Yield","beta":-0.35,"pValue":0.02,"significance":"Significant","interpretation":"Negatively correlated with rates"},{"factor":"VIX","beta":-0.28,"pValue":0.04,"significance":"Significant","interpretation":"Underperforms in high volatility"},{"factor":"Oil (WTI)","beta":0.05,"pValue":0.45,"significance":"Not Significant","interpretation":"Minimal oil sensitivity"},{"factor":"USD Index (DXY)","beta":-0.22,"pValue":0.03,"significance":"Significant","interpretation":"Hurt by strong dollar"}],"alpha":{"annualized":"3.2%","significant":true},"residualVolatility":"12%","summary":"3-4 sentence regression analysis"}`,
+      `Factor regression analysis for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Regression err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 22. Seasonality Patterns
+app.post("/api/markets/ai-seasonality", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a seasonality and calendar effects analyst. Return ONLY valid JSON:{"monthlyReturns":[{"month":"Jan","avgReturn":2.1,"winRate":65,"best":8.5,"worst":-4.2},{"month":"Feb","avgReturn":-0.5,"winRate":45,"best":6.1,"worst":-7.3},{"month":"Mar","avgReturn":1.8,"winRate":60,"best":9.2,"worst":-5.1},{"month":"Apr","avgReturn":3.2,"winRate":70,"best":12.1,"worst":-3.5},{"month":"May","avgReturn":-0.2,"winRate":48,"best":5.5,"worst":-6.8},{"month":"Jun","avgReturn":0.8,"winRate":52,"best":7.2,"worst":-4.5},{"month":"Jul","avgReturn":2.5,"winRate":62,"best":10.3,"worst":-3.8},{"month":"Aug","avgReturn":-1.2,"winRate":40,"best":4.8,"worst":-8.5},{"month":"Sep","avgReturn":-1.8,"winRate":35,"best":3.2,"worst":-9.1},{"month":"Oct","avgReturn":1.5,"winRate":58,"best":11.5,"worst":-6.2},{"month":"Nov","avgReturn":2.8,"winRate":68,"best":8.8,"worst":-2.5},{"month":"Dec","avgReturn":1.9,"winRate":65,"best":7.5,"worst":-3.1}],"bestMonth":"Apr","worstMonth":"Sep","earningsDrift":{"preEarnings":"Tends to rally 3-5 days before","postEarnings":"Average +2% in week after beat"},"dayOfWeekEffect":"Monday weakness, Friday strength","currentSeasonalBias":"Bullish|Bearish|Neutral","summary":"3-4 sentence seasonality analysis"}`,
+      `Analyze seasonality patterns for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Season err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 23. Correlation Matrix
+app.post("/api/markets/ai-correlation", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a correlation analysis expert. Return ONLY valid JSON:{"correlations":[{"asset":"S&P 500 (SPY)","correlation":0.88,"category":"Index"},{"asset":"NASDAQ (QQQ)","correlation":0.92,"category":"Index"},{"asset":"MSFT","correlation":0.82,"category":"Peer"},{"asset":"GOOGL","correlation":0.75,"category":"Peer"},{"asset":"AMZN","correlation":0.71,"category":"Peer"},{"asset":"10Y Treasury","correlation":-0.35,"category":"Bond"},{"asset":"Gold","correlation":-0.15,"category":"Commodity"},{"asset":"Oil (WTI)","correlation":0.12,"category":"Commodity"},{"asset":"Bitcoin","correlation":0.45,"category":"Crypto"},{"asset":"VIX","correlation":-0.72,"category":"Volatility"}],"highestCorrelation":{"asset":"QQQ","value":0.92},"lowestCorrelation":{"asset":"Gold","value":-0.15},"diversificationBenefit":"Low - highly correlated with tech/market","regimeChanges":"Correlations increase during market stress","summary":"3-4 sentence correlation analysis"}`,
+      `Correlation analysis for ${symbol} (${name}) at $${price} vs major assets.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Corr err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 24. Volatility Surface
+app.post("/api/markets/ai-volatility", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a volatility analyst. Return ONLY valid JSON:{"impliedVolatility":{"current":28.5,"percentileRank":"65th","vsHistorical":"Above|Below|In-line","trend":"Rising|Falling|Stable"},"historicalVolatility":{"hv20":25.2,"hv60":27.8,"hv252":30.1},"volatilitySkew":{"putSkew":"Steep|Normal|Flat","callSkew":"Normal","implication":"High demand for downside protection"},"termStructure":[{"expiry":"1 Month","iv":30.2},{"expiry":"3 Month","iv":28.5},{"expiry":"6 Month","iv":27.1},{"expiry":"12 Month","iv":26.3}],"termStructureShape":"Backwardation|Contango|Flat","volOfVol":"High|Medium|Low","ivRank":65,"ivPercentile":72,"tradingImplication":"Sell premium|Buy premium|Neutral","summary":"3-4 sentence volatility analysis"}`,
+      `Volatility surface analysis for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Vol err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 25. Monte Carlo Simulation
+app.post("/api/markets/ai-monte-carlo", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a quantitative analyst running Monte Carlo simulations. Return ONLY valid JSON:{"simulations":10000,"timeHorizon":"12 months","assumptions":{"annualReturn":"12%","annualVolatility":"28%","distribution":"Log-normal"},"results":{"medianPrice":275,"meanPrice":280,"percentiles":{"p5":195,"p10":210,"p25":240,"p50":275,"p75":315,"p90":355,"p95":390}},"probabilityOfProfit":"62%","probabilityAbove":[{"target":300,"probability":"38%"},{"target":250,"probability":"58%"},{"target":200,"probability":"85%"}],"maxDrawdown":{"median":"-18%","worst5pct":"-42%"},"expectedReturn":"12%","sharpeRatio":0.43,"summary":"3-4 sentence Monte Carlo analysis"}`,
+      `Monte Carlo simulation for ${symbol} (${name}) at $${price} over 12 months.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("MC err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// ── ESG & GOVERNANCE GROUP ──
+
+// 26. ESG Deep Dive
+app.post("/api/markets/ai-esg", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are an ESG research analyst. Return ONLY valid JSON:{"overallScore":72,"rating":"AA|A|BBB|BB|B|CCC","environmental":{"score":68,"carbonEmissions":"Low|Medium|High","renewableEnergy":"25%","climateTarget":"Net zero by 2030","keyIssues":["E-waste management","Supply chain emissions"]},"social":{"score":75,"diversityScore":"Above Average","employeeSatisfaction":"4.2/5","dataPrivacy":"Strong policies","keyIssues":["Labor practices in supply chain"]},"governance":{"score":73,"boardIndependence":"80%","executivePayAlignment":"Moderate","shareholderRights":"Strong","keyIssues":["Dual-class share structure"]},"peerComparison":{"vsIndustry":"Above Average","percentile":"72nd"},"controversies":[{"issue":"Antitrust investigation","severity":"Medium","status":"Ongoing"}],"esgTrend":"Improving|Declining|Stable","summary":"3-4 sentence ESG analysis"}`,
+      `ESG deep dive analysis for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("ESG err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 27. Executive Compensation
+app.post("/api/markets/ai-exec-comp", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are an executive compensation analyst. Return ONLY valid JSON:{"ceo":{"name":"CEO Name","totalComp":"$25M","baseSalary":"$1M","bonus":"$4M","stockAwards":"$15M","options":"$5M","payForPerformance":"Strong|Moderate|Weak"},"cSuite":[{"title":"CFO","name":"CFO Name","totalComp":"$12M"},{"title":"COO","name":"COO Name","totalComp":"$10M"}],"peerComparison":{"vsPeers":"Above|In-line|Below","percentile":"75th","medianPeerComp":"$20M"},"alignment":{"stockOwnership":"$500M","ownershipGuideline":"10x salary","meetsGuideline":true,"vestingSchedule":"4-year with 1-year cliff"},"incentiveStructure":{"shortTermMetrics":["Revenue growth","EPS"],"longTermMetrics":["TSR vs peers","ROIC"],"esgLinked":true},"concerns":["High total comp relative to peers"],"summary":"3-4 sentence executive compensation analysis"}`,
+      `Analyze executive compensation for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Comp err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 28. Board Analysis
+app.post("/api/markets/ai-board", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a corporate governance analyst. Return ONLY valid JSON:{"boardSize":12,"independence":"83%","diversity":{"gender":"33% female","ethnic":"25% diverse","age":"Average 58"},"expertise":[{"area":"Technology","members":4},{"area":"Finance","members":3},{"area":"Operations","members":2},{"area":"Legal/Regulatory","members":2},{"area":"Marketing","members":1}],"tenure":{"average":"6.5 years","longest":"15 years","newest":"1 year","refreshmentRate":"Good|Needs Improvement"},"committees":{"audit":"Independent","compensation":"Independent","nominating":"Independent"},"interlockingDirectorships":[{"director":"Name","otherBoards":["Company A","Company B"]}],"overallScore":78,"strengths":["High independence","Diverse expertise"],"weaknesses":["Average tenure slightly high"],"summary":"3-4 sentence board analysis"}`,
+      `Analyze the board of directors for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Board err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 29. Shareholder Activism History
+app.post("/api/markets/ai-activism-history", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a shareholder activism analyst. Return ONLY valid JSON:{"activismHistory":[{"activist":"Activist Fund Name","year":2024,"campaign":"Board seats","outcome":"Settled - 2 board seats","stockImpact":"+12% over campaign"},{"activist":"Another Fund","year":2022,"campaign":"Strategic review","outcome":"Company initiated buyback","stockImpact":"+8%"}],"currentVulnerability":{"score":45,"level":"Medium","factors":["Underperformance vs peers","Excess cash on balance sheet","Governance concerns"]},"potentialTargets":{"likelyDemands":["Increased buybacks","Board refreshment","Cost cutting"],"defenses":["Poison pill","Staggered board","Supermajority provisions"]},"proxyFightHistory":{"total":1,"won":0,"lost":1,"settled":0},"summary":"3-4 sentence activism analysis"}`,
+      `Analyze shareholder activism history and vulnerability for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Activism err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
+// 30. Corporate Events Timeline
+app.post("/api/markets/ai-corporate-events", async (req, res) => {
+  try {
+    const { symbol, name, price } = req.body;
+    if (!symbol) return res.status(400).json({ error: "Symbol required" });
+    const analysis = await callAI(
+      `You are a corporate events analyst. Return ONLY valid JSON:{"upcomingEvents":[{"date":"2026-04-25","type":"Earnings","description":"Q1 2026 Earnings Release","significance":"High","expectedImpact":"High volatility"},{"date":"2026-06-10","type":"Conference","description":"WWDC 2026","significance":"High","expectedImpact":"Product announcements"},{"date":"2026-05-15","type":"Dividend","description":"Ex-dividend date","significance":"Medium","expectedImpact":"$0.25/share"}],"recentEvents":[{"date":"2026-01-30","type":"Earnings","description":"Q4 2025 Earnings Beat","outcome":"Beat by $0.05","stockReaction":"+3.2%"},{"date":"2025-11-01","type":"Product Launch","description":"iPhone 17 Launch","outcome":"Strong initial sales","stockReaction":"+1.5%"}],"corporateActions":{"buybacks":{"active":true,"remaining":"$50B","pace":"$20B/quarter"},"splits":{"lastSplit":"4:1 in 2020","splitCandidate":false},"spinoffs":{"planned":false}},"catalystCalendar":"Next 90 days have 3 major events","summary":"3-4 sentence corporate events analysis"}`,
+      `Analyze corporate events timeline for ${symbol} (${name}) at $${price}.`
+    );
+    res.json({ analysis });
+  } catch (err) { console.error("Events err:", err.message); res.json({ analysis: { summary: "Unable to analyze" } }); }
+});
+
 // ── Serve static files from dist/ ──
 app.use(express.static(path.join(__dirname, "dist")));
 

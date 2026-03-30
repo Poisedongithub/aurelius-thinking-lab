@@ -87,9 +87,9 @@ export default function JacobChat({ symbol, name, price, change }: JacobChatProp
           <div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-white">Jacob</span>
-              <span className="text-[8px] font-mono text-white/30 bg-white/[0.06] px-1.5 py-0.5 rounded tracking-widest">ANALYST</span>
+              <span className="text-[12px] font-mono text-white/30 bg-white/[0.06] px-1.5 py-0.5 rounded tracking-widest">ANALYST</span>
             </div>
-            <span className="text-[10px] text-white/20 font-mono">
+            <span className="text-[14px] text-white/20 font-mono">
               talking about {symbol}
             </span>
           </div>
@@ -113,7 +113,7 @@ export default function JacobChat({ symbol, name, price, change }: JacobChatProp
               <span className="text-lg font-mono font-bold text-white/30">J</span>
             </div>
             <p className="text-sm text-white/40 mb-1">ask me anything about {symbol}</p>
-            <p className="text-[10px] text-white/15 font-mono">i'll give you the real take, not the polished one</p>
+            <p className="text-[14px] text-white/15 font-mono">i'll give you the real take, not the polished one</p>
             <div className="flex flex-wrap gap-2 justify-center mt-5">
               {[
                 `should i buy ${symbol} here`,
@@ -124,7 +124,7 @@ export default function JacobChat({ symbol, name, price, change }: JacobChatProp
                 <button
                   key={q}
                   onClick={() => { setInput(q); }}
-                  className="text-[11px] text-white/30 bg-white/[0.03] border border-white/[0.06] rounded-full px-3 py-1.5 hover:bg-white/[0.06] hover:text-white/50 hover:border-white/[0.1] transition-all"
+                  className="text-[14px] text-white/30 bg-white/[0.03] border border-white/[0.06] rounded-full px-3 py-1.5 hover:bg-white/[0.06] hover:text-white/50 hover:border-white/[0.1] transition-all"
                 >
                   {q}
                 </button>
@@ -143,9 +143,9 @@ export default function JacobChat({ symbol, name, price, change }: JacobChatProp
               }`}
             >
               {msg.role === "assistant" && (
-                <span className="text-[8px] font-mono text-white/20 block mb-1 tracking-wider">JACOB</span>
+                <span className="text-[12px] font-mono text-white/20 block mb-1 tracking-wider">JACOB</span>
               )}
-              <p className={`text-[13px] leading-relaxed whitespace-pre-wrap ${
+              <p className={`text-[16px] leading-relaxed whitespace-pre-wrap ${
                 msg.role === "user" ? "font-medium" : ""
               }`}>
                 {msg.content}
@@ -157,7 +157,7 @@ export default function JacobChat({ symbol, name, price, change }: JacobChatProp
         {isLoading && (
           <div className="flex justify-start">
             <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl px-4 py-3">
-              <span className="text-[8px] font-mono text-white/20 block mb-1.5 tracking-wider">JACOB</span>
+              <span className="text-[12px] font-mono text-white/20 block mb-1.5 tracking-wider">JACOB</span>
               <div className="flex items-center gap-1.5">
                 <div className="w-1.5 h-1.5 bg-white/20 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
                 <div className="w-1.5 h-1.5 bg-white/20 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />

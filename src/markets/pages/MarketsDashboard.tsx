@@ -90,25 +90,25 @@ export default function MarketsDashboard() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <div className="flex items-center gap-3 mb-1">
-                <h1 className="text-[28px] font-semibold tracking-tight text-white" style={{ fontFamily: "'Instrument Serif', serif" }}>
+                <h1 className="text-[36px] font-semibold tracking-tight text-white" style={{ fontFamily: "'Instrument Serif', serif" }}>
                   Markets
                 </h1>
                 {!loading && tickers.length > 0 && (
-                  <span className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                  <span className="flex items-center gap-1.5 text-[14px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     LIVE
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-white/30 font-mono tracking-widest">RESEARCH TERMINAL</p>
+              <p className="text-[14px] text-white/30 font-mono tracking-widest">RESEARCH TERMINAL</p>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
-              <button onClick={() => navigate("/markets/portfolio")} className="text-[10px] text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] font-mono tracking-wide rounded-lg px-2.5 py-1.5 transition-all">PORTFOLIO</button>
-              <button onClick={() => navigate("/markets/screener")} className="text-[10px] text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] font-mono tracking-wide rounded-lg px-2.5 py-1.5 transition-all">SCREENER</button>
-              <button onClick={() => navigate("/markets/compare")} className="text-[10px] text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] font-mono tracking-wide rounded-lg px-2.5 py-1.5 transition-all">COMPARE</button>
-              <button onClick={() => navigate("/markets/jacob")} className="text-[10px] text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] font-mono tracking-wide rounded-lg px-2.5 py-1.5 transition-all">JACOB</button>
-              <button onClick={() => navigate("/markets/macro")} className="text-[10px] text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] font-mono tracking-wide rounded-lg px-2.5 py-1.5 transition-all">MACRO</button>
-              <button onClick={() => navigate("/home")} className="text-[10px] text-white/30 hover:text-white/60 font-mono tracking-wide transition-colors">← BACK</button>
+              <button onClick={() => navigate("/markets/portfolio")} className="text-[14px] text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] font-mono tracking-wide rounded-lg px-3.5 py-2 transition-all">PORTFOLIO</button>
+              <button onClick={() => navigate("/markets/screener")} className="text-[14px] text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] font-mono tracking-wide rounded-lg px-3.5 py-2 transition-all">SCREENER</button>
+              <button onClick={() => navigate("/markets/compare")} className="text-[14px] text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] font-mono tracking-wide rounded-lg px-3.5 py-2 transition-all">COMPARE</button>
+              <button onClick={() => navigate("/markets/jacob")} className="text-[14px] text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] font-mono tracking-wide rounded-lg px-3.5 py-2 transition-all">JACOB</button>
+              <button onClick={() => navigate("/markets/macro")} className="text-[14px] text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] font-mono tracking-wide rounded-lg px-3.5 py-2 transition-all">MACRO</button>
+              <button onClick={() => navigate("/home")} className="text-[14px] text-white/30 hover:text-white/60 font-mono tracking-wide transition-colors">← BACK</button>
             </div>
           </div>
 
@@ -134,7 +134,7 @@ export default function MarketsDashboard() {
                       <span className="text-sm font-mono font-semibold text-white">{r.symbol}</span>
                       <span className="text-xs text-white/40 truncate max-w-[200px]">{r.name}</span>
                     </div>
-                    <span className="text-[10px] text-white/20 font-mono">{r.exchange}</span>
+                    <span className="text-[14px] text-white/20 font-mono">{r.exchange}</span>
                   </button>
                 ))}
               </div>
@@ -150,7 +150,7 @@ export default function MarketsDashboard() {
             <button
               key={cat}
               onClick={() => setCategory(cat)}
-              className={`px-4 py-2 text-[11px] font-mono tracking-wider rounded-lg whitespace-nowrap transition-all ${
+              className={`px-4 py-2 text-[14px] font-mono tracking-wider rounded-lg whitespace-nowrap transition-all ${
                 category === cat
                   ? "bg-white text-black font-medium"
                   : "text-white/30 hover:text-white/60 hover:bg-white/[0.04]"
@@ -164,25 +164,25 @@ export default function MarketsDashboard() {
         {/* Stats Row */}
         <div className="grid grid-cols-3 gap-3 mb-6">
           <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3.5">
-            <div className="text-[10px] text-white/25 font-mono tracking-widest mb-1">WATCHLIST</div>
+            <div className="text-[14px] text-white/25 font-mono tracking-widest mb-1">WATCHLIST</div>
             <div className="text-xl font-semibold text-white tabular-nums">{watchlist.length}</div>
           </div>
           <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3.5">
-            <div className="text-[10px] text-emerald-400/60 font-mono tracking-widest mb-1">GAINERS</div>
+            <div className="text-[14px] text-emerald-400/60 font-mono tracking-widest mb-1">GAINERS</div>
             <div className="text-xl font-semibold text-emerald-400 tabular-nums">{gainers}</div>
           </div>
           <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3.5">
-            <div className="text-[10px] text-red-400/60 font-mono tracking-widest mb-1">LOSERS</div>
+            <div className="text-[14px] text-red-400/60 font-mono tracking-widest mb-1">LOSERS</div>
             <div className="text-xl font-semibold text-red-400 tabular-nums">{losers}</div>
           </div>
         </div>
 
         {/* Add Ticker Button */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-[11px] font-mono text-white/30 tracking-widest">YOUR WATCHLIST</h2>
+          <h2 className="text-[14px] font-mono text-white/30 tracking-widest">YOUR WATCHLIST</h2>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-1.5 text-[11px] font-mono text-white/40 hover:text-white/80 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] rounded-lg px-3 py-2 transition-all"
+            className="flex items-center gap-1.5 text-[14px] font-mono text-white/40 hover:text-white/80 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] rounded-lg px-3 py-2 transition-all"
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
             ADD TICKER
@@ -200,10 +200,10 @@ export default function MarketsDashboard() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
             </svg>
             <p className="text-sm text-white/25 font-mono mb-1">Your watchlist is empty</p>
-            <p className="text-[11px] text-white/15 font-mono mb-4">Add tickers to start tracking</p>
+            <p className="text-[14px] text-white/15 font-mono mb-4">Add tickers to start tracking</p>
             <button
               onClick={() => setShowAddModal(true)}
-              className="text-[11px] font-mono text-black bg-white hover:bg-white/90 rounded-lg px-4 py-2 transition-all"
+              className="text-[14px] font-mono text-black bg-white hover:bg-white/90 rounded-lg px-4 py-2 transition-all"
             >
               + ADD YOUR FIRST TICKER
             </button>
@@ -247,7 +247,7 @@ export default function MarketsDashboard() {
         <div className="mt-8">
           <button
             onClick={() => setShowHeatmap(!showHeatmap)}
-            className="flex items-center gap-2 text-[11px] font-mono text-white/40 hover:text-white/70 transition-colors mb-3"
+            className="flex items-center gap-2 text-[14px] font-mono text-white/40 hover:text-white/70 transition-colors mb-3"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={`transition-transform ${showHeatmap ? "rotate-90" : ""}`}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -263,7 +263,7 @@ export default function MarketsDashboard() {
         <div className="mt-6">
           <button
             onClick={() => setShowNews(!showNews)}
-            className="flex items-center gap-2 text-[11px] font-mono text-white/40 hover:text-white/70 transition-colors mb-3"
+            className="flex items-center gap-2 text-[14px] font-mono text-white/40 hover:text-white/70 transition-colors mb-3"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={`transition-transform ${showNews ? "rotate-90" : ""}`}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -276,7 +276,7 @@ export default function MarketsDashboard() {
         </div>
 
         <div className="text-center mt-12 pb-6">
-          <p className="text-[10px] text-white/15 font-mono tracking-wider">
+          <p className="text-[14px] text-white/15 font-mono tracking-wider">
             Charts by TradingView · Live data via Massive API · Analysis powered by DeepSeek AI
           </p>
         </div>
@@ -329,7 +329,7 @@ export default function MarketsDashboard() {
                       onClick={() => {
                         if (alreadyAdded) { removeTicker(r.symbol); } else { addTicker(r.symbol); }
                       }}
-                      className={`flex-shrink-0 text-[10px] font-mono px-3 py-1.5 rounded-lg transition-all ${
+                      className={`flex-shrink-0 text-[14px] font-mono px-3 py-1.5 rounded-lg transition-all ${
                         alreadyAdded
                           ? "text-red-400 bg-red-500/10 border border-red-500/20 hover:bg-red-500/20"
                           : "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20"
@@ -343,7 +343,7 @@ export default function MarketsDashboard() {
               {!addSearch && (
                 <div className="text-center py-8">
                   <p className="text-xs text-white/20 font-mono">Type to search for any stock</p>
-                  <p className="text-[10px] text-white/10 font-mono mt-1">e.g. AAPL, Tesla, Bitcoin</p>
+                  <p className="text-[14px] text-white/10 font-mono mt-1">e.g. AAPL, Tesla, Bitcoin</p>
                 </div>
               )}
             </div>
@@ -367,23 +367,23 @@ function TickerRow({ ticker, onClick, onRemove }: { ticker: DashboardTicker; onC
         <div className="flex items-center gap-4 min-w-0">
           <div className="min-w-0">
             <div className="flex items-center gap-2.5 mb-0.5">
-              <span className="text-[15px] font-semibold text-white font-mono tracking-wide">{ticker.symbol}</span>
+              <span className="text-xl font-semibold text-white font-mono tracking-wide">{ticker.symbol}</span>
               {ticker.sector && (
-                <span className="text-[9px] font-mono text-white/20 bg-white/[0.04] px-2 py-0.5 rounded-md tracking-wider hidden sm:inline-block">{ticker.sector.toUpperCase()}</span>
+                <span className="text-[13px] font-mono text-white/20 bg-white/[0.04] px-2 py-0.5 rounded-md tracking-wider hidden sm:inline-block">{ticker.sector.toUpperCase()}</span>
               )}
             </div>
-            <p className="text-[11px] text-white/30 truncate">{ticker.name}</p>
+            <p className="text-[14px] text-white/30 truncate">{ticker.name}</p>
           </div>
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="hidden md:flex items-center gap-4 text-[10px] font-mono text-white/15">
+          <div className="hidden md:flex items-center gap-4 text-[14px] font-mono text-white/15">
             {ticker.marketCap ? <span>MCap {formatMarketCap(ticker.marketCap)}</span> : null}
             <span>Vol {formatVol(ticker.volume)}</span>
           </div>
           <div className="text-right min-w-[100px]">
-            <div className="text-[15px] font-semibold text-white font-mono tabular-nums">${ticker.price.toFixed(2)}</div>
-            <div className={`text-xs font-mono tabular-nums ${isUp ? "text-emerald-400" : "text-red-400"}`}>
+            <div className="text-xl font-semibold text-white font-mono tabular-nums">${ticker.price.toFixed(2)}</div>
+            <div className={`text-sm font-mono tabular-nums ${isUp ? "text-emerald-400" : "text-red-400"}`}>
               {isUp ? "+" : ""}{pct.toFixed(2)}%
             </div>
           </div>

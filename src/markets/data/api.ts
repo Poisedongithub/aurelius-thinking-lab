@@ -1040,3 +1040,121 @@ export interface AlertsAnalysis {
 }
 export const fetchAlerts = (s: string, n: string, p: number) =>
   aiPost<AlertsAnalysis>("ai-alerts", { symbol: s, name: n, price: p });
+
+// ══════════════════════════════════════════════════════════════
+// ══  WAVE 2: 30 NEW RESEARCH FEATURES                       ══
+// ══════════════════════════════════════════════════════════════
+
+// ── TECHNICALS ──
+export interface ChartPattern { name: string; type: string; reliability: string; status: string; priceTarget: number; description: string; }
+export interface PatternScannerAnalysis { patterns: ChartPattern[]; dominantTrend: string; trendStrength: string; keyLevels: { resistance: number[]; support: number[] }; volumeConfirmation: string; timeframe: string; summary: string; }
+export const fetchPatternScanner = (s: string, n: string, p: number) => aiPost<PatternScannerAnalysis>("ai-pattern-scanner", { symbol: s, name: n, price: p });
+
+export interface PriceLevel { price: number; strength: string; type: string; significance: string; }
+export interface SupportResistanceAnalysis { resistanceLevels: PriceLevel[]; supportLevels: PriceLevel[]; pivotPoints: { daily: Record<string, number>; weekly: Record<string, number> }; nearestResistance: number; nearestSupport: number; tradingRange: { low: number; high: number; bias: string }; breakoutProbability: string; summary: string; }
+export const fetchSupportResistance = (s: string, n: string, p: number) => aiPost<SupportResistanceAnalysis>("ai-support-resistance", { symbol: s, name: n, price: p });
+
+export interface MomentumAnalysis { indicators: { rsi: { value: number; signal: string; trend: string }; macd: { value: number; signal: number; histogram: number; crossover: string }; stochastic: { k: number; d: number; signal: string }; adx: { value: number; trend: string }; bollingerBands: { upper: number; middle: number; lower: number; position: string; squeeze: boolean } }; movingAverages: { sma20: number; sma50: number; sma200: number; ema12: number; ema26: number; goldenCross: boolean; deathCross: boolean; priceVsSma200: string }; overallMomentum: string; momentumScore: number; divergences: Array<{ indicator: string; type: string; description: string }>; summary: string; }
+export const fetchMomentum = (s: string, n: string, p: number) => aiPost<MomentumAnalysis>("ai-momentum", { symbol: s, name: n, price: p });
+
+export interface FibLevel { level: string; price: number; status: string; }
+export interface FibonacciAnalysis { retracement: { swingHigh: number; swingLow: number; levels: FibLevel[]; currentPosition: string }; extension: { levels: Array<{ level: string; price: number }> }; keyLevel: { price: number; level: string; significance: string }; tradingImplication: string; nearestFibSupport: number; nearestFibResistance: number; summary: string; }
+export const fetchFibonacci = (s: string, n: string, p: number) => aiPost<FibonacciAnalysis>("ai-fibonacci", { symbol: s, name: n, price: p });
+
+export interface VolumeNode { price: number; type: string; significance: string; }
+export interface VolumeProfileAnalysis { pointOfControl: { price: number; description: string }; valueArea: { high: number; low: number; percentage: string }; volumeNodes: VolumeNode[]; volumeTrend: string; relativeVolume: number; accumulation: string; smartMoneyFlow: string; unusualVolume: boolean; summary: string; }
+export const fetchVolumeProfile = (s: string, n: string, p: number) => aiPost<VolumeProfileAnalysis>("ai-volume-profile", { symbol: s, name: n, price: p });
+
+// ── MACRO ──
+export interface FedImpactAnalysis { rateImpact: { sensitivity: string; direction: string; mechanism: string }; currentPolicy: { fedFundsRate: string; stance: string; nextMeeting: string; marketExpectation: string }; scenarioAnalysis: Array<{ scenario: string; stockImpact: string; rationale: string }>; qtImpact: { effect: string; description: string }; historicalCorrelation: string; summary: string; }
+export const fetchFedImpact = (s: string, n: string, p: number, sec?: string) => aiPost<FedImpactAnalysis>("ai-fed-impact", { symbol: s, name: n, price: p, sector: sec });
+
+export interface InflationAnalysis { inflationSensitivity: string; pricingPower: string; costPressure: { inputCosts: string; laborCosts: string; rawMaterials: string; overallImpact: string }; passThrough: { ability: string; lagTime: string; evidence: string }; inflationBeneficiary: boolean; realRevenueGrowth: string; hedges: string[]; cpiCorrelation: string; summary: string; }
+export const fetchInflation = (s: string, n: string, p: number, sec?: string) => aiPost<InflationAnalysis>("ai-inflation", { symbol: s, name: n, price: p, sector: sec });
+
+export interface CurrencyBreakdown { currency: string; revenueShare: string; trend: string; }
+export interface CurrencyAnalysis { internationalRevenue: string; currencyBreakdown: CurrencyBreakdown[]; dollarImpact: { strongDollar: string; weakDollar: string; sensitivity: string }; hedgingStrategy: { isHedged: boolean; instruments: string; effectiveness: string }; fxRiskLevel: string; summary: string; }
+export const fetchCurrency = (s: string, n: string, p: number) => aiPost<CurrencyAnalysis>("ai-currency", { symbol: s, name: n, price: p });
+
+export interface YieldCurveAnalysis { yieldCurveShape: string; currentSpreads: { twoTen: string; threeMonthTen: string; direction: string }; sectorImplication: { impact: string; mechanism: string; historicalPattern: string }; stockSpecificImpact: { debtProfile: string; refinancingRisk: string; interestExpenseSensitivity: string }; recessionSignal: { probability: string; timeframe: string }; tradingImplication: string; summary: string; }
+export const fetchYieldCurve = (s: string, n: string, p: number, sec?: string) => aiPost<YieldCurveAnalysis>("ai-yield-curve", { symbol: s, name: n, price: p, sector: sec });
+
+export interface GeoExposure { region: string; type: string; exposure: string; riskLevel: string; description: string; }
+export interface GeopoliticalAnalysis { overallRisk: string; riskScore: number; exposures: GeoExposure[]; tariffRisk: { level: string; currentTariffs: string; potentialImpact: string }; sanctionsRisk: string; supplyChainVulnerability: { singlePointsOfFailure: string[]; diversificationLevel: string }; currentHotspots: Array<{ issue: string; impact: string; probability: string }>; summary: string; }
+export const fetchGeopolitical = (s: string, n: string, p: number) => aiPost<GeopoliticalAnalysis>("ai-geopolitical", { symbol: s, name: n, price: p });
+
+// ── SENTIMENT ──
+export interface SocialBuzzAnalysis { overallSentiment: string; sentimentScore: number; platforms: { reddit: { sentiment: string; volume: string; trending: boolean; topSubreddits: string[]; keyThemes: string[] }; twitter: { sentiment: string; volume: string; trending: boolean; keyInfluencers: string[]; keyThemes: string[] }; stocktwits: { sentiment: string; volume: string; bullBearRatio: string } }; sentimentTrend: string; retailVsInstitutional: string; contrarian: boolean; memeStockRisk: string; summary: string; }
+export const fetchSocialBuzz = (s: string, n: string, p: number) => aiPost<SocialBuzzAnalysis>("ai-social-buzz", { symbol: s, name: n, price: p });
+
+export interface NewsArticleSentiment { headline: string; source: string; sentiment: string; score: number; keyTopics: string[]; }
+export interface NewsSentimentAnalysis { overallScore: number; sentiment: string; recentArticles: NewsArticleSentiment[]; sentimentTrend: { oneWeek: string; oneMonth: string; threeMonth: string }; topThemes: Array<{ theme: string; frequency: string; sentiment: string }>; mediaAttention: string; summary: string; }
+export const fetchNewsSentiment = (s: string, n: string, p: number) => aiPost<NewsSentimentAnalysis>("ai-news-sentiment", { symbol: s, name: n, price: p });
+
+export interface AnalystChange { firm: string; analyst: string; action: string; from: string; to: string; priceTarget: number; date: string; }
+export interface AnalystSentimentAnalysis { currentConsensus: string; consensusShift: string; recentChanges: AnalystChange[]; toneAnalysis: { confidence: string; keyPhraseShifts: string[]; hedgingLanguage: string }; priceTargetTrend: { threeMonthAgo: number; current: number; direction: string }; contrarians: Array<{ firm: string; view: string; rationale: string }>; summary: string; }
+export const fetchAnalystSentiment = (s: string, n: string, p: number) => aiPost<AnalystSentimentAnalysis>("ai-analyst-sentiment", { symbol: s, name: n, price: p });
+
+export interface UnusualOption { type: string; strike: number; expiry: string; premium: string; sentiment: string; significance: string; }
+export interface OptionsSentimentAnalysis { putCallRatio: { current: number; average: number; signal: string }; unusualActivity: UnusualOption[]; maxPain: number; impliedMove: { nextEarnings: string; nextWeek: string }; skew: { direction: string; implication: string }; openInterestTrend: string; smartMoneySignal: string; summary: string; }
+export const fetchOptionsSentiment = (s: string, n: string, p: number) => aiPost<OptionsSentimentAnalysis>("ai-options-sentiment", { symbol: s, name: n, price: p });
+
+export interface EarningsToneAnalysis { overallTone: string; toneScore: number; managementConfidence: { level: string; vsLastQuarter: string; evidence: string[] }; keyPhrases: { bullish: string[]; bearish: string[]; hedging: string[] }; qaSentiment: { managementDefensiveness: string; analystSkepticism: string; tenseMoments: string[] }; guidanceLanguage: { specificity: string; confidence: string }; comparedToLastQuarter: string; redFlags: string[]; summary: string; }
+export const fetchEarningsTone = (s: string, n: string, p: number) => aiPost<EarningsToneAnalysis>("ai-earnings-tone", { symbol: s, name: n, price: p });
+
+// ── STRATEGY ──
+export interface EntryExitAnalysis { entryStrategy: { idealEntry: number; aggressiveEntry: number; conservativeEntry: number; entryTrigger: string; timeframe: string }; exitStrategy: { profitTarget1: number; profitTarget2: number; profitTarget3: number; trailingStop: string }; stopLoss: { tight: number; standard: number; wide: number; rationale: string }; riskReward: { ratio: string; riskPercent: string; rewardPercent: string }; currentSetup: string; setupQuality: string; catalystTiming: Array<{ event: string; date: string; strategy: string }>; summary: string; }
+export const fetchEntryExit = (s: string, n: string, p: number) => aiPost<EntryExitAnalysis>("ai-entry-exit", { symbol: s, name: n, price: p });
+
+export interface PositionSizingAnalysis { kellyCriterion: { optimalSize: string; halfKelly: string; quarterKelly: string; recommendation: string }; riskBased: Record<string, { positionSize: string; shares: number; stopLoss: number; maxLoss: string }>; volatilityAdjusted: { atr: number; atrBasedStop: number; volatilityRank: string; suggestedSize: string }; convictionBased: { highConviction: string; mediumConviction: string; lowConviction: string }; correlationWarning: string; summary: string; }
+export const fetchPositionSizing = (s: string, n: string, p: number) => aiPost<PositionSizingAnalysis>("ai-position-sizing", { symbol: s, name: n, price: p });
+
+export interface HedgeStrategy { strategy: string; type: string; cost: string; protection: string; details: string; complexity: string; }
+export interface HedgeAnalysis { hedgeStrategies: HedgeStrategy[]; recommendedHedge: string; hedgeRatio: string; currentRiskLevel: string; summary: string; }
+export const fetchHedge = (s: string, n: string, p: number) => aiPost<HedgeAnalysis>("ai-hedge", { symbol: s, name: n, price: p });
+
+export interface TaxOptimizerAnalysis { taxLossHarvesting: { opportunity: boolean; potentialSavings: string; washSaleWarning: string; substitutes: Array<{ ticker: string; correlation: string; reason: string }> }; holdingPeriod: { shortTermRate: string; longTermRate: string; recommendation: string }; lotSelection: { fifo: string; specificId: string; recommendation: string }; yearEndStrategies: string[]; estimatedTaxImpact: { shortTermGain: string; longTermGain: string }; summary: string; }
+export const fetchTaxOptimizer = (s: string, n: string, p: number) => aiPost<TaxOptimizerAnalysis>("ai-tax-optimizer", { symbol: s, name: n, price: p });
+
+export interface PairsTrade { ticker: string; correlation: number; cointegration: string; currentSpread: string; signal: string; expectedReturn: string; timeframe: string; }
+export interface PairsTradeAnalysis { pairs: PairsTrade[]; bestPair: { ticker: string; rationale: string }; marketNeutral: boolean; riskFactors: string[]; summary: string; }
+export const fetchPairsTrade = (s: string, n: string, p: number) => aiPost<PairsTradeAnalysis>("ai-pairs-trade", { symbol: s, name: n, price: p });
+
+// ── ADVANCED ANALYTICS ──
+export interface RegressionFactor { factor: string; beta: number; pValue: number; significance: string; interpretation: string; }
+export interface RegressionAnalysis { rSquared: number; adjustedRSquared: number; factors: RegressionFactor[]; alpha: { annualized: string; significant: boolean }; residualVolatility: string; summary: string; }
+export const fetchRegression = (s: string, n: string, p: number) => aiPost<RegressionAnalysis>("ai-regression", { symbol: s, name: n, price: p });
+
+export interface MonthlyReturn { month: string; avgReturn: number; winRate: number; best: number; worst: number; }
+export interface SeasonalityAnalysis { monthlyReturns: MonthlyReturn[]; bestMonth: string; worstMonth: string; earningsDrift: { preEarnings: string; postEarnings: string }; dayOfWeekEffect: string; currentSeasonalBias: string; summary: string; }
+export const fetchSeasonality = (s: string, n: string, p: number) => aiPost<SeasonalityAnalysis>("ai-seasonality", { symbol: s, name: n, price: p });
+
+export interface CorrelationEntry { asset: string; correlation: number; category: string; }
+export interface CorrelationAnalysis { correlations: CorrelationEntry[]; highestCorrelation: { asset: string; value: number }; lowestCorrelation: { asset: string; value: number }; diversificationBenefit: string; regimeChanges: string; summary: string; }
+export const fetchCorrelation = (s: string, n: string, p: number) => aiPost<CorrelationAnalysis>("ai-correlation", { symbol: s, name: n, price: p });
+
+export interface VolTermEntry { expiry: string; iv: number; }
+export interface VolatilityAnalysis { impliedVolatility: { current: number; percentileRank: string; vsHistorical: string; trend: string }; historicalVolatility: { hv20: number; hv60: number; hv252: number }; volatilitySkew: { putSkew: string; callSkew: string; implication: string }; termStructure: VolTermEntry[]; termStructureShape: string; volOfVol: string; ivRank: number; ivPercentile: number; tradingImplication: string; summary: string; }
+export const fetchVolatility = (s: string, n: string, p: number) => aiPost<VolatilityAnalysis>("ai-volatility", { symbol: s, name: n, price: p });
+
+export interface MonteCarloAnalysis { simulations: number; timeHorizon: string; assumptions: { annualReturn: string; annualVolatility: string; distribution: string }; results: { medianPrice: number; meanPrice: number; percentiles: Record<string, number> }; probabilityOfProfit: string; probabilityAbove: Array<{ target: number; probability: string }>; maxDrawdown: { median: string; worst5pct: string }; expectedReturn: string; sharpeRatio: number; summary: string; }
+export const fetchMonteCarlo = (s: string, n: string, p: number) => aiPost<MonteCarloAnalysis>("ai-monte-carlo", { symbol: s, name: n, price: p });
+
+// ── ESG & GOVERNANCE ──
+export interface ESGAnalysis { overallScore: number; rating: string; environmental: { score: number; carbonEmissions: string; renewableEnergy: string; climateTarget: string; keyIssues: string[] }; social: { score: number; diversityScore: string; employeeSatisfaction: string; dataPrivacy: string; keyIssues: string[] }; governance: { score: number; boardIndependence: string; executivePayAlignment: string; shareholderRights: string; keyIssues: string[] }; peerComparison: { vsIndustry: string; percentile: string }; controversies: Array<{ issue: string; severity: string; status: string }>; esgTrend: string; summary: string; }
+export const fetchESG = (s: string, n: string, p: number) => aiPost<ESGAnalysis>("ai-esg", { symbol: s, name: n, price: p });
+
+export interface ExecCompAnalysis { ceo: { name: string; totalComp: string; baseSalary: string; bonus: string; stockAwards: string; options: string; payForPerformance: string }; cSuite: Array<{ title: string; name: string; totalComp: string }>; peerComparison: { vsPeers: string; percentile: string; medianPeerComp: string }; alignment: { stockOwnership: string; ownershipGuideline: string; meetsGuideline: boolean; vestingSchedule: string }; incentiveStructure: { shortTermMetrics: string[]; longTermMetrics: string[]; esgLinked: boolean }; concerns: string[]; summary: string; }
+export const fetchExecComp = (s: string, n: string, p: number) => aiPost<ExecCompAnalysis>("ai-exec-comp", { symbol: s, name: n, price: p });
+
+export interface BoardAnalysisData { boardSize: number; independence: string; diversity: { gender: string; ethnic: string; age: string }; expertise: Array<{ area: string; members: number }>; tenure: { average: string; longest: string; newest: string; refreshmentRate: string }; committees: { audit: string; compensation: string; nominating: string }; interlockingDirectorships: Array<{ director: string; otherBoards: string[] }>; overallScore: number; strengths: string[]; weaknesses: string[]; summary: string; }
+export const fetchBoardAnalysis = (s: string, n: string, p: number) => aiPost<BoardAnalysisData>("ai-board", { symbol: s, name: n, price: p });
+
+export interface ActivismCampaign { activist: string; year: number; campaign: string; outcome: string; stockImpact: string; }
+export interface ActivismHistoryAnalysis { activismHistory: ActivismCampaign[]; currentVulnerability: { score: number; level: string; factors: string[] }; potentialTargets: { likelyDemands: string[]; defenses: string[] }; proxyFightHistory: { total: number; won: number; lost: number; settled: number }; summary: string; }
+export const fetchActivismHistory = (s: string, n: string, p: number) => aiPost<ActivismHistoryAnalysis>("ai-activism-history", { symbol: s, name: n, price: p });
+
+export interface CorporateEvent { date: string; type: string; description: string; significance: string; expectedImpact: string; }
+export interface RecentEvent { date: string; type: string; description: string; outcome: string; stockReaction: string; }
+export interface CorporateEventsAnalysis { upcomingEvents: CorporateEvent[]; recentEvents: RecentEvent[]; corporateActions: { buybacks: { active: boolean; remaining: string; pace: string }; splits: { lastSplit: string; splitCandidate: boolean }; spinoffs: { planned: boolean } }; catalystCalendar: string; summary: string; }
+export const fetchCorporateEvents = (s: string, n: string, p: number) => aiPost<CorporateEventsAnalysis>("ai-corporate-events", { symbol: s, name: n, price: p });
