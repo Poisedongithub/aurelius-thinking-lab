@@ -18,6 +18,9 @@ export default function MarketsDashboard() {
   const navigate = useNavigate();
   const { watchlist, removeTicker, addTicker } = useWatchlist();
   const { theme, setTheme } = useTheme();
+  const isStoic = theme === "original";
+  const isOcean = theme === "ocean";
+  const isCherry = theme === "cherry-blossom";
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
@@ -81,14 +84,36 @@ export default function MarketsDashboard() {
   const losers = tickers.filter(t => t.change < 0).length;
 
   return (
-    <div className="terminal-page min-h-screen bg-[var(--t-bg)] text-[var(--t-text)]">
+    <div className={`terminal-page min-h-screen bg-[var(--t-bg)] text-[var(--t-text)] relative ${isStoic ? "stoic-grain" : ""} ${isOcean ? "ocean-shimmer" : ""} ${isCherry ? "sakura-drift" : ""}`}>
+      {/* Theme Background Images */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {isStoic && (
+          <>
+            <img src="/images/terminal-stoic-bg.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.35]" />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.55) 40%, rgba(0,0,0,0.75) 70%, rgba(0,0,0,0.92) 100%)" }} />
+          </>
+        )}
+        {isOcean && (
+          <>
+            <img src="/images/terminal-ocean-bg.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.4]" />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,15,30,0.35) 0%, rgba(0,25,45,0.5) 40%, rgba(0,20,40,0.7) 70%, rgba(0,12,25,0.9) 100%)" }} />
+          </>
+        )}
+        {isCherry && (
+          <>
+            <img src="/images/terminal-sakura-bg.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.35]" />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(15,5,10,0.35) 0%, rgba(20,8,15,0.5) 40%, rgba(15,5,10,0.7) 70%, rgba(10,2,5,0.92) 100%)" }} />
+          </>
+        )}
+      </div>
+
       {/* TradingView Ticker Tape */}
-      <div className="border-b border-[var(--t-border)]">
+      <div className="border-b border-[var(--t-border)] relative z-10">
         <TradingViewTickerTape />
       </div>
 
       {/* Header */}
-      <div className="border-b border-[var(--t-border)]" style={{ background: 'var(--t-header-gradient)' }}>
+      <div className="border-b border-[var(--t-border)] relative z-10" style={{ background: 'var(--t-header-gradient)', backdropFilter: 'blur(20px) saturate(180%)' }}>
         <div className="max-w-5xl mx-auto px-5 pt-10 pb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -187,7 +212,7 @@ export default function MarketsDashboard() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-5 py-6">
+      <div className="max-w-5xl mx-auto px-5 py-6 relative z-10">
         {/* Category Tabs */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-1 scrollbar-hide">
           {categories.map((cat) => (

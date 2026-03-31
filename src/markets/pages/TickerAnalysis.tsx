@@ -86,6 +86,9 @@ export default function TickerAnalysis() {
   const navigate = useNavigate();
   const { isInWatchlist, toggleTicker } = useWatchlist();
   const { theme, setTheme } = useTheme();
+  const isStoic = theme === "original";
+  const isOcean = theme === "ocean";
+  const isCherry = theme === "cherry-blossom";
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [quote, setQuote] = useState<LiveQuote | null>(null);
   const [loading, setLoading] = useState(true);
@@ -305,7 +308,29 @@ export default function TickerAnalysis() {
   const TABS = TAB_GROUPS.flatMap(g => g.tabs);
 
   return (
-    <div className="terminal-page min-h-screen bg-[var(--t-bg)] text-[var(--t-text)]">
+    <div className={`terminal-page min-h-screen bg-[var(--t-bg)] text-[var(--t-text)] relative ${isStoic ? "stoic-grain" : ""} ${isOcean ? "ocean-shimmer" : ""} ${isCherry ? "sakura-drift" : ""}`}>
+      {/* Theme Background Images */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {isStoic && (
+          <>
+            <img src="/images/terminal-stoic-bg.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.35]" />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.55) 40%, rgba(0,0,0,0.75) 70%, rgba(0,0,0,0.92) 100%)" }} />
+          </>
+        )}
+        {isOcean && (
+          <>
+            <img src="/images/terminal-ocean-bg.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.4]" />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,15,30,0.35) 0%, rgba(0,25,45,0.5) 40%, rgba(0,20,40,0.7) 70%, rgba(0,12,25,0.9) 100%)" }} />
+          </>
+        )}
+        {isCherry && (
+          <>
+            <img src="/images/terminal-sakura-bg.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.35]" />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(15,5,10,0.35) 0%, rgba(20,8,15,0.5) 40%, rgba(15,5,10,0.7) 70%, rgba(10,2,5,0.92) 100%)" }} />
+          </>
+        )}
+      </div>
+
       {/* Sticky Header */}
       <div className="sticky top-0 z-20 border-b border-[var(--t-border)]" style={{ background: 'var(--t-header-gradient)', backdropFilter: 'blur(20px) saturate(180%)' }}>
         <div className="max-w-6xl mx-auto px-5 py-4">
@@ -438,7 +463,7 @@ export default function TickerAnalysis() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-5 py-6 space-y-4">
+      <div className="max-w-6xl mx-auto px-5 py-6 space-y-4 relative z-10">
         {/* Stats Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
           <MiniStat label="MARKET CAP" value={quote.marketCap ? formatMarketCap(quote.marketCap) : "—"} />

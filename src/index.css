@@ -451,7 +451,7 @@
   --t-glow-accent: rgba(255,255,255,0.06);
   --t-gradient-start: #060606;
   --t-gradient-end: #0c0c0c;
-  --t-header-gradient: linear-gradient(180deg, #0a0a0a 0%, #060606 100%);
+  --t-header-gradient: linear-gradient(180deg, rgba(10,10,10,0.75) 0%, rgba(6,6,6,0.85) 100%);
   --t-stat-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 1px rgba(255,255,255,0.05);
   --t-card-shadow: 0 4px 16px rgba(0,0,0,0.4), 0 0 1px rgba(255,255,255,0.05);
   --t-active-glow: 0 0 12px rgba(255,255,255,0.06);
@@ -493,7 +493,7 @@
   --t-glow-accent: rgba(214,39,90,0.10);
   --t-gradient-start: #1a0a10;
   --t-gradient-end: #220e16;
-  --t-header-gradient: linear-gradient(180deg, #220e16 0%, #1a0a10 100%);
+  --t-header-gradient: linear-gradient(180deg, rgba(34,14,22,0.72) 0%, rgba(26,10,16,0.82) 100%);
   --t-stat-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 1px rgba(214,39,90,0.15);
   --t-card-shadow: 0 4px 16px rgba(0,0,0,0.4), 0 0 1px rgba(214,39,90,0.15);
   --t-active-glow: 0 0 12px rgba(214,39,90,0.15);
@@ -535,7 +535,7 @@
   --t-glow-accent: rgba(6,153,186,0.10);
   --t-gradient-start: #041a22;
   --t-gradient-end: #062430;
-  --t-header-gradient: linear-gradient(180deg, #062430 0%, #041a22 100%);
+  --t-header-gradient: linear-gradient(180deg, rgba(6,36,48,0.72) 0%, rgba(4,26,34,0.82) 100%);
   --t-stat-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 1px rgba(6,153,186,0.15);
   --t-card-shadow: 0 4px 16px rgba(0,0,0,0.4), 0 0 1px rgba(6,153,186,0.15);
   --t-active-glow: 0 0 12px rgba(6,153,186,0.15);
@@ -575,15 +575,19 @@
   box-shadow: var(--t-active-glow);
 }
 
-/* Stat card hover lift */
+/* Stat card hover lift + glassmorphism */
 .stat-card {
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: var(--t-stat-shadow);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
 }
 .stat-card:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow: var(--t-card-shadow);
   border-color: var(--t-border-hover);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
 }
 
 /* Ticker row hover */
@@ -633,23 +637,24 @@
   margin: 1rem 0;
 }
 
-/* Content card */
+/* Content card + glassmorphism */
 .content-card {
   background: var(--t-stat-bg);
   border: 1px solid var(--t-border);
   border-radius: 0.75rem;
   box-shadow: var(--t-stat-shadow);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
 }
 .content-card:hover {
   border-color: var(--t-border-hover);
   box-shadow: var(--t-card-shadow);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
 }
 
-/* Subtle background pattern */
+/* Terminal page base - no radial gradient since we have real images now */
 .terminal-page {
-  background-image: 
-    radial-gradient(ellipse at 50% 0%, var(--t-glow) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 80%, var(--t-glow-accent) 0%, transparent 40%);
   background-attachment: fixed;
 }
