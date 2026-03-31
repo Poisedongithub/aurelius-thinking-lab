@@ -181,6 +181,21 @@ export default function TickerAnalysis() {
     }
   };
 
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(["OVERVIEW"]));
+  const toggleGroup = (group: string) => {
+    setExpandedGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(group)) next.delete(group); else next.add(group);
+      return next;
+    });
+  };
+
+  const GROUP_ICONS: Record<string, string> = {
+    OVERVIEW: "\u{1F4CA}", COMPANY: "\u{1F3E2}", MARKET: "\u{1F30D}", OWNERSHIP: "\u{1F465}",
+    EARNINGS: "\u{1F4B0}", RESEARCH: "\u{1F50D}", TECHNICALS: "\u{1F4C8}", MACRO: "\u{1F3DB}",
+    SENTIMENT: "\u{1F4AC}", STRATEGY: "\u{1F3AF}", ANALYTICS: "\u{1F9EE}", ESG: "\u{1F331}", AI: "\u{1F916}",
+  };
+
   if (loading) {
     return (
       <div className="terminal-page min-h-screen bg-[var(--t-bg)] flex items-center justify-center text-[var(--t-text)]">
@@ -306,21 +321,6 @@ export default function TickerAnalysis() {
     ]},
   ];
   const TABS = TAB_GROUPS.flatMap(g => g.tabs);
-
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(["OVERVIEW"]));
-  const toggleGroup = (group: string) => {
-    setExpandedGroups(prev => {
-      const next = new Set(prev);
-      if (next.has(group)) next.delete(group); else next.add(group);
-      return next;
-    });
-  };
-
-  const GROUP_ICONS: Record<string, string> = {
-    OVERVIEW: "\u{1F4CA}", COMPANY: "\u{1F3E2}", MARKET: "\u{1F30D}", OWNERSHIP: "\u{1F465}",
-    EARNINGS: "\u{1F4B0}", RESEARCH: "\u{1F50D}", TECHNICALS: "\u{1F4C8}", MACRO: "\u{1F3DB}",
-    SENTIMENT: "\u{1F4AC}", STRATEGY: "\u{1F3AF}", ANALYTICS: "\u{1F9EE}", ESG: "\u{1F331}", AI: "\u{1F916}",
-  };
 
   return (
     <div className={`terminal-page min-h-screen bg-[var(--t-bg)] text-[var(--t-text)] relative ${isStoic ? "stoic-grain" : ""} ${isOcean ? "ocean-shimmer" : ""} ${isCherry ? "sakura-drift" : ""}`}>
