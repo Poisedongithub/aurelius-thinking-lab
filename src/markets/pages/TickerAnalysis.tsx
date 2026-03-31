@@ -307,6 +307,21 @@ export default function TickerAnalysis() {
   ];
   const TABS = TAB_GROUPS.flatMap(g => g.tabs);
 
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(["OVERVIEW"]));
+  const toggleGroup = (group: string) => {
+    setExpandedGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(group)) next.delete(group); else next.add(group);
+      return next;
+    });
+  };
+
+  const GROUP_ICONS: Record<string, string> = {
+    OVERVIEW: "\u{1F4CA}", COMPANY: "\u{1F3E2}", MARKET: "\u{1F30D}", OWNERSHIP: "\u{1F465}",
+    EARNINGS: "\u{1F4B0}", RESEARCH: "\u{1F50D}", TECHNICALS: "\u{1F4C8}", MACRO: "\u{1F3DB}",
+    SENTIMENT: "\u{1F4AC}", STRATEGY: "\u{1F3AF}", ANALYTICS: "\u{1F9EE}", ESG: "\u{1F331}", AI: "\u{1F916}",
+  };
+
   return (
     <div className={`terminal-page min-h-screen bg-[var(--t-bg)] text-[var(--t-text)] relative ${isStoic ? "stoic-grain" : ""} ${isOcean ? "ocean-shimmer" : ""} ${isCherry ? "sakura-drift" : ""}`}>
       {/* Theme Background Images */}
@@ -331,148 +346,175 @@ export default function TickerAnalysis() {
         )}
       </div>
 
-      {/* Sticky Header */}
-      <div className="sticky top-0 z-20 border-b border-[var(--t-border)]" style={{ background: 'var(--t-header-gradient)', backdropFilter: 'blur(20px) saturate(180%)' }}>
-        <div className="max-w-6xl mx-auto px-5 py-4">
-          <div className="flex items-center justify-between mb-2">
-            <button onClick={() => navigate("/markets")} className="text-[14px] text-[var(--t-text-muted)] hover:text-[var(--t-text-secondary)] font-mono tracking-wide transition-colors">← DASHBOARD</button>
-            <div className="flex items-center gap-3">
-              {quote && (
-                <button
-                  onClick={() => toggleTicker(quote.symbol)}
-                  className={`flex items-center gap-1.5 text-[14px] font-mono px-2.5 py-1 rounded-full transition-all ${
-                    isInWatchlist(quote.symbol)
-                      ? "text-amber-400 bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20"
-                      : "text-[var(--t-text-muted)] bg-[var(--t-btn-bg)] border border-[var(--t-border)] hover:text-[var(--t-text-secondary)] hover:bg-[var(--t-btn-hover)]"
-                  }`}
-                >
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill={isInWatchlist(quote.symbol) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
-                    <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                  </svg>
-                  {isInWatchlist(quote.symbol) ? "WATCHING" : "WATCH"}
-                </button>
+      {/* ═══ SIDEBAR + MAIN LAYOUT ═══ */}
+      <div className="flex min-h-screen relative z-10">
+
+        {/* ── LEFT SIDEBAR ── */}
+        <aside className="w-[280px] min-w-[280px] border-r border-[var(--t-border)] flex flex-col sticky top-0 h-screen overflow-y-auto scrollbar-hide" style={{ background: 'var(--t-header-gradient)', backdropFilter: 'blur(20px) saturate(180%)' }}>
+
+          {/* Back Button */}
+          <div className="px-5 pt-4 pb-2">
+            <button onClick={() => navigate("/markets")} className="text-[13px] text-[var(--t-text-muted)] hover:text-[var(--t-text-secondary)] font-mono tracking-wide transition-colors flex items-center gap-1.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+              DASHBOARD
+            </button>
+          </div>
+
+          {/* Company Info */}
+          <div className="px-5 py-4 border-b border-[var(--t-border)]">
+            <div className="flex items-center gap-2 mb-1">
+              <h1 className="text-2xl font-bold font-mono tracking-wide text-gradient">{quote.symbol}</h1>
+              {quote.sector && (
+                <span className="text-[10px] font-mono text-[var(--t-text-muted)] bg-[var(--t-btn-bg)] px-1.5 py-0.5 rounded tracking-wider">{quote.sector.toUpperCase()}</span>
               )}
-              <span className="flex items-center gap-1.5 text-[14px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+            </div>
+            <p className="text-[12px] text-[var(--t-text-muted)] tracking-wide mb-3">{quote.name}</p>
+            <div className="text-2xl font-bold font-mono text-[var(--t-text)] tabular-nums">${quote.price.toFixed(2)}</div>
+            <span className={`inline-flex items-center gap-1 text-sm font-mono font-semibold tabular-nums mt-1 px-2 py-0.5 rounded-md ${isUp ? "text-emerald-400 bg-emerald-500/10" : "text-red-400 bg-red-500/10"}`}>
+              <svg width="8" height="8" viewBox="0 0 12 12" fill="none" className={isUp ? "" : "rotate-180"}>
+                <path d="M6 2L10 7H2L6 2Z" fill="currentColor" />
+              </svg>
+              {isUp ? "+" : ""}{pct.toFixed(2)}%
+            </span>
+
+            {/* Quick Stats */}
+            <div className="grid grid-cols-2 gap-2 mt-4">
+              <div className="bg-[var(--t-stat-bg)] rounded-lg px-2.5 py-2 border border-[var(--t-border)]">
+                <div className="text-[9px] text-[var(--t-text-dim)] font-mono tracking-wider">MKT CAP</div>
+                <div className="text-[13px] font-bold text-[var(--t-text)] font-mono">{quote.marketCap ? formatMarketCap(quote.marketCap) : "\u2014"}</div>
+              </div>
+              <div className="bg-[var(--t-stat-bg)] rounded-lg px-2.5 py-2 border border-[var(--t-border)]">
+                <div className="text-[9px] text-[var(--t-text-dim)] font-mono tracking-wider">VOLUME</div>
+                <div className="text-[13px] font-bold text-[var(--t-text)] font-mono">{formatVol(quote.volume)}</div>
+              </div>
+              <div className="bg-[var(--t-stat-bg)] rounded-lg px-2.5 py-2 border border-[var(--t-border)]">
+                <div className="text-[9px] text-[var(--t-text-dim)] font-mono tracking-wider">52W HIGH</div>
+                <div className="text-[13px] font-bold text-[var(--t-text)] font-mono">{quote.fiftyTwoWeekHigh ? `$${quote.fiftyTwoWeekHigh.toFixed(2)}` : "\u2014"}</div>
+              </div>
+              <div className="bg-[var(--t-stat-bg)] rounded-lg px-2.5 py-2 border border-[var(--t-border)]">
+                <div className="text-[9px] text-[var(--t-text-dim)] font-mono tracking-wider">52W LOW</div>
+                <div className="text-[13px] font-bold text-[var(--t-text)] font-mono">{quote.fiftyTwoWeekLow ? `$${quote.fiftyTwoWeekLow.toFixed(2)}` : "\u2014"}</div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-2 mt-3">
+              <button
+                onClick={() => toggleTicker(quote.symbol)}
+                className={`flex-1 flex items-center justify-center gap-1.5 text-[12px] font-mono px-2 py-1.5 rounded-lg transition-all ${
+                  isInWatchlist(quote.symbol)
+                    ? "text-amber-400 bg-amber-500/10 border border-amber-500/20"
+                    : "text-[var(--t-text-muted)] bg-[var(--t-btn-bg)] border border-[var(--t-border)] hover:bg-[var(--t-btn-hover)]"
+                }`}
+              >
+                <svg width="10" height="10" viewBox="0 0 24 24" fill={isInWatchlist(quote.symbol) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
+                  <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                </svg>
+                {isInWatchlist(quote.symbol) ? "WATCHING" : "WATCH"}
+              </button>
+              <span className="flex items-center gap-1 text-[12px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-lg">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 LIVE
               </span>
-              {/* Theme Switcher */}
-              <div className="relative">
+            </div>
+          </div>
+
+          {/* Navigation Groups */}
+          <nav className="flex-1 py-2 overflow-y-auto scrollbar-hide">
+            {TAB_GROUPS.map(({ group, tabs }) => (
+              <div key={group} className="mb-0.5">
                 <button
-                  onClick={() => setShowThemePicker(!showThemePicker)}
-                  className="flex items-center gap-1.5 text-[14px] font-mono text-[var(--t-text-muted)] bg-[var(--t-btn-bg)] border border-[var(--t-border)] px-2.5 py-1 rounded-full hover:text-[var(--t-text-secondary)] hover:bg-[var(--t-btn-hover)] transition-all"
+                  onClick={() => {
+                    toggleGroup(group);
+                    if (!expandedGroups.has(group)) {
+                      setActiveTab(tabs[0].key);
+                    }
+                  }}
+                  className={`w-full flex items-center gap-2.5 px-5 py-2.5 text-left transition-all duration-200 ${
+                    TAB_GROUPS.find(g => g.tabs.some(t => t.key === activeTab))?.group === group
+                      ? "text-[var(--t-text)] bg-[var(--t-group-active)]"
+                      : "text-[var(--t-text-muted)] hover:text-[var(--t-text-secondary)] hover:bg-[var(--t-btn-bg)]"
+                  }`}
                 >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                  <span className="text-[14px]">{GROUP_ICONS[group] || ""}</span>
+                  <span className="text-[13px] font-mono tracking-wider font-medium flex-1">{group}</span>
+                  <svg
+                    width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                    className={`transition-transform duration-200 ${expandedGroups.has(group) ? "rotate-90" : ""}`}
+                  >
+                    <path d="M9 18l6-6-6-6" />
                   </svg>
-                  THEME
                 </button>
-                {showThemePicker && (
-                  <div className="absolute right-0 top-full mt-2 bg-[var(--t-bg-elevated)] border border-[var(--t-border-hover)] rounded-xl shadow-2xl z-50 p-3 min-w-[200px]">
-                    <div className="text-[11px] font-mono text-[var(--t-text-muted)] tracking-wider mb-2">TERMINAL THEME</div>
-                    {themes.map((t) => (
+                {expandedGroups.has(group) && (
+                  <div className="pb-1">
+                    {tabs.map(({ key, label }) => (
                       <button
-                        key={t.id}
-                        onClick={() => { setTheme(t.id); setShowThemePicker(false); }}
-                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all mb-1 ${
-                          theme === t.id
-                            ? "bg-[var(--t-group-active)] border border-[var(--t-border-hover)]"
-                            : "hover:bg-[var(--t-btn-hover)] border border-transparent"
+                        key={key}
+                        onClick={() => setActiveTab(key)}
+                        className={`w-full text-left pl-12 pr-5 py-2 text-[13px] font-mono tracking-wide transition-all duration-150 ${
+                          activeTab === key
+                            ? "text-[var(--t-text)] bg-[var(--t-accent)]/10 border-l-2 border-[var(--t-accent)] font-semibold"
+                            : "text-[var(--t-text-dim)] hover:text-[var(--t-text-secondary)] hover:bg-[var(--t-btn-bg)] border-l-2 border-transparent"
                         }`}
                       >
-                        <div className="flex gap-1">
-                          <div className="w-4 h-4 rounded-full border border-[var(--t-border)]" style={{ backgroundColor: t.preview.bg }} />
-                          <div className="w-4 h-4 rounded-full border border-[var(--t-border)]" style={{ backgroundColor: t.preview.accent }} />
-                          <div className="w-4 h-4 rounded-full border border-[var(--t-border)]" style={{ backgroundColor: t.preview.text }} />
-                        </div>
-                        <div className="text-left">
-                          <div className={`text-[13px] font-medium ${theme === t.id ? "text-[var(--t-text)]" : "text-[var(--t-text-secondary)]"}`}>{t.name}</div>
-                          <div className="text-[10px] text-[var(--t-text-muted)]">{t.description}</div>
-                        </div>
-                        {theme === t.id && (
-                          <svg className="w-4 h-4 ml-auto text-[var(--t-accent)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        )}
+                        {label}
                       </button>
                     ))}
                   </div>
                 )}
               </div>
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-4xl font-bold font-mono tracking-wide text-gradient">{quote.symbol}</h1>
-                {quote.sector && (
-                  <span className="text-[13px] font-mono text-[var(--t-text-muted)] bg-[var(--t-btn-bg)] px-2 py-0.5 rounded-md tracking-wider">{quote.sector.toUpperCase()}</span>
-                )}
-              </div>
-              <p className="text-[14px] text-[var(--t-text-muted)] mt-1 tracking-wide">{quote.name} <span className="text-[var(--t-text-dim)]">·</span> {quote.exchange}</p>
-            </div>
-            <div className="text-right">
-              <div className="text-4xl font-bold font-mono text-[var(--t-text)] tabular-nums tracking-tight">${quote.price.toFixed(2)}</div>
-              <div className="flex items-center gap-2 justify-end mt-1">
-                <span className={`inline-flex items-center gap-1 text-lg font-mono font-semibold tabular-nums px-2 py-0.5 rounded-md ${isUp ? "text-emerald-400 bg-emerald-500/10" : "text-red-400 bg-red-500/10"}`}>
-                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none" className={isUp ? "" : "rotate-180"}>
-                    <path d="M6 2L10 7H2L6 2Z" fill="currentColor" />
-                  </svg>
-                  {isUp ? "+" : ""}{pct.toFixed(2)}%
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Group Selector Row */}
-          <div className="flex gap-1.5 mt-4 overflow-x-auto scrollbar-hide pb-0.5">
-            {TAB_GROUPS.map(({ group }) => (
-              <button
-                key={group}
-                onClick={() => {
-                  setActiveGroup(group);
-                  const firstTab = TAB_GROUPS.find(g => g.group === group)?.tabs[0];
-                  if (firstTab) setActiveTab(firstTab.key);
-                }}
-                className={`px-4 py-2 text-[13px] font-mono tracking-wider rounded-lg transition-all duration-200 whitespace-nowrap ${
-                  activeGroup === group
-                    ? "bg-[var(--t-group-active)] text-[var(--t-text)] font-semibold group-active-pill border border-[var(--t-border-hover)]"
-                    : "text-[var(--t-text-muted)] hover:text-[var(--t-text-secondary)] hover:bg-[var(--t-btn-bg)] border border-transparent"
-                }`}
-              >
-                {group}
-              </button>
             ))}
-          </div>
-          {/* Divider */}
-          <div className="section-divider mt-2" />
-          {/* Tab Buttons for Active Group */}
-          <div className="flex gap-1 mt-1 -mb-[1px] overflow-x-auto scrollbar-hide">
-            {TAB_GROUPS.find(g => g.group === activeGroup)?.tabs.map(({ key, label }) => (
-              <button
-                key={key}
-                onClick={() => setActiveTab(key)}
-                className={`px-4 py-2.5 text-[14px] font-mono tracking-wider transition-all duration-200 whitespace-nowrap relative ${
-                  activeTab === key
-                    ? "text-[var(--t-text)] font-semibold tab-active-underline"
-                    : "text-[var(--t-text-muted)] hover:text-[var(--t-text-secondary)] rounded-lg hover:bg-[var(--t-stat-bg)]"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+          </nav>
 
-      <div className="max-w-6xl mx-auto px-5 py-6 space-y-4 relative z-10">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-          <MiniStat label="MARKET CAP" value={quote.marketCap ? formatMarketCap(quote.marketCap) : "—"} />
-          <MiniStat label="VOLUME" value={formatVol(quote.volume)} />
-          <MiniStat label="52W HIGH" value={quote.fiftyTwoWeekHigh ? `$${quote.fiftyTwoWeekHigh.toFixed(2)}` : "—"} />
-          <MiniStat label="52W LOW" value={quote.fiftyTwoWeekLow ? `$${quote.fiftyTwoWeekLow.toFixed(2)}` : "—"} />
-          <MiniStat label="DAY HIGH" value={quote.dayHigh ? `$${Number(quote.dayHigh).toFixed(2)}` : "—"} />
-          <MiniStat label="DAY LOW" value={quote.dayLow ? `$${Number(quote.dayLow).toFixed(2)}` : "—"} />
-        </div>
+          {/* Theme Switcher at Bottom */}
+          <div className="border-t border-[var(--t-border)] p-4">
+            <div className="relative">
+              <button
+                onClick={() => setShowThemePicker(!showThemePicker)}
+                className="w-full flex items-center gap-2 text-[12px] font-mono text-[var(--t-text-muted)] bg-[var(--t-btn-bg)] border border-[var(--t-border)] px-3 py-2 rounded-lg hover:text-[var(--t-text-secondary)] hover:bg-[var(--t-btn-hover)] transition-all"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+                <span className="flex-1 text-left">THEME</span>
+                <div className="flex gap-0.5">
+                  {themes.map(t => <div key={t.id} className="w-3 h-3 rounded-full" style={{ backgroundColor: t.preview.accent }} />)}
+                </div>
+              </button>
+              {showThemePicker && (
+                <div className="absolute left-0 bottom-full mb-2 bg-[var(--t-bg-elevated)] border border-[var(--t-border-hover)] rounded-xl shadow-2xl z-50 p-3 w-full">
+                  <div className="text-[10px] font-mono text-[var(--t-text-muted)] tracking-wider mb-2">TERMINAL THEME</div>
+                  {themes.map((t) => (
+                    <button
+                      key={t.id}
+                      onClick={() => { setTheme(t.id); setShowThemePicker(false); }}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all mb-1 ${
+                        theme === t.id
+                          ? "bg-[var(--t-group-active)] border border-[var(--t-border-hover)]"
+                          : "hover:bg-[var(--t-btn-hover)] border border-transparent"
+                      }`}
+                    >
+                      <div className="flex gap-0.5">
+                        <div className="w-3.5 h-3.5 rounded-full border border-[var(--t-border)]" style={{ backgroundColor: t.preview.bg }} />
+                        <div className="w-3.5 h-3.5 rounded-full border border-[var(--t-border)]" style={{ backgroundColor: t.preview.accent }} />
+                      </div>
+                      <div className="text-left flex-1">
+                        <div className={`text-[12px] font-medium ${theme === t.id ? "text-[var(--t-text)]" : "text-[var(--t-text-secondary)]"}`}>{t.name}</div>
+                      </div>
+                      {theme === t.id && (
+                        <svg className="w-3.5 h-3.5 text-[var(--t-accent)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </aside>
+
+        {/* ── MAIN CONTENT AREA ── */}
+        <main className="flex-1 overflow-y-auto min-h-screen">
+          <div className="max-w-5xl mx-auto px-6 py-6 space-y-4">
 
         {/* ═══ CHART TAB ═══ */}
         {activeTab === "chart" && (
@@ -1154,12 +1196,14 @@ export default function TickerAnalysis() {
         {activeTab === "activismhistory" && <ActivismHistoryTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
         {activeTab === "corporateevents" && <CorporateEventsTab symbol={quote.symbol} name={quote.name} price={quote.price} />}
 
-        <div className="text-center mt-16 pb-8">
-          <div className="section-divider mb-6" />
-          <p className="text-[13px] text-[var(--t-text-dim)] font-mono tracking-[0.1em]">
-            Charts by TradingView <span className="text-[var(--t-border-hover)]">·</span> Live data via Massive API <span className="text-[var(--t-border-hover)]">·</span> Analysis powered by DeepSeek AI
-          </p>
-        </div>
+          <div className="text-center mt-16 pb-8">
+            <div className="section-divider mb-6" />
+            <p className="text-[13px] text-[var(--t-text-dim)] font-mono tracking-[0.1em]">
+              Charts by TradingView <span className="text-[var(--t-border-hover)]">\u00b7</span> Live data via Massive API <span className="text-[var(--t-border-hover)]">\u00b7</span> Analysis powered by DeepSeek AI
+            </p>
+          </div>
+          </div>
+        </main>
       </div>
 
       <JacobChat symbol={quote.symbol} name={quote.name} price={quote.price} change={quote.change || 0} />
