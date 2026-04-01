@@ -89,20 +89,20 @@ export default function MarketsDashboard() {
       <div className="fixed inset-0 pointer-events-none z-0">
         {isStoic && (
           <>
-            <img src="/images/terminal-stoic-bg.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.35]" />
-            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.55) 40%, rgba(0,0,0,0.75) 70%, rgba(0,0,0,0.92) 100%)" }} />
+            <img src="/images/terminal-stoic-bg.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.15]" />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.85) 40%, rgba(0,0,0,0.92) 70%, rgba(0,0,0,0.97) 100%)" }} />
           </>
         )}
         {isOcean && (
           <>
-            <img src="/images/terminal-ocean-bg.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.4]" />
-            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,15,30,0.35) 0%, rgba(0,25,45,0.5) 40%, rgba(0,20,40,0.7) 70%, rgba(0,12,25,0.9) 100%)" }} />
+            <img src="/images/terminal-ocean-bg.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.2]" />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,15,30,0.7) 0%, rgba(0,25,45,0.82) 40%, rgba(0,20,40,0.92) 70%, rgba(0,12,25,0.97) 100%)" }} />
           </>
         )}
         {isCherry && (
           <>
-            <img src="/images/terminal-sakura-bg.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.35]" />
-            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(15,5,10,0.35) 0%, rgba(20,8,15,0.5) 40%, rgba(15,5,10,0.7) 70%, rgba(10,2,5,0.92) 100%)" }} />
+            <img src="/images/terminal-sakura-bg.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.15]" />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(15,5,10,0.7) 0%, rgba(20,8,15,0.82) 40%, rgba(15,5,10,0.92) 70%, rgba(10,2,5,0.97) 100%)" }} />
           </>
         )}
       </div>

@@ -441,7 +441,7 @@
   --t-tab-active: rgba(255,255,255,0.14);
   --t-btn-bg: rgba(255,255,255,0.06);
   --t-btn-hover: rgba(255,255,255,0.10);
-  --t-stat-bg: rgba(255,255,255,0.03);
+  --t-stat-bg: rgba(6,6,6,0.85);
   --t-stat-border: rgba(255,255,255,0.06);
   --t-gen-bg: rgba(255,255,255,0.06);
   --t-gen-hover: rgba(255,255,255,0.10);
@@ -451,7 +451,7 @@
   --t-glow-accent: rgba(255,255,255,0.06);
   --t-gradient-start: #060606;
   --t-gradient-end: #0c0c0c;
-  --t-header-gradient: linear-gradient(180deg, rgba(10,10,10,0.75) 0%, rgba(6,6,6,0.85) 100%);
+  --t-header-gradient: linear-gradient(180deg, rgba(10,10,10,0.92) 0%, rgba(6,6,6,0.95) 100%);
   --t-stat-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 1px rgba(255,255,255,0.05);
   --t-card-shadow: 0 4px 16px rgba(0,0,0,0.4), 0 0 1px rgba(255,255,255,0.05);
   --t-active-glow: 0 0 12px rgba(255,255,255,0.06);
@@ -483,7 +483,7 @@
   --t-tab-active: rgba(214,39,90,0.20);
   --t-btn-bg: rgba(214,39,90,0.10);
   --t-btn-hover: rgba(214,39,90,0.18);
-  --t-stat-bg: rgba(214,39,90,0.06);
+  --t-stat-bg: rgba(26,10,16,0.88);
   --t-stat-border: rgba(214,39,90,0.12);
   --t-gen-bg: rgba(214,39,90,0.15);
   --t-gen-hover: rgba(214,39,90,0.25);
@@ -493,7 +493,7 @@
   --t-glow-accent: rgba(214,39,90,0.10);
   --t-gradient-start: #1a0a10;
   --t-gradient-end: #220e16;
-  --t-header-gradient: linear-gradient(180deg, rgba(34,14,22,0.72) 0%, rgba(26,10,16,0.82) 100%);
+  --t-header-gradient: linear-gradient(180deg, rgba(34,14,22,0.92) 0%, rgba(26,10,16,0.95) 100%);
   --t-stat-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 1px rgba(214,39,90,0.15);
   --t-card-shadow: 0 4px 16px rgba(0,0,0,0.4), 0 0 1px rgba(214,39,90,0.15);
   --t-active-glow: 0 0 12px rgba(214,39,90,0.15);
@@ -525,7 +525,7 @@
   --t-tab-active: rgba(6,153,186,0.20);
   --t-btn-bg: rgba(6,153,186,0.10);
   --t-btn-hover: rgba(6,153,186,0.18);
-  --t-stat-bg: rgba(6,153,186,0.06);
+  --t-stat-bg: rgba(4,26,34,0.88);
   --t-stat-border: rgba(6,153,186,0.12);
   --t-gen-bg: rgba(6,153,186,0.15);
   --t-gen-hover: rgba(6,153,186,0.25);
@@ -535,7 +535,7 @@
   --t-glow-accent: rgba(6,153,186,0.10);
   --t-gradient-start: #041a22;
   --t-gradient-end: #062430;
-  --t-header-gradient: linear-gradient(180deg, rgba(6,36,48,0.72) 0%, rgba(4,26,34,0.82) 100%);
+  --t-header-gradient: linear-gradient(180deg, rgba(6,36,48,0.92) 0%, rgba(4,26,34,0.95) 100%);
   --t-stat-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 1px rgba(6,153,186,0.15);
   --t-card-shadow: 0 4px 16px rgba(0,0,0,0.4), 0 0 1px rgba(6,153,186,0.15);
   --t-active-glow: 0 0 12px rgba(6,153,186,0.15);
