@@ -190,11 +190,7 @@ export default function TickerAnalysis() {
     });
   };
 
-  const GROUP_ICONS: Record<string, string> = {
-    OVERVIEW: "\u{1F4CA}", COMPANY: "\u{1F3E2}", MARKET: "\u{1F30D}", OWNERSHIP: "\u{1F465}",
-    EARNINGS: "\u{1F4B0}", RESEARCH: "\u{1F50D}", TECHNICALS: "\u{1F4C8}", MACRO: "\u{1F3DB}",
-    SENTIMENT: "\u{1F4AC}", STRATEGY: "\u{1F3AF}", ANALYTICS: "\u{1F9EE}", ESG: "\u{1F331}", AI: "\u{1F916}",
-  };
+  const GROUP_ICONS: Record<string, string> = {};
 
   if (loading) {
     return (

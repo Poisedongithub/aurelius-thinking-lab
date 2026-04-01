@@ -202,7 +202,7 @@ export default function JacobResearch() {
         {/* Empty state */}
         {!selectedSymbol && (
           <div className="text-center py-16">
-            <div className="text-5xl mb-4 opacity-10">🧠</div>
+            <div className="text-5xl mb-4 opacity-10 font-mono">*</div>
             <div className="text-[var(--t-text-muted)] text-xs font-mono mb-1">Search for any ticker above</div>
             <div className="text-[var(--t-text-dim)] text-[14px] font-mono">Jacob will give you the real breakdown — no corporate polish</div>
           </div>
