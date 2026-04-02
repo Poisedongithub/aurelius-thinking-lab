@@ -89,6 +89,7 @@ export default function TickerAnalysis() {
   const isStoic = theme === "original";
   const isOcean = theme === "ocean";
   const isCherry = theme === "cherry-blossom";
+  const isSteinberg = theme === "steinberg";
 
   const [quote, setQuote] = useState<LiveQuote | null>(null);
   const [loading, setLoading] = useState(true);
@@ -319,7 +320,7 @@ export default function TickerAnalysis() {
   const TABS = TAB_GROUPS.flatMap(g => g.tabs);
 
   return (
-    <div className={`terminal-page min-h-screen bg-[var(--t-bg)] text-[var(--t-text)] relative ${isStoic ? "stoic-grain" : ""} ${isOcean ? "ocean-shimmer" : ""} ${isCherry ? "sakura-drift" : ""}`}>
+    <div className={`terminal-page min-h-screen bg-[var(--t-bg)] text-[var(--t-text)] relative ${isStoic ? "stoic-grain" : ""} ${isOcean ? "ocean-shimmer" : ""} ${isCherry ? "sakura-drift" : ""} `}>
       {/* Theme Background Images */}
       <div className="fixed inset-0 pointer-events-none z-0">
         {isStoic && (
@@ -340,6 +341,7 @@ export default function TickerAnalysis() {
             <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(15,5,10,0.7) 0%, rgba(20,8,15,0.82) 40%, rgba(15,5,10,0.92) 70%, rgba(10,2,5,0.97) 100%)" }} />
           </>
         )}
+
       </div>
 
       {/* ═══ SIDEBAR + MAIN LAYOUT ═══ */}

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
-export type ThemeId = "cherry-blossom" | "original" | "ocean";
+export type ThemeId = "cherry-blossom" | "original" | "ocean" | "steinberg";
 
 export interface ThemeOption {
   id: ThemeId;
@@ -28,6 +28,12 @@ export const themes: ThemeOption[] = [
     description: "Tropical teal & sand",
     preview: { bg: "#dfdcd2", accent: "#0699ba", text: "#006895" },
   },
+  {
+    id: "steinberg",
+    name: "Steinberg Ultimate",
+    description: "Bloomberg terminal",
+    preview: { bg: "#000000", accent: "#FF8C00", text: "#FFFFFF" },
+  },
 ];
 
 interface ThemeContextType {
@@ -46,6 +52,7 @@ const glowColors: Record<ThemeId, string> = {
   "cherry-blossom": "hsl(345 70% 50%)",
   "original": "hsl(0 0% 30%)",
   "ocean": "hsl(191 94% 38%)",
+  "steinberg": "hsl(33 100% 50%)",
 };
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {

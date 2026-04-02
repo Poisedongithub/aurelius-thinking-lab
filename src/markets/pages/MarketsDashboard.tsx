@@ -21,6 +21,7 @@ export default function MarketsDashboard() {
   const isStoic = theme === "original";
   const isOcean = theme === "ocean";
   const isCherry = theme === "cherry-blossom";
+  const isSteinberg = theme === "steinberg";
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
@@ -84,7 +85,7 @@ export default function MarketsDashboard() {
   const losers = tickers.filter(t => t.change < 0).length;
 
   return (
-    <div className={`terminal-page min-h-screen bg-[var(--t-bg)] text-[var(--t-text)] relative ${isStoic ? "stoic-grain" : ""} ${isOcean ? "ocean-shimmer" : ""} ${isCherry ? "sakura-drift" : ""}`}>
+    <div className={`terminal-page min-h-screen bg-[var(--t-bg)] text-[var(--t-text)] relative ${isStoic ? "stoic-grain" : ""} ${isOcean ? "ocean-shimmer" : ""} ${isCherry ? "sakura-drift" : ""} `}>
       {/* Theme Background Images */}
       <div className="fixed inset-0 pointer-events-none z-0">
         {isStoic && (
@@ -105,6 +106,7 @@ export default function MarketsDashboard() {
             <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(15,5,10,0.7) 0%, rgba(20,8,15,0.82) 40%, rgba(15,5,10,0.92) 70%, rgba(10,2,5,0.97) 100%)" }} />
           </>
         )}
+
       </div>
 
       {/* TradingView Ticker Tape */}

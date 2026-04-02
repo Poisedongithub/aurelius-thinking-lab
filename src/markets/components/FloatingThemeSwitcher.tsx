@@ -5,6 +5,7 @@ const THEME_COLORS: Record<ThemeId, { ring: string; bg: string; label: string }>
   "cherry-blossom": { ring: "#D6275A", bg: "#D6275A", label: "Cherry Blossom" },
   "original": { ring: "#888888", bg: "#1a1a1a", label: "Dark Stoic" },
   "ocean": { ring: "#0699ba", bg: "#0699ba", label: "Ocean" },
+  "steinberg": { ring: "#FF8C00", bg: "#FF8C00", label: "Steinberg Ultimate" },
 };
 
 export default function FloatingThemeSwitcher() {
