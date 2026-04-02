@@ -32,6 +32,7 @@ import JacobResearch from "./markets/pages/JacobResearch";
 import MacroDashboard from "./markets/pages/MacroDashboard";
 import { WatchlistProvider } from "./markets/data/WatchlistContext";
 import { PortfolioProvider } from "./markets/data/PortfolioContext";
+import FloatingThemeSwitcher from "./markets/components/FloatingThemeSwitcher";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const MarketsWrapper = ({ children }: { children: React.ReactNode }) => (
   <WatchlistProvider>
     <PortfolioProvider>
       {children}
+      <FloatingThemeSwitcher />
     </PortfolioProvider>
   </WatchlistProvider>
 );

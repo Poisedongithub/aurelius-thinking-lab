@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { useTheme, themes } from "@/hooks/useTheme";
+import { useTheme } from "@/hooks/useTheme";
 import { fetchLiveQuote, fetchSectionAnalysis, formatMarketCap, type LiveQuote, type AIAnalysis,
   fetchDividends, fetchSplits, fetchRelated, fetchDetails, fetchInsiderAnalysis, fetchAnalystRatings, fetchRiskAnalysis,
   type DividendData, type StockSplit, type RelatedCompany, type CompanyDetails, type InsiderAnalysis, type AnalystAnalysis, type RiskAnalysis,
@@ -85,11 +85,11 @@ export default function TickerAnalysis() {
   const { symbol } = useParams<{ symbol: string }>();
   const navigate = useNavigate();
   const { isInWatchlist, toggleTicker } = useWatchlist();
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
   const isStoic = theme === "original";
   const isOcean = theme === "ocean";
   const isCherry = theme === "cherry-blossom";
-  const [showThemePicker, setShowThemePicker] = useState(false);
+
   const [quote, setQuote] = useState<LiveQuote | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -462,50 +462,7 @@ export default function TickerAnalysis() {
             ))}
           </nav>
 
-          {/* Theme Switcher at Bottom */}
-          <div className="border-t border-[var(--t-border)] p-4">
-            <div className="relative">
-              <button
-                onClick={() => setShowThemePicker(!showThemePicker)}
-                className="w-full flex items-center gap-2 text-[12px] font-mono text-[var(--t-text-muted)] bg-[var(--t-btn-bg)] border border-[var(--t-border)] px-3 py-2 rounded-lg hover:text-[var(--t-text-secondary)] hover:bg-[var(--t-btn-hover)] transition-all"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                </svg>
-                <span className="flex-1 text-left">THEME</span>
-                <div className="flex gap-0.5">
-                  {themes.map(t => <div key={t.id} className="w-3 h-3 rounded-full" style={{ backgroundColor: t.preview.accent }} />)}
-                </div>
-              </button>
-              {showThemePicker && (
-                <div className="absolute left-0 bottom-full mb-2 bg-[var(--t-bg-elevated)] border border-[var(--t-border-hover)] rounded-xl shadow-2xl z-50 p-3 w-full">
-                  <div className="text-[10px] font-mono text-[var(--t-text-muted)] tracking-wider mb-2">TERMINAL THEME</div>
-                  {themes.map((t) => (
-                    <button
-                      key={t.id}
-                      onClick={() => { setTheme(t.id); setShowThemePicker(false); }}
-                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all mb-1 ${
-                        theme === t.id
-                          ? "bg-[var(--t-group-active)] border border-[var(--t-border-hover)]"
-                          : "hover:bg-[var(--t-btn-hover)] border border-transparent"
-                      }`}
-                    >
-                      <div className="flex gap-0.5">
-                        <div className="w-3.5 h-3.5 rounded-full border border-[var(--t-border)]" style={{ backgroundColor: t.preview.bg }} />
-                        <div className="w-3.5 h-3.5 rounded-full border border-[var(--t-border)]" style={{ backgroundColor: t.preview.accent }} />
-                      </div>
-                      <div className="text-left flex-1">
-                        <div className={`text-[12px] font-medium ${theme === t.id ? "text-[var(--t-text)]" : "text-[var(--t-text-secondary)]"}`}>{t.name}</div>
-                      </div>
-                      {theme === t.id && (
-                        <svg className="w-3.5 h-3.5 text-[var(--t-accent)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+          {/* Theme switcher is now the floating button in bottom-right */}
         </aside>
 
         {/* ── MAIN CONTENT AREA ── */}
